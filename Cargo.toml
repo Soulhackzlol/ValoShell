@@ -29,7 +29,7 @@ tokio-tungstenite = { version = "0.30", features = ["rustls-tls-webpki-roots"] }
 rustls = { version = "0.23", default-features = false, features = ["ring", "std"] }
 futures-util = "0.3"
 arc-swap = "1"
-base64 = "0.22"
+base64 = "0.23"
 ts-rs = { version = "12", features = ["serde-json-impl", "no-serde-warnings"] }
 
 [workspace.lints.rust]

@@ -934,7 +934,7 @@ dependencies = [
 name = "domain"
 version = "0.1.0"
 dependencies = [
- "base64 0.22.1",
+ "base64 0.23.1",
  "serde",
  "serde_json",
  "ts-rs",
@@ -3123,7 +3123,7 @@ name = "riot"
 version = "0.1.0"
 dependencies = [
  "arc-swap",
- "base64 0.22.1",
+ "base64 0.23.1",
  "domain",
  "futures-util",
  "reqwest",
@@ -3528,7 +3528,7 @@ name = "services"
 version = "0.1.0"
 dependencies = [
  "arc-swap",
- "base64 0.22.1",
+ "base64 0.23.1",
  "domain",
  "reqwest",
  "riot",
