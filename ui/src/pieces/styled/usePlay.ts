@@ -59,6 +59,9 @@ export function usePlay(): PlayState {
       } else if (!isOwner()) {
         playCue("confirm");
         void partyActions.setReady(!(self()?.is_ready ?? false));
+      } else if (party()?.is_custom_game) {
+        playCue("confirm");
+        void partyActions.startCustom();
       } else {
         void partyActions.startQueue();
       }
