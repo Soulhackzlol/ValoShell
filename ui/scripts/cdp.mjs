@@ -41,7 +41,13 @@ export async function openChrome(port, size) {
   ]);
   const close = () => {
     chrome.kill();
-    rmSync(profile, { recursive: true, force: true, maxRetries: 5 });
+    // Chrome may still be writing its profile as it exits (seen on Linux runners). A temporary
+    // folder left behind costs nothing, so it is reported, never allowed to fail the run.
+    try {
+      rmSync(profile, { recursive: true, force: true, maxRetries: 5 });
+    } catch (error) {
+      console.warn(`chrome_profile_not_removed path=${profile} reason=${error.code ?? error.message}`);
+    }
   };
   for (let attempt = 0; attempt < PORT_ATTEMPTS; attempt += 1) {
     const page = await blankTab(port).catch(() => undefined);
