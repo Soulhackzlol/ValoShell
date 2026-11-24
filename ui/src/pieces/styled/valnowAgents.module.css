@@ -1,0 +1,257 @@
+/* VALORANT 2022 Agents tab: a flat colour band behind the agent, giant ghosted name, navy info
+   column, square roster tiles along the bottom. */
+
+.agents {
+  --v22-red: var(--accent, #ff4655);
+  --v22-bone: #ece8e1;
+  --v22-navy: var(--panel, rgb(15 25 35 / 0.88));
+  --v22-line: var(--border-default, rgb(236 232 225 / 0.14));
+  container-type: size;
+  display: grid;
+  grid-template-rows: minmax(0, 1fr) auto;
+  gap: 2cqh;
+  width: 100%;
+  height: 100%;
+  color: var(--v22-bone);
+}
+
+/* ---- stage ---- */
+
+.stage {
+  position: relative;
+  display: grid;
+  grid-template-columns: minmax(260px, 0.42fr) minmax(0, 0.58fr);
+  min-height: 0;
+  overflow: hidden;
+}
+
+.band {
+  position: absolute;
+  inset: 12% 0 0 34%;
+  background: color-mix(in srgb, var(--tint) 30%, #0f1923);
+  box-shadow: inset 0 3px 0 color-mix(in srgb, var(--tint) 70%, #ffffff);
+  animation: fade 400ms ease-out both;
+}
+
+.ghost {
+  position: absolute;
+  right: 2%;
+  bottom: 4%;
+  font-family: var(--font-display);
+  font-stretch: 75%;
+  font-size: min(34cqh, 22cqw);
+  font-weight: 700;
+  line-height: 0.8;
+  text-transform: uppercase;
+  white-space: nowrap;
+  color: rgb(236 232 225 / 0.07);
+  animation: fade 600ms ease-out both 80ms;
+}
+
+.portrait {
+  position: absolute;
+  right: 6%;
+  bottom: 0;
+  height: 104%;
+  max-width: 62%;
+  object-fit: contain;
+  object-position: bottom;
+  animation: enter 520ms cubic-bezier(0.2, 0.8, 0.2, 1) both 60ms;
+}
+
+.info {
+  position: relative;
+  grid-column: 1;
+  display: flex;
+  flex-direction: column;
+  gap: 1.4cqh;
+  min-height: 0;
+  padding: 3cqh 28px;
+  background: var(--v22-navy);
+  box-shadow: inset 3px 0 0 var(--v22-red), inset 0 0 0 1px var(--v22-line);
+  animation: rise 420ms ease-out both;
+}
+
+.role {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  font-size: 13px;
+  font-weight: 700;
+  letter-spacing: 2.5px;
+  text-transform: uppercase;
+  color: var(--v22-red);
+}
+
+.roleIcon {
+  width: 20px;
+  height: 20px;
+  object-fit: contain;
+}
+
+.name {
+  margin: 0;
+  font-family: var(--font-display);
+  font-stretch: 75%;
+  font-size: min(84px, 12cqh);
+  font-weight: 700;
+  line-height: 0.9;
+  text-transform: uppercase;
+  color: #ffffff;
+}
+
+.mastery {
+  align-self: flex-start;
+  padding: 3px 10px;
+  font-size: 11px;
+  font-weight: 600;
+  letter-spacing: 2px;
+  text-transform: uppercase;
+  color: rgb(236 232 225 / 0.7);
+  box-shadow: inset 0 0 0 1px rgb(236 232 225 / 0.25);
+}
+
+.mastery b {
+  margin-left: 4px;
+  color: #ffffff;
+}
+
+.text {
+  flex: 1;
+  min-height: 0;
+  margin: 0;
+  overflow: hidden auto;
+  font-size: 14px;
+  line-height: 1.5;
+  color: rgb(236 232 225 / 0.75);
+}
+
+.text b {
+  display: block;
+  margin-bottom: 4px;
+  font-family: var(--font-display);
+  font-stretch: 75%;
+  font-size: 22px;
+  text-transform: uppercase;
+  color: #ffffff;
+}
+
+.abilities {
+  display: flex;
+  gap: 8px;
+}
+
+.ability {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 4px;
+  width: 60px;
+  padding: 8px 0 4px;
+  border: 0;
+  color: rgb(236 232 225 / 0.55);
+  background: rgb(236 232 225 / 0.06);
+  box-shadow: inset 0 0 0 1px var(--v22-line);
+  transition: background-color 160ms ease, color 160ms ease;
+}
+
+.ability:hover {
+  background: rgb(236 232 225 / 0.12);
+}
+
+.ability[data-on] {
+  color: #ffffff;
+  background: rgb(255 70 85 / 0.18);
+  box-shadow: inset 0 0 0 1px var(--v22-red), inset 0 -3px 0 var(--v22-red);
+}
+
+.abilityIcon {
+  width: 34px;
+  height: 34px;
+  object-fit: contain;
+}
+
+.ability small {
+  min-height: 1em;
+  font-size: 11px;
+  font-weight: 700;
+  letter-spacing: 1px;
+  text-transform: uppercase;
+}
+
+/* ---- roster ---- */
+
+/* Rows start at the info column's edge, so a short last row lines up under a full one. */
+.grid {
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: flex-start;
+  gap: 6px;
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+
+.tile {
+  display: grid;
+  place-items: center;
+  width: clamp(40px, 7cqh, 64px);
+  aspect-ratio: 1;
+  padding: 0;
+  border: 0;
+  overflow: hidden;
+  font-size: 12px;
+  font-weight: 700;
+  text-transform: uppercase;
+  color: rgb(236 232 225 / 0.6);
+  background: var(--v22-navy);
+  box-shadow: inset 0 0 0 1px var(--v22-line);
+  transition: transform 160ms ease, box-shadow 160ms ease;
+}
+
+.tile:hover {
+  transform: translateY(-2px);
+}
+
+.tile[data-on] {
+  box-shadow: inset 0 0 0 2px var(--v22-bone), inset 0 -4px 0 var(--v22-red);
+}
+
+.tileIcon {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+}
+
+.tile[data-locked] .tileIcon {
+  opacity: 0.35;
+}
+
+@keyframes fade {
+  from {
+    opacity: 0;
+  }
+}
+
+@keyframes rise {
+  from {
+    opacity: 0;
+    transform: translateY(12px);
+  }
+}
+
+@keyframes enter {
+  from {
+    opacity: 0;
+    transform: translateX(28px);
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .band,
+  .ghost,
+  .portrait,
+  .info {
+    animation: none;
+  }
+}

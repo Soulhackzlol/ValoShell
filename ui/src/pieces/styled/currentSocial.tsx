@@ -5,6 +5,7 @@ import { For, Show, createMemo, createSignal, onCleanup, onMount, type JSX } fro
 import { List, MessageSquareText, Search, UserPlus, WifiOff } from "lucide-solid";
 import type { FriendView } from "~/bindings/FriendView";
 import { playCue } from "~/menu/sound";
+import { openDirectChat } from "~/state/chat";
 import { friends, isDrawerOpen, isElsewhere, setDrawerOpen } from "~/state/friends";
 import { party, partyActions } from "~/state/party";
 import { isConnected, ownRiotId } from "~/state/session";
@@ -116,7 +117,17 @@ function FriendRow(props: { friend: FriendView }) {
               <UserPlus size={15} />
             </button>
           </Show>
-          <MessageSquareText size={14} class={styles.chatIcon ?? ""} />
+          <button
+            class={`${styles.rowButton} ${styles.chatButton}`}
+            title={vt("message")}
+            aria-label={`${vt("message")} ${props.friend.game_name}`}
+            onClick={() => {
+              playCue("confirm");
+              openDirectChat(props.friend.puuid);
+            }}
+          >
+            <MessageSquareText size={14} class={styles.chatIcon ?? ""} />
+          </button>
         </span>
       </div>
       <Show when={props.friend.party_size > 1 && groupOf(props.friend) === "val"}>

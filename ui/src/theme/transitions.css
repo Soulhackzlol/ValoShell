@@ -4,7 +4,7 @@
 
 ::view-transition-group(*) {
   animation-duration: 560ms;
-  animation-timing-function: cubic-bezier(0.22, 1.25, 0.36, 1);
+  animation-timing-function: var(--ease-settle);
 }
 
 :root[data-transition="build"]::view-transition-group(*) {
@@ -26,7 +26,7 @@
 }
 
 ::view-transition-new(vt-nav) {
-  animation: vtNavIn 560ms cubic-bezier(0.22, 1.2, 0.36, 1) 120ms both;
+  animation: vtNavIn 560ms var(--ease-settle) 120ms both;
 }
 
 ::view-transition-old(vt-side) {
@@ -34,7 +34,43 @@
 }
 
 ::view-transition-new(vt-side) {
-  animation: vtSideIn 620ms cubic-bezier(0.22, 1.2, 0.36, 1) 160ms both;
+  animation: vtSideIn 620ms var(--ease-settle) 160ms both;
+}
+
+/* The editor's panel and bar, and toasts (the F8 style hint lands mid-switch), sit above the
+   page. A view transition draws everything it animates in a layer over the whole page, so
+   without names of their own they were flattened into that page and the moving pieces ran over
+   them. Named, they ride above the pieces (z-index) and simply show their new state: no slide,
+   no cross-fade, since nothing about them moved. */
+[data-part="studio-panel"] {
+  view-transition-name: vt-studio-panel;
+}
+
+[data-part="studio-bar"] {
+  view-transition-name: vt-studio-bar;
+}
+
+[data-part="toasts"] {
+  view-transition-name: vt-toasts;
+}
+
+::view-transition-group(vt-studio-panel),
+::view-transition-group(vt-studio-bar),
+::view-transition-group(vt-toasts) {
+  z-index: 1;
+  animation: none;
+}
+
+::view-transition-old(vt-studio-panel),
+::view-transition-old(vt-studio-bar),
+::view-transition-old(vt-toasts) {
+  display: none;
+}
+
+::view-transition-new(vt-studio-panel),
+::view-transition-new(vt-studio-bar),
+::view-transition-new(vt-toasts) {
+  animation: none;
 }
 
 @keyframes vtNavOut {

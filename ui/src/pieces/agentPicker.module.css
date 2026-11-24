@@ -1,0 +1,722 @@
+/* Agent picker. The base rules are the Spotlight layout; the others follow under "layouts".
+   Motion: tiles deal in one after another, each newly focused agent materialises in the
+   spotlight, and locking in sweeps light across it. Every delay is multiplied by
+   --motion-scale, so with Reduced motion everything appears at once instead of in turn.
+   Tile motion uses `translate`/`scale` rather than `transform`, so it adds to a style's own
+   tile transform (Fortnite's hover scale) instead of replacing it. */
+
+.picker {
+  display: grid;
+  grid-template-rows: minmax(0, 1fr) auto auto;
+  gap: var(--space-4);
+  width: 100%;
+  height: 100%;
+}
+
+/* ---- spotlight ---- */
+
+.spotlight {
+  position: relative;
+  min-height: 0;
+  overflow: hidden;
+  isolation: isolate;
+  container-type: size;
+}
+
+.stage {
+  position: absolute;
+  inset: 0;
+  display: flex;
+  flex-direction: column;
+  justify-content: flex-end;
+  padding: var(--space-4);
+  /* The agent's own colour pools behind them. */
+  background: radial-gradient(
+    ellipse 60% 70% at 50% 78%,
+    color-mix(in srgb, var(--tint, var(--accent)) 32%, transparent),
+    transparent 72%
+  );
+  animation: fadeIn 320ms var(--ease-decelerate) backwards;
+}
+
+/* The name again, huge and outlined, behind the portrait. */
+.ghost {
+  position: absolute;
+  top: 44%;
+  right: 0;
+  left: 0;
+  translate: 0 -50%;
+  font-family: var(--font-display);
+  font-size: clamp(56px, 22cqi, 220px);
+  font-weight: 900;
+  line-height: 0.8;
+  text-align: center;
+  text-transform: uppercase;
+  white-space: nowrap;
+  color: transparent;
+  -webkit-text-stroke: 1px color-mix(in srgb, var(--text-1) 22%, transparent);
+  pointer-events: none;
+  animation: ghostIn 760ms var(--ease-decelerate) backwards;
+}
+
+.portrait {
+  position: absolute;
+  inset: -6% 0 0;
+  background: var(--portrait) center bottom / contain no-repeat;
+  mask-image: linear-gradient(to top, transparent 0%, black 28%);
+  animation: portraitIn 560ms var(--ease-decelerate) backwards;
+}
+
+/* The agent's brush-art background, faint, behind the portrait. Only Split shows it: its tall
+   column suits the vertical art, and elsewhere it would clash with the outlined name. */
+.portrait::before {
+  content: none;
+  position: absolute;
+  inset: 0;
+  z-index: -1;
+  background: var(--agent-bg) center / auto 110% no-repeat;
+  opacity: 0.16;
+}
+
+.caption {
+  position: relative;
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+  gap: 4px;
+}
+
+.spotlightRole {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  font-size: 12px;
+  font-weight: 700;
+  letter-spacing: 3px;
+  text-transform: uppercase;
+  color: var(--accent);
+  animation: riseIn 420ms var(--ease-decelerate) backwards;
+  animation-delay: calc(60ms * var(--motion-scale));
+}
+
+.spotlightRole img {
+  width: 14px;
+  height: 14px;
+}
+
+.spotlightName,
+.spotlightPrompt {
+  font-family: var(--font-display);
+  font-stretch: calc(125% * var(--stretch, 1));
+  font-size: clamp(30px, 3.4vw, 54px);
+  font-weight: 800;
+  line-height: 1;
+  letter-spacing: 3px;
+  text-transform: uppercase;
+}
+
+.spotlightName {
+  animation: wipeIn 520ms var(--ease-decelerate) backwards;
+  animation-delay: calc(110ms * var(--motion-scale));
+}
+
+/* Nothing picked yet: the prompt sits where the name goes and breathes. */
+.spotlightPrompt {
+  position: absolute;
+  bottom: var(--space-4);
+  left: var(--space-4);
+  color: var(--text-2);
+  animation: breathe 2.4s ease-in-out infinite;
+}
+
+.abilities {
+  display: flex;
+  gap: 6px;
+  margin-top: var(--space-2);
+}
+
+.abilities:empty {
+  display: none;
+}
+
+.ability {
+  display: grid;
+  place-items: center;
+  width: 30px;
+  height: 30px;
+  font-size: 11px;
+  font-weight: 700;
+  background: rgb(0 0 0 / 0.38);
+  box-shadow: inset 0 0 0 1px var(--border-default);
+  animation: pop 380ms cubic-bezier(0.34, 1.56, 0.64, 1) backwards;
+  animation-delay: calc((180ms + var(--stagger) * 50ms) * var(--motion-scale));
+}
+
+.ability img {
+  width: 70%;
+  height: 70%;
+}
+
+/* Locking in: light sweeps across, the portrait flashes, a stamp lands under the name. */
+.spotlight[data-locked]::after {
+  content: "";
+  position: absolute;
+  inset: 0;
+  z-index: 2;
+  background: linear-gradient(
+    105deg,
+    transparent 35%,
+    color-mix(in srgb, var(--accent) 50%, white 20%) 50%,
+    transparent 65%
+  );
+  pointer-events: none;
+  animation: sweep 900ms var(--ease-decelerate) both;
+}
+
+.spotlight[data-locked] .portrait {
+  animation: flash 900ms var(--ease-decelerate);
+}
+
+.spotlight[data-locked] .caption::after {
+  content: "Locked in";
+  margin-top: var(--space-2);
+  padding: 3px 10px;
+  font-size: 11px;
+  font-weight: 800;
+  letter-spacing: 3px;
+  text-transform: uppercase;
+  color: var(--on-accent);
+  background: var(--accent);
+  animation: stamp 460ms cubic-bezier(0.34, 1.56, 0.64, 1) backwards;
+}
+
+/* ---- roster ---- */
+
+.grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(54px, 1fr));
+  gap: 6px;
+}
+
+/* Role groups only show as groups in the Roles layout; elsewhere their tiles share one grid. */
+.roleGroup {
+  display: contents;
+}
+
+.roleLabel {
+  display: none;
+}
+
+.agent {
+  position: relative;
+  aspect-ratio: 1;
+  display: grid;
+  place-items: center;
+  overflow: hidden;
+  background: var(--panel);
+  box-shadow: inset 0 0 0 1px var(--border-default);
+  font-family: var(--font-display);
+  font-weight: 800;
+  text-transform: uppercase;
+  color: var(--text-2);
+  transition:
+    translate 260ms var(--ease-settle),
+    scale 260ms var(--ease-settle),
+    box-shadow var(--dur-fast) var(--ease-standard),
+    background-size 420ms var(--ease-decelerate);
+  animation: dealIn 460ms var(--ease-decelerate) backwards;
+  animation-delay: calc(var(--stagger, 0) * 16ms * var(--motion-scale));
+}
+
+/* Icon, name label and padlock share the one cell, so layouts can stack them. */
+.agent > * {
+  grid-area: 1 / 1;
+}
+
+.agent img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  transition: scale 320ms var(--ease-decelerate);
+}
+
+.tileName {
+  display: none;
+}
+
+.agent:hover:not(:disabled) {
+  z-index: 1;
+  translate: 0 -3px;
+  scale: 1.08;
+  box-shadow:
+    inset 0 0 0 2px var(--text-1),
+    0 6px 18px color-mix(in srgb, var(--tint, var(--accent)) 55%, transparent);
+}
+
+.agent:hover:not(:disabled) img {
+  scale: 1.1;
+}
+
+/* A shine that crosses the tile once on hover; it snaps back unseen on leave. */
+.agent::before {
+  content: "";
+  position: absolute;
+  inset: 0;
+  z-index: 1;
+  background: linear-gradient(115deg, transparent 30%, rgb(255 255 255 / 0.32) 50%, transparent 70%);
+  translate: -120% 0;
+  pointer-events: none;
+}
+
+.agent:hover:not(:disabled):not([data-own])::before {
+  translate: 120% 0;
+  transition: translate 560ms var(--ease-decelerate);
+}
+
+.agent[data-own] {
+  box-shadow: inset 0 0 0 2px var(--accent);
+}
+
+/* The picked agent's ring glows on and off until LOCK IN. */
+.agent[data-own]::before {
+  background: none;
+  translate: none;
+  box-shadow:
+    inset 0 0 0 2px var(--accent),
+    inset 0 0 16px color-mix(in srgb, var(--accent) 65%, transparent);
+  animation: glow 1.6s ease-in-out infinite;
+}
+
+.agent:disabled {
+  filter: grayscale(1) brightness(0.5);
+  cursor: not-allowed;
+}
+
+.agent[data-own]:disabled {
+  filter: none;
+}
+
+/* Not unlocked: darker than a teammate's pick, with a padlock so it never reads as "taken". */
+.agent[data-unowned] {
+  filter: grayscale(1) brightness(0.35);
+}
+
+.agent[data-unowned]::after {
+  content: "";
+  position: absolute;
+  inset: 30%;
+  background: var(--text-1);
+  mask: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24'%3E%3Cpath d='M7 10V7a5 5 0 0 1 10 0v3h1a1 1 0 0 1 1 1v10a1 1 0 0 1-1 1H6a1 1 0 0 1-1-1V11a1 1 0 0 1 1-1zm2 0h6V7a3 3 0 0 0-6 0z'/%3E%3C/svg%3E") center / contain no-repeat;
+}
+
+/* ---- lock in ---- */
+
+.actions {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: var(--space-3);
+}
+
+.lock {
+  position: relative;
+  overflow: hidden;
+  width: 300px;
+  height: 58px;
+  font-family: var(--font-display);
+  font-stretch: calc(120% * var(--stretch, 1));
+  font-size: 24px;
+  font-weight: 800;
+  letter-spacing: 6px;
+  text-transform: uppercase;
+  color: var(--on-accent);
+  background: var(--accent);
+  clip-path: polygon(0 0, calc(100% - 16px) 0, 100% 16px, 100% 100%, 16px 100%, 0 calc(100% - 16px));
+  transition: background var(--dur-fast) var(--ease-standard), letter-spacing var(--dur-base) var(--ease-decelerate);
+}
+
+/* Ready to lock: a slow shine keeps drawing the eye to the button. */
+.lock:not(:disabled)::before {
+  content: "";
+  position: absolute;
+  inset: 0;
+  background: linear-gradient(110deg, transparent 40%, rgb(255 255 255 / 0.3) 50%, transparent 60%);
+  pointer-events: none;
+  animation: lockShine 2.6s ease-in-out infinite;
+}
+
+.lock:hover:not(:disabled) {
+  letter-spacing: 8px;
+  background: var(--accent-hover);
+}
+
+.lock:disabled:not([data-locked]) {
+  filter: saturate(0.3) brightness(0.6);
+  cursor: not-allowed;
+}
+
+.lock[data-locked] {
+  cursor: default;
+  animation: locked 600ms var(--ease-decelerate);
+}
+
+/* ---- layouts ----
+   The frame sets data-layout; the first option (Spotlight) is the look above. */
+
+/* Split: the spotlight on the left, the roster and LOCK IN on the right. */
+[data-layout="split"] .picker {
+  grid-template-columns: minmax(0, 1fr) minmax(0, 1.2fr);
+  grid-template-rows: minmax(0, 1fr) auto;
+  column-gap: var(--space-5);
+}
+
+[data-layout="split"] .spotlight {
+  grid-row: 1 / -1;
+}
+
+/* Half the width, so a smaller name (a full-size one wraps into three lines). */
+[data-layout="split"] .spotlightName {
+  font-size: clamp(24px, 2.4vw, 40px);
+}
+
+[data-layout="split"] .ghost {
+  display: none;
+}
+
+[data-layout="split"] .portrait {
+  background-size: auto 96%;
+}
+
+[data-layout="split"] .portrait::before {
+  content: "";
+}
+
+[data-layout="split"] .grid {
+  align-content: start;
+  overflow-y: auto;
+}
+
+/* Grid: no spotlight; bigger tiles that show the agent's name as they are hovered. */
+[data-layout="grid"] .picker {
+  grid-template-rows: minmax(0, 1fr) auto;
+}
+
+[data-layout="grid"] .spotlight {
+  display: none;
+}
+
+[data-layout="grid"] .grid {
+  grid-template-columns: repeat(auto-fill, minmax(76px, 1fr));
+  align-content: center;
+  gap: var(--space-2);
+}
+
+[data-layout="grid"] .tileName {
+  display: block;
+  align-self: end;
+  padding: 3px 4px;
+  font-size: 10px;
+  letter-spacing: 1px;
+  color: #ffffff;
+  background: linear-gradient(to top, rgb(0 0 0 / 0.8), transparent);
+  opacity: 0;
+  translate: 0 100%;
+  transition: opacity var(--dur-fast) var(--ease-standard), translate var(--dur-base) var(--ease-decelerate);
+}
+
+[data-layout="grid"] .agent:hover .tileName,
+[data-layout="grid"] .agent[data-own] .tileName {
+  opacity: 1;
+  translate: 0 0;
+}
+
+/* Showcase: the agent fills the whole piece like a splash screen; LOCK IN at the right and a
+   strip of slanted tiles across the bottom, over the art. */
+[data-layout="showcase"] .picker {
+  grid-template-rows: minmax(0, 1fr) auto auto;
+  gap: var(--space-2);
+}
+
+/* Everything in the one column: the strip and LOCK IN overlap the spotlight on purpose, and
+   auto-placement would otherwise push them into a new column beside it. */
+[data-layout="showcase"] .spotlight {
+  grid-row: 1 / -1;
+  grid-column: 1;
+}
+
+[data-layout="showcase"] .stage {
+  justify-content: flex-start;
+  padding: var(--space-5) var(--space-6);
+  background:
+    linear-gradient(100deg, color-mix(in srgb, var(--tint-deep, #000000) 70%, transparent) 10%, transparent 60%),
+    radial-gradient(ellipse 50% 80% at 72% 70%, color-mix(in srgb, var(--tint, var(--accent)) 40%, transparent), transparent);
+}
+
+[data-layout="showcase"] .portrait {
+  inset: -4% -6% 0 32%;
+  background-position: right bottom;
+  mask-image: linear-gradient(to top, transparent 4%, black 34%);
+}
+
+[data-layout="showcase"] .ghost {
+  top: auto;
+  bottom: 22%;
+  left: 3%;
+  translate: none;
+  text-align: left;
+  font-size: clamp(56px, 18cqi, 240px);
+}
+
+[data-layout="showcase"] .spotlightName {
+  font-size: clamp(36px, 8cqi, 96px);
+}
+
+[data-layout="showcase"] .spotlightPrompt {
+  top: var(--space-5);
+  bottom: auto;
+  left: var(--space-6);
+}
+
+[data-layout="showcase"] .grid,
+[data-layout="showcase"] .actions {
+  position: relative;
+  z-index: 1;
+  grid-column: 1;
+}
+
+[data-layout="showcase"] .grid {
+  grid-row: 3;
+  grid-template-columns: repeat(auto-fill, minmax(40px, 1fr));
+  gap: 4px 2px;
+  padding: var(--space-2) var(--space-3);
+  background: color-mix(in srgb, var(--panel) 75%, transparent);
+  backdrop-filter: blur(10px);
+}
+
+[data-layout="showcase"] .agent {
+  aspect-ratio: 5 / 4;
+  clip-path: polygon(12% 0, 100% 0, 88% 100%, 0 100%);
+}
+
+[data-layout="showcase"] .actions {
+  grid-row: 2;
+  justify-content: flex-end;
+  padding-right: var(--space-4);
+}
+
+/* Roles: a column per role under its name and icon, the spotlight above. */
+[data-layout="roles"] .grid {
+  grid-template-columns: none;
+  grid-auto-flow: column;
+  grid-auto-columns: minmax(0, 1fr);
+  align-items: start;
+  gap: var(--space-3);
+}
+
+[data-layout="roles"] .roleGroup {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(40px, 1fr));
+  align-content: start;
+  gap: 4px;
+  padding-top: var(--space-2);
+  border-top: 2px solid color-mix(in srgb, var(--text-1) 18%, transparent);
+  transition: border-color var(--dur-base) var(--ease-standard);
+}
+
+[data-layout="roles"] .roleGroup:has(.agent:hover),
+[data-layout="roles"] .roleGroup:has(.agent[data-own]) {
+  border-top-color: var(--accent);
+}
+
+[data-layout="roles"] .roleLabel {
+  display: flex;
+  grid-column: 1 / -1;
+  align-items: center;
+  gap: 6px;
+  margin-bottom: 2px;
+  font-size: 11px;
+  font-weight: 700;
+  letter-spacing: 2px;
+  text-transform: uppercase;
+  color: var(--text-2);
+  transition: color var(--dur-base) var(--ease-standard);
+}
+
+[data-layout="roles"] .roleGroup:has(.agent:hover) .roleLabel {
+  color: var(--accent);
+}
+
+.roleLabel img {
+  width: 14px;
+  height: 14px;
+}
+
+[data-layout="roles"] .portrait {
+  inset: -8% 0 0 36%;
+  background-position: right 12% bottom;
+}
+
+[data-layout="roles"] .ghost {
+  text-align: left;
+  left: 3%;
+}
+
+/* Cards: no spotlight; tall cards on the agent's own portrait and colours, named at the foot. */
+[data-layout="cards"] .picker {
+  grid-template-rows: minmax(0, 1fr) auto;
+}
+
+[data-layout="cards"] .spotlight {
+  display: none;
+}
+
+[data-layout="cards"] .grid {
+  grid-template-columns: repeat(auto-fill, minmax(78px, 1fr));
+  align-content: start;
+  gap: var(--space-2);
+  overflow-y: auto;
+  padding: 4px;
+}
+
+[data-layout="cards"] .agent {
+  aspect-ratio: 3 / 4;
+  background:
+    linear-gradient(to top, color-mix(in srgb, var(--tint-deep, #000000) 92%, transparent), transparent 55%),
+    var(--agent-art) 50% 8% / 240% auto no-repeat,
+    linear-gradient(160deg, color-mix(in srgb, var(--tint, var(--accent)) 70%, transparent), var(--panel));
+}
+
+[data-layout="cards"] .agent:hover:not(:disabled) {
+  background-size: auto, 270% auto, auto;
+}
+
+[data-layout="cards"] .agent img {
+  display: none;
+}
+
+[data-layout="cards"] .tileName {
+  display: block;
+  z-index: 2;
+  align-self: end;
+  justify-self: start;
+  padding: 0 6px 5px;
+  font-size: 12px;
+  letter-spacing: 1px;
+  color: #ffffff;
+  text-shadow: 0 1px 4px rgb(0 0 0 / 0.7);
+}
+
+/* ---- motion ---- */
+
+@keyframes fadeIn {
+  from {
+    opacity: 0;
+  }
+}
+
+@keyframes ghostIn {
+  from {
+    opacity: 0;
+    letter-spacing: 0.3em;
+  }
+}
+
+@keyframes portraitIn {
+  from {
+    opacity: 0;
+    translate: 8% 0;
+    scale: 1.06;
+    filter: blur(8px) brightness(1.8);
+  }
+}
+
+@keyframes riseIn {
+  from {
+    opacity: 0;
+    translate: 0 8px;
+  }
+}
+
+@keyframes wipeIn {
+  from {
+    clip-path: inset(0 100% 0 0);
+    translate: -14px 0;
+  }
+  to {
+    clip-path: inset(0 0 0 0);
+  }
+}
+
+@keyframes pop {
+  from {
+    opacity: 0;
+    scale: 0.4;
+  }
+}
+
+@keyframes breathe {
+  50% {
+    opacity: 0.45;
+  }
+}
+
+@keyframes dealIn {
+  from {
+    opacity: 0;
+    translate: 0 12px;
+    scale: 0.86;
+  }
+}
+
+@keyframes glow {
+  50% {
+    opacity: 0.35;
+  }
+}
+
+@keyframes sweep {
+  from {
+    translate: -100% 0;
+  }
+  to {
+    translate: 100% 0;
+  }
+}
+
+@keyframes flash {
+  25% {
+    filter: brightness(1.9) saturate(1.4);
+    scale: 1.03;
+  }
+}
+
+@keyframes stamp {
+  from {
+    opacity: 0;
+    scale: 1.9;
+    rotate: -8deg;
+  }
+}
+
+@keyframes lockShine {
+  0%,
+  55% {
+    translate: -100% 0;
+  }
+  100% {
+    translate: 100% 0;
+  }
+}
+
+@keyframes locked {
+  0% {
+    scale: 1;
+  }
+  30% {
+    scale: 1.08;
+    filter: brightness(1.6);
+  }
+  100% {
+    scale: 1;
+  }
+}

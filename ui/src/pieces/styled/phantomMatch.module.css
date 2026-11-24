@@ -1,0 +1,141 @@
+/* Phantom (Persona 5): red, black and white; cut-out caps and jagged cards.
+   Layout comes from matchBase.module.css (screenBase / resultsBase for the other screens);
+   these rules are this style's material. */
+
+.pick {
+  composes: pick from "./matchBase.module.css";
+}
+
+.head {
+  composes: head from "./matchBase.module.css";
+}
+
+.hero {
+  composes: hero from "./matchBase.module.css";
+}
+
+.heroArt {
+  composes: heroArt from "./matchBase.module.css";
+}
+
+.heroName {
+  composes: heroName from "./matchBase.module.css";
+}
+
+.heroRole {
+  composes: heroRole from "./matchBase.module.css";
+}
+
+.roster {
+  composes: roster from "./matchBase.module.css";
+}
+
+.group {
+  composes: group from "./matchBase.module.css";
+}
+
+.groupName {
+  composes: groupName from "./matchBase.module.css";
+}
+
+.tile {
+  composes: tile from "./matchBase.module.css";
+}
+
+.tileArt {
+  composes: tileArt from "./matchBase.module.css";
+}
+
+.bar {
+  composes: bar from "./matchBase.module.css";
+}
+
+.dodge {
+  composes: dodge from "./matchBase.module.css";
+}
+
+.timer {
+  composes: timer from "./matchBase.module.css";
+}
+
+.lock {
+  composes: lock from "./matchBase.module.css";
+}
+
+.empty {
+  composes: empty from "./matchBase.module.css";
+}
+
+.lobby {
+  composes: lobby from "./matchBase.module.css";
+}
+
+.teams {
+  composes: teams from "./matchBase.module.css";
+}
+
+.team {
+  composes: team from "./matchBase.module.css";
+}
+
+.teamHead {
+  composes: teamHead from "./matchBase.module.css";
+}
+
+.lines {
+  composes: lines from "./matchBase.module.css";
+}
+
+.line {
+  composes: line from "./matchBase.module.css";
+}
+
+.lineAgent {
+  composes: lineAgent from "./matchBase.module.css";
+}
+
+.lineName {
+  composes: lineName from "./matchBase.module.css";
+}
+
+.stack {
+  composes: stack from "./matchBase.module.css";
+}
+
+.lineRank {
+  composes: lineRank from "./matchBase.module.css";
+}
+
+.rankIcon {
+  composes: rankIcon from "./matchBase.module.css";
+}
+
+/* ---- material ---- */
+.pick, .lobby { color: #ffffff; background: var(--phantom-ink, #0b0b0b); box-shadow: inset 0 0 0 3px var(--phantom-red, #e5191c); clip-path: polygon(0 1%, 99% 0, 100% 99%, 1% 100%); }
+.head, .heroName, .teamHead, .lock, .dodge { font-family: var(--font-display); text-transform: uppercase; }
+/* Tilted from the bottom-left, so a wide line rises at its end instead of dipping into the next. */
+.head { font-size: 24px; transform: rotate(-1.5deg); transform-origin: left bottom; }
+.head > span, .heroRole, .groupName, .teamHead > span { font-size: 13px; color: #0b0b0b; background: #ffffff; padding: 0 6px; width: fit-content; transform: rotate(-2deg); }
+.hero { background: var(--phantom-red, #e5191c); clip-path: polygon(0 4%, 100% 0, 96% 100%, 3% 96%); }
+.heroName { font-size: clamp(28px, 9cqh, 60px); transform: rotate(-4deg); transform-origin: left bottom; }
+.tile { border: 0; background: #ffffff; clip-path: polygon(6% 0, 100% 4%, 94% 100%, 0 96%); }
+.tile[data-own] { background: var(--phantom-red, #e5191c); }
+.dodge { padding: 6px 14px; border: 0; color: #0b0b0b; background: #ffffff; transform: rotate(-3deg); }
+.timer { font-family: var(--font-display); font-size: 34px; color: var(--phantom-red, #e5191c); }
+.lock { height: 54px; border: 0; font-size: 28px; color: #ffffff; background: var(--phantom-red, #e5191c); transform: rotate(-3deg) skewX(-8deg); }
+.lock[data-locked] { color: #0b0b0b; background: #ffffff; }
+.teamHead { font-size: 20px; }
+.line { background: #1b1b1b; box-shadow: inset 4px 0 0 var(--stack); transform: skewX(-6deg); }
+.line[data-self] { color: #0b0b0b; background: #ffffff; }
+
+/* ---- News, Progress and Chat (styledScreens.tsx) ---- */
+.meter { --meter-fill: var(--phantom-red, #e5191c); --meter-track: #1b1b1b; }
+.field { color: #ffffff; background: var(--phantom-ink, #0b0b0b); box-shadow: inset 0 0 0 2px var(--phantom-red, #e5191c); font-weight: 800; font-size: 14px; text-transform: uppercase; }
+
+/* ---- Results (styledResults.tsx) ---- */
+/* A ransom-note slab: the result on a tilted red card, like the game's calling cards. */
+.resultTitle { justify-self: start; padding: 2px 14px; font-style: italic; font-weight: 900; text-transform: uppercase; color: #ffffff; background: var(--phantom-red, #e5191c); transform: rotate(-2deg); transform-origin: left bottom; }
+/* Room for the tilt: two classes, to win over resultsBase's .title (margin 0, line-height 0.9). */
+.lobby .resultTitle { margin-top: 18px; line-height: 1.1; }
+.lobby[data-result="defeat"] .resultTitle { color: #0b0b0b; background: #ffffff; }
+.mvp { --mvp-fill: #ffffff; --mvp-text: #0b0b0b; transform: skewX(-8deg); }

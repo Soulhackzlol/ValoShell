@@ -1,0 +1,74 @@
+/* Night City home looks: the chamfered red-edged panel, condensed caps, a segmented bar like
+   the street-cred meter, cyan for live readouts, the portrait cut as a shard. */
+
+.panel {
+  --nc-red: var(--nightcity-red, #ff5e57);
+  --nc-cyan: var(--nightcity-cyan, #5ef6ff);
+  container-type: size;
+  display: flex;
+  align-items: center;
+  gap: 14px;
+  width: 100%;
+  height: 100%;
+  padding: 12px 18px;
+  color: var(--nc-red);
+  background: color-mix(in srgb, #050608 82%, transparent);
+  box-shadow: inset 0 0 0 1px color-mix(in srgb, var(--nc-red) 55%, transparent);
+  clip-path: polygon(0 0, calc(100% - 16px) 0, 100% 16px, 100% 100%, 16px 100%, 0 calc(100% - 16px));
+}
+
+.emblem,
+.shard {
+  flex: none;
+  width: clamp(48px, 62cqh, 104px);
+  aspect-ratio: 1;
+  object-fit: contain;
+}
+
+.shard {
+  object-fit: cover;
+  clip-path: polygon(14% 0, 100% 0, 86% 100%, 0 100%);
+}
+
+.body {
+  display: flex;
+  flex: 1;
+  flex-direction: column;
+  gap: 4px;
+  min-width: 0;
+}
+
+.label {
+  font-size: 11px;
+  letter-spacing: 0.18em;
+  text-transform: uppercase;
+  opacity: 0.7;
+}
+
+.value {
+  overflow: hidden;
+  font-family: var(--font-display);
+  font-size: clamp(18px, 24cqh, 32px);
+  font-stretch: 75%;
+  letter-spacing: 0.04em;
+  white-space: nowrap;
+  text-overflow: ellipsis;
+  text-transform: uppercase;
+  color: #ffffff;
+}
+
+/* Twelve cells, lit in red as far as the RR reaches. */
+.segments {
+  height: 8px;
+  background:
+    repeating-linear-gradient(90deg, transparent 0 calc(100% / 12 - 3px), #050608 0 calc(100% / 12)),
+    linear-gradient(90deg, var(--nc-red) calc(var(--progress) * 100%), color-mix(in srgb, var(--nc-red) 18%, transparent) 0);
+}
+
+.readout {
+  font-family: var(--font-mono);
+  font-size: 12px;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  color: var(--nc-cyan);
+}

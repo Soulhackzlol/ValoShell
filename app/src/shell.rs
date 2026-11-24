@@ -56,6 +56,7 @@ pub fn toggle_menu(app: &AppHandle) {
     let result = if is_visible {
         window.hide()
     } else {
+        crate::game_window::place_menu(&window);
         window.show().and_then(|()| window.set_focus())
     };
     if let Err(error) = result {

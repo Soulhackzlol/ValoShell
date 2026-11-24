@@ -1,6 +1,5 @@
 /* Glass style pieces. Frosted fills, hairline borders, soft depth and springy motion.
-   Pointer-driven values arrive as CSS variables from glassMotion.ts:
-   --mx/--my glare position, --px/--py parallax (-0.5..0.5), --rx/--ry tilt, --gx/--gy pull. */
+   The glare position arrives as --mx/--my from glassMotion.ts; nothing else follows the pointer. */
 .hello,
 .party,
 .play,
@@ -17,7 +16,11 @@
   inset: 0;
   z-index: 1;
   border-radius: inherit;
-  background: radial-gradient(circle at var(--mx, 50%) var(--my, 0%), rgb(255 255 255 / 0.16), transparent 45%);
+  background: radial-gradient(
+    circle at var(--mx, 50%) var(--my, 0%),
+    color-mix(in srgb, var(--glass-line, #ffffff) 16%, transparent),
+    transparent 45%
+  );
   opacity: 0;
   pointer-events: none;
   transition: opacity 400ms ease;
@@ -31,7 +34,11 @@
   position: absolute;
   z-index: 0;
   border-radius: 50%;
-  background: radial-gradient(circle, rgb(255 255 255 / 0.5), rgb(255 255 255 / 0) 60%);
+  background: radial-gradient(
+    circle,
+    color-mix(in srgb, var(--glass-line, #ffffff) 50%, transparent),
+    color-mix(in srgb, var(--glass-line, #ffffff) 0%, transparent) 60%
+  );
   pointer-events: none;
 }
 
@@ -61,8 +68,13 @@
 }
 
 .helloName {
-  color: rgb(245 245 247 / 0.55);
-  background: linear-gradient(100deg, rgb(245 245 247 / 0.5) 30%, #ffffff 50%, rgb(245 245 247 / 0.5) 70%) 0 0 / 250% 100%;
+  color: color-mix(in srgb, var(--glass-text, #f5f5f7) 55%, transparent);
+  background: linear-gradient(
+    100deg,
+    color-mix(in srgb, var(--glass-text, #f5f5f7) 50%, transparent) 30%,
+    var(--glass-bright, #ffffff) 50%,
+    color-mix(in srgb, var(--glass-text, #f5f5f7) 50%, transparent) 70%
+  ) 0 0 / 250% 100%;
   -webkit-background-clip: text;
   background-clip: text;
   -webkit-text-fill-color: transparent;
@@ -76,7 +88,7 @@
   margin: 0;
   font-size: 16px;
   font-weight: 500;
-  color: rgb(245 245 247 / 0.6);
+  color: color-mix(in srgb, var(--glass-text, #f5f5f7) 60%, transparent);
   animation: wordIn 900ms var(--soft) 520ms backwards;
 }
 
@@ -88,7 +100,6 @@
   gap: 18px;
   width: 100%;
   height: 100%;
-  perspective: 1100px;
 }
 
 .partySlot {
@@ -122,35 +133,28 @@
   overflow: hidden;
   border-radius: 28px;
   box-shadow:
-    inset 0 0 0 0.5px rgb(255 255 255 / 0.25),
+    inset 0 0 0 0.5px color-mix(in srgb, var(--glass-line, #ffffff) 25%, transparent),
     0 24px 60px rgb(0 0 0 / 0.4);
-  transform: perspective(900px) rotateX(var(--rx, 0deg)) rotateY(var(--ry, 0deg)) translateY(0) scale(1);
-  transform-style: preserve-3d;
   transition:
-    transform 700ms var(--spring),
+    transform 260ms var(--soft),
     box-shadow 400ms ease;
-  will-change: transform;
 }
 
 .card[data-hover],
 .invite[data-hover]:not(:disabled) {
-  transform: perspective(900px) rotateX(var(--rx, 0deg)) rotateY(var(--ry, 0deg)) translateY(-8px) scale(1.02);
-  transition:
-    transform 260ms var(--soft),
-    box-shadow 400ms ease;
   box-shadow:
-    inset 0 0 0 0.5px rgb(255 255 255 / 0.35),
-    calc(var(--px, 0) * -40px) calc(40px + var(--py, 0) * -20px) 80px rgb(0 0 0 / 0.5);
+    inset 0 0 0 0.5px color-mix(in srgb, var(--glass-line, #ffffff) 35%, transparent),
+    0 28px 70px rgb(0 0 0 / 0.48);
 }
 
 .card:active,
 .invite:active:not(:disabled) {
-  transform: perspective(900px) rotateX(var(--rx, 0deg)) rotateY(var(--ry, 0deg)) translateY(-4px) scale(0.985);
+  transform: scale(0.985);
 }
 
 .card[data-self] {
   box-shadow:
-    inset 0 0 0 1.5px rgb(255 255 255 / 0.55),
+    inset 0 0 0 1.5px color-mix(in srgb, var(--glass-line, #ffffff) 55%, transparent),
     0 24px 60px rgb(0 0 0 / 0.45);
 }
 
@@ -163,13 +167,6 @@
   position: absolute;
   inset: -16px;
   background: var(--art) center top / cover no-repeat, linear-gradient(160deg, #3a3d48, #15171c);
-  transform: translate(calc(var(--px, 0) * -18px), calc(var(--py, 0) * -14px)) scale(1);
-  transition: transform 900ms var(--soft);
-}
-
-.card[data-hover] .cardArt {
-  transform: translate(calc(var(--px, 0) * -18px), calc(var(--py, 0) * -14px)) scale(1.06);
-  transition: transform 300ms var(--soft);
 }
 
 .crown,
@@ -182,8 +179,8 @@
   width: 28px;
   height: 28px;
   border-radius: 50%;
-  color: #ffd60a;
-  background: rgb(20 20 24 / 0.5);
+  color: var(--glass-away, #ffd60a);
+  background: color-mix(in srgb, var(--glass-fill, #141418) 50%, transparent);
   backdrop-filter: blur(16px);
 }
 
@@ -194,7 +191,7 @@
 
 .kick {
   right: 12px;
-  color: #f5f5f7;
+  color: var(--glass-text, #f5f5f7);
   opacity: 0;
   transform: scale(0.6);
   transition:
@@ -223,11 +220,11 @@
   gap: 10px;
   padding: 12px 12px 12px 16px;
   border-radius: 20px;
-  background: var(--glass-fill, rgb(24 26 32 / 0.5));
-  box-shadow: inset 0 0 0 0.5px rgb(255 255 255 / 0.22), inset 0 1px 0 rgb(255 255 255 / 0.1);
+  background: color-mix(in srgb, var(--glass-fill, #181a20) 50%, transparent);
+  box-shadow:
+    inset 0 0 0 0.5px color-mix(in srgb, var(--glass-line, #ffffff) 22%, transparent),
+    inset 0 1px 0 color-mix(in srgb, var(--glass-line, #ffffff) 10%, transparent);
   backdrop-filter: blur(24px) saturate(180%);
-  transform: translate(calc(var(--px, 0) * 6px), calc(var(--py, 0) * 4px));
-  transition: transform 700ms var(--soft);
 }
 
 .cardText {
@@ -249,7 +246,7 @@
 
 .cardText small {
   font-size: 12px;
-  color: rgb(245 245 247 / 0.62);
+  color: color-mix(in srgb, var(--glass-text, #f5f5f7) 62%, transparent);
   white-space: nowrap;
   overflow: hidden;
   text-overflow: ellipsis;
@@ -281,7 +278,7 @@
 
 .ringTrack {
   fill: none;
-  stroke: rgb(255 255 255 / 0.16);
+  stroke: color-mix(in srgb, var(--glass-line, #ffffff) 16%, transparent);
   stroke-width: 3;
 }
 
@@ -296,7 +293,7 @@
 /* The check draws itself once the ring has closed. */
 .ringCheck {
   fill: none;
-  stroke: rgb(255 255 255 / 0.25);
+  stroke: color-mix(in srgb, var(--glass-line, #ffffff) 25%, transparent);
   stroke-width: 2.4;
   stroke-linecap: round;
   stroke-linejoin: round;
@@ -321,10 +318,10 @@
   font: inherit;
   font-size: 14px;
   font-weight: 500;
-  color: rgb(245 245 247 / 0.7);
-  background: rgb(255 255 255 / 0.05);
+  color: color-mix(in srgb, var(--glass-text, #f5f5f7) 70%, transparent);
+  background: color-mix(in srgb, var(--glass-line, #ffffff) 5%, transparent);
   backdrop-filter: blur(20px);
-  box-shadow: inset 0 0 0 1px rgb(255 255 255 / 0.12);
+  box-shadow: inset 0 0 0 1px color-mix(in srgb, var(--glass-line, #ffffff) 12%, transparent);
 }
 
 
@@ -332,7 +329,7 @@
   position: absolute;
   inset: 14px;
   border-radius: 20px;
-  border: 1.5px dashed rgb(255 255 255 / 0.12);
+  border: 1.5px dashed color-mix(in srgb, var(--glass-line, #ffffff) 12%, transparent);
   pointer-events: none;
   transition:
     border-color 300ms ease,
@@ -341,7 +338,7 @@
 
 .invite[data-hover]:not(:disabled) .inviteRing {
   inset: 10px;
-  border-color: rgb(255 255 255 / 0.28);
+  border-color: color-mix(in srgb, var(--glass-line, #ffffff) 28%, transparent);
 }
 
 .inviteLabel {
@@ -351,7 +348,7 @@
 }
 
 .invite[data-hover]:not(:disabled) .inviteLabel {
-  color: #ffffff;
+  color: var(--glass-bright, #ffffff);
   letter-spacing: 0.04em;
 }
 
@@ -364,7 +361,7 @@
   flex-wrap: wrap;
   justify-content: center;
   row-gap: 8px;
-  color: rgb(245 245 247 / 0.45);
+  color: color-mix(in srgb, var(--glass-text, #f5f5f7) 45%, transparent);
 }
 
 .inviteFace {
@@ -372,7 +369,7 @@
   width: 28px;
   height: 28px;
   border-radius: 50%;
-  box-shadow: 0 0 0 2px rgb(20 22 28 / 0.9);
+  box-shadow: 0 0 0 2px color-mix(in srgb, var(--glass-fill, #14161c) 90%, transparent);
   transition: transform 500ms var(--spring);
 }
 
@@ -398,9 +395,9 @@
   width: 54px;
   height: 54px;
   border-radius: 50%;
-  color: #f5f5f7;
-  background: rgb(255 255 255 / 0.12);
-  transform: translate(var(--gx, 0px), var(--gy, 0px)) rotate(0deg);
+  color: var(--glass-text, #f5f5f7);
+  background: color-mix(in srgb, var(--glass-line, #ffffff) 12%, transparent);
+  transform: rotate(0deg);
   transition:
     transform 600ms var(--spring),
     background 200ms ease,
@@ -408,9 +405,9 @@
 }
 
 .invite[data-hover]:not(:disabled) .inviteIcon {
-  transform: translate(var(--gx, 0px), var(--gy, 0px)) rotate(90deg) scale(1.1);
-  background: rgb(255 255 255 / 0.22);
-  box-shadow: 0 0 0 8px rgb(255 255 255 / 0.05);
+  transform: rotate(90deg) scale(1.1);
+  background: color-mix(in srgb, var(--glass-line, #ffffff) 22%, transparent);
+  box-shadow: 0 0 0 8px color-mix(in srgb, var(--glass-line, #ffffff) 5%, transparent);
   transition:
     transform 400ms var(--spring),
     background 200ms ease,
@@ -433,8 +430,8 @@
   max-width: 100%;
   padding: 3px;
   border-radius: 14px;
-  background: rgb(28 30 36 / 0.5);
-  box-shadow: inset 0 0 0 0.5px rgb(255 255 255 / 0.2);
+  background: color-mix(in srgb, var(--glass-fill, #1c1e24) 50%, transparent);
+  box-shadow: inset 0 0 0 0.5px color-mix(in srgb, var(--glass-line, #ffffff) 20%, transparent);
   backdrop-filter: blur(24px) saturate(180%);
   animation: wordIn 800ms var(--soft) 200ms backwards;
 }
@@ -472,9 +469,9 @@
   bottom: 0;
   width: var(--w, 0px);
   border-radius: 11px;
-  background: rgb(255 255 255 / 0.18);
+  background: color-mix(in srgb, var(--glass-line, #ffffff) 18%, transparent);
   box-shadow:
-    inset 0 0 0 0.5px rgb(255 255 255 / 0.25),
+    inset 0 0 0 0.5px color-mix(in srgb, var(--glass-line, #ffffff) 25%, transparent),
     0 3px 10px rgb(0 0 0 / 0.25);
   transform: translateX(var(--x, 0px));
   transition:
@@ -491,7 +488,7 @@
   font-size: 13px;
   font-weight: 500;
   white-space: nowrap;
-  color: rgb(245 245 247 / 0.65);
+  color: color-mix(in srgb, var(--glass-text, #f5f5f7) 65%, transparent);
   border-radius: 11px;
   transition:
     color 200ms ease,
@@ -500,8 +497,8 @@
 }
 
 .mode:hover:not(:disabled):not([data-active]) {
-  color: #ffffff;
-  background: rgb(255 255 255 / 0.06);
+  color: var(--glass-bright, #ffffff);
+  background: color-mix(in srgb, var(--glass-line, #ffffff) 6%, transparent);
 }
 
 .mode:active:not(:disabled) {
@@ -510,19 +507,12 @@
 
 .mode[data-active] {
   font-weight: 600;
-  color: #ffffff;
-}
-
-.playMagnet {
-  transform: translate(var(--gx, 0px), var(--gy, 0px));
-  transition: transform 700ms var(--spring);
-}
-
-.playMagnet:hover {
-  transition: transform 200ms var(--soft);
+  color: var(--glass-bright, #ffffff);
 }
 
 .playButton {
+  /* The button's tint, glow and searching ring: the theme's Play colour when one is picked. */
+  --glass-accent: var(--theme-play, var(--accent));
   position: relative;
   isolation: isolate;
   display: flex;
@@ -537,11 +527,15 @@
   font-size: 19px;
   font-weight: 650;
   letter-spacing: -0.01em;
-  color: #ffffff;
+  color: var(--theme-on-play, var(--glass-bright, #ffffff));
   border-radius: 29px;
-  background: linear-gradient(180deg, color-mix(in oklch, var(--glass-accent, var(--accent)) 92%, white), var(--glass-accent, var(--accent)));
+  background: linear-gradient(
+    180deg,
+    color-mix(in oklch, var(--glass-accent, var(--accent)) 92%, white),
+    var(--glass-accent, var(--accent))
+  );
   box-shadow:
-    inset 0 1px 0 rgb(255 255 255 / 0.35),
+    inset 0 1px 0 color-mix(in srgb, var(--glass-line, #ffffff) 35%, transparent),
     0 14px 34px color-mix(in srgb, var(--glass-accent, var(--accent)) 45%, transparent);
   transition:
     transform 500ms var(--spring),
@@ -550,15 +544,33 @@
     min-width 500ms var(--spring);
 }
 
-/* Ready to go: the glow breathes slowly. */
-.playButton[data-idle] {
+/* Ready to go: the glow breathes slowly. The stronger glow is its own layer behind the button
+   that only fades (the GPU does that alone); animating the button's shadow itself would repaint
+   it on the main thread every frame, for as long as the menu is open. */
+.playHolder {
+  position: relative;
+  isolation: isolate;
+}
+
+.playHolder::before {
+  content: "";
+  position: absolute;
+  inset: 0;
+  z-index: -1;
+  border-radius: 29px;
+  box-shadow: 0 18px 48px color-mix(in srgb, var(--glass-accent, var(--accent)) 70%, transparent);
+  opacity: 0;
+  pointer-events: none;
+}
+
+.playHolder:has(.playButton[data-idle])::before {
   animation: breathe 3.2s ease-in-out infinite;
 }
 
 .playButton:hover:not(:disabled) {
   transform: scale(1.045);
   box-shadow:
-    inset 0 1px 0 rgb(255 255 255 / 0.4),
+    inset 0 1px 0 color-mix(in srgb, var(--glass-line, #ffffff) 40%, transparent),
     0 20px 46px color-mix(in srgb, var(--glass-accent, var(--accent)) 60%, transparent);
 }
 
@@ -576,7 +588,12 @@
   position: absolute;
   inset: 0;
   z-index: -1;
-  background: linear-gradient(105deg, transparent 35%, rgb(255 255 255 / 0.35) 50%, transparent 65%) -150% 0 / 250% 100% no-repeat;
+  background: linear-gradient(
+    105deg,
+    transparent 35%,
+    color-mix(in srgb, var(--glass-line, #ffffff) 35%, transparent) 50%,
+    transparent 65%
+  ) -150% 0 / 250% 100% no-repeat;
   pointer-events: none;
 }
 
@@ -593,8 +610,10 @@
 /* Searching: a light runs round the edge of the capsule. */
 .playButton[data-searching] {
   min-width: 300px;
-  background: rgb(40 42 50 / 0.7);
-  box-shadow: inset 0 0 0 0.5px rgb(255 255 255 / 0.25), 0 14px 34px rgb(0 0 0 / 0.3);
+  background: color-mix(in srgb, var(--glass-fill, #282a32) 70%, transparent);
+  box-shadow:
+    inset 0 0 0 0.5px color-mix(in srgb, var(--glass-line, #ffffff) 25%, transparent),
+    0 14px 34px rgb(0 0 0 / 0.3);
   backdrop-filter: blur(20px);
 }
 
@@ -613,15 +632,15 @@
   inset: 2px;
   z-index: -1;
   border-radius: 27px;
-  background: rgb(30 32 38 / 0.94);
+  background: color-mix(in srgb, var(--glass-fill, #1e2026) 94%, transparent);
 }
 
 .spinner {
   width: 18px;
   height: 18px;
   border-radius: 50%;
-  border: 2.5px solid rgb(255 255 255 / 0.2);
-  border-top-color: #ffffff;
+  border: 2.5px solid color-mix(in srgb, var(--glass-line, #ffffff) 20%, transparent);
+  border-top-color: var(--glass-bright, #ffffff);
   animation:
     spin 900ms linear infinite,
     popIn 500ms var(--spring) backwards;
@@ -629,14 +648,14 @@
 
 .searchClock {
   font-variant-numeric: tabular-nums;
-  color: rgb(245 245 247 / 0.7);
+  color: color-mix(in srgb, var(--glass-text, #f5f5f7) 70%, transparent);
   animation: popIn 500ms var(--spring) backwards;
 }
 
 .playMeta {
   font-size: 12.5px;
   font-weight: 500;
-  color: rgb(245 245 247 / 0.55);
+  color: color-mix(in srgb, var(--glass-text, #f5f5f7) 55%, transparent);
   animation: wordIn 800ms var(--soft) 300ms backwards;
 }
 
@@ -651,10 +670,10 @@
   max-height: 100%;
   padding: 18px 14px 14px;
   border-radius: 28px;
-  background: var(--glass-fill, rgb(24 26 32 / 0.48));
+  background: color-mix(in srgb, var(--glass-fill, #181a20) 48%, transparent);
   box-shadow:
-    inset 0 0 0 0.5px rgb(255 255 255 / 0.2),
-    inset 0 1px 0 rgb(255 255 255 / 0.1),
+    inset 0 0 0 0.5px color-mix(in srgb, var(--glass-line, #ffffff) 20%, transparent),
+    inset 0 1px 0 color-mix(in srgb, var(--glass-line, #ffffff) 10%, transparent),
     0 24px 60px rgb(0 0 0 / 0.35);
   backdrop-filter: blur(32px) saturate(180%);
   animation: panelIn 900ms var(--spring) 120ms backwards;
@@ -687,7 +706,7 @@
 .friendsHead span {
   display: inline-block;
   font-size: 12.5px;
-  color: #30d158;
+  color: var(--win, var(--glass-online, #30d158));
 }
 
 .friendSearch {
@@ -697,8 +716,8 @@
   height: 36px;
   padding: 0 8px 0 12px;
   border-radius: 12px;
-  color: rgb(245 245 247 / 0.5);
-  background: rgb(255 255 255 / 0.07);
+  color: color-mix(in srgb, var(--glass-text, #f5f5f7) 50%, transparent);
+  background: color-mix(in srgb, var(--glass-line, #ffffff) 7%, transparent);
   transition:
     background 200ms ease,
     box-shadow 300ms ease,
@@ -706,11 +725,11 @@
 }
 
 .friendSearch:focus-within {
-  color: #f5f5f7;
-  background: rgb(255 255 255 / 0.11);
+  color: var(--glass-text, #f5f5f7);
+  background: color-mix(in srgb, var(--glass-line, #ffffff) 11%, transparent);
   box-shadow:
     0 0 0 3px color-mix(in srgb, var(--accent) 35%, transparent),
-    inset 0 0 0 0.5px rgb(255 255 255 / 0.3);
+    inset 0 0 0 0.5px color-mix(in srgb, var(--glass-line, #ffffff) 30%, transparent);
   transform: scale(1.015);
 }
 
@@ -721,7 +740,7 @@
   background: none;
   font: inherit;
   font-size: 14px;
-  color: #f5f5f7;
+  color: var(--glass-text, #f5f5f7);
   user-select: text;
 }
 
@@ -736,7 +755,7 @@
   height: 18px;
   border-radius: 50%;
   color: #1c1c1e;
-  background: rgb(245 245 247 / 0.55);
+  background: color-mix(in srgb, var(--glass-text, #f5f5f7) 55%, transparent);
   animation: popIn 360ms var(--spring) backwards;
 }
 
@@ -775,18 +794,24 @@
   font-size: 12px;
   font-weight: 600;
   letter-spacing: 0.01em;
-  color: rgb(245 245 247 / 0.5);
+  color: color-mix(in srgb, var(--glass-text, #f5f5f7) 50%, transparent);
   border-radius: 10px;
-  background: rgb(24 26 32 / 0.65);
+  background: color-mix(in srgb, var(--glass-fill, #181a20) 65%, transparent);
   backdrop-filter: blur(20px);
   transition:
     color 200ms ease,
     background 200ms ease;
 }
 
+.groupHead > span {
+  overflow: hidden;
+  white-space: nowrap;
+  text-overflow: ellipsis;
+}
+
 .groupHead:hover {
-  color: #f5f5f7;
-  background: rgb(255 255 255 / 0.08);
+  color: var(--glass-text, #f5f5f7);
+  background: color-mix(in srgb, var(--glass-line, #ffffff) 8%, transparent);
 }
 
 .groupHead b {
@@ -795,7 +820,7 @@
   font-size: 11px;
   font-weight: 600;
   border-radius: 8px;
-  background: rgb(255 255 255 / 0.08);
+  background: color-mix(in srgb, var(--glass-line, #ffffff) 8%, transparent);
 }
 
 .groupChevron {
@@ -835,7 +860,7 @@
 }
 
 .friend:hover {
-  background: rgb(255 255 255 / 0.08);
+  background: color-mix(in srgb, var(--glass-line, #ffffff) 8%, transparent);
   transform: translateX(3px);
 }
 
@@ -846,7 +871,7 @@
   width: 40px;
   height: 40px;
   border-radius: 50%;
-  box-shadow: 0 0 0 2px #30d158;
+  box-shadow: 0 0 0 2px var(--win, var(--glass-online, #30d158));
   transition: transform 500ms var(--spring);
 }
 
@@ -854,24 +879,37 @@
   transform: scale(1.08);
 }
 
-/* Searching friends: their ring pulses like a heartbeat. */
+/* Searching friends: their ring pulses like a heartbeat; the outer ring is a layer that fades,
+   so the pulse costs the main thread nothing. */
 .friend[data-status="queueing"] .friendAvatar {
-  box-shadow: 0 0 0 2px #0a84ff;
+  box-shadow: 0 0 0 2px var(--glass-busy, #0a84ff);
+}
+
+.friend[data-status="queueing"] .friendAvatar::after {
+  content: "";
+  position: absolute;
+  inset: 0;
+  border-radius: 50%;
+  box-shadow:
+    0 0 0 2px var(--glass-busy, #0a84ff),
+    0 0 0 6px color-mix(in srgb, var(--glass-busy, #0a84ff) 25%, transparent);
+  opacity: 0;
+  pointer-events: none;
   animation: queuePulse 1.8s ease-in-out infinite;
 }
 
 .friend[data-status="agent_select"] .friendAvatar,
 .friend[data-status="in_match"] .friendAvatar {
-  box-shadow: 0 0 0 2px #0a84ff;
+  box-shadow: 0 0 0 2px var(--glass-busy, #0a84ff);
 }
 
 .friend[data-status="away"] .friendAvatar {
-  box-shadow: 0 0 0 2px #ffd60a;
+  box-shadow: 0 0 0 2px var(--glass-away, #ffd60a);
 }
 
 .friend[data-status="online"] .friendAvatar,
 .friend[data-status="offline"] .friendAvatar {
-  box-shadow: 0 0 0 2px rgb(255 255 255 / 0.2);
+  box-shadow: 0 0 0 2px color-mix(in srgb, var(--glass-line, #ffffff) 20%, transparent);
 }
 
 .friend[data-status="offline"] {
@@ -892,7 +930,7 @@
   place-items: center;
   font-size: 15px;
   font-weight: 600;
-  color: #ffffff;
+  color: var(--glass-bright, #ffffff);
   background: linear-gradient(150deg, oklch(0.62 0.12 var(--hue, 250)), oklch(0.36 0.08 calc(var(--hue, 250) + 40)));
 }
 
@@ -910,7 +948,7 @@
   border-radius: 50%;
   color: #0b0c10;
   background: #c8aa6e;
-  box-shadow: 0 0 0 2px rgb(24 26 32);
+  box-shadow: 0 0 0 2px var(--glass-fill, #181a20);
 }
 
 .productBadge[data-product="tft"] {
@@ -938,14 +976,19 @@
 
 .friendText small {
   font-size: 12px;
-  color: rgb(245 245 247 / 0.55);
+  color: color-mix(in srgb, var(--glass-text, #f5f5f7) 55%, transparent);
   white-space: nowrap;
   overflow: hidden;
   text-overflow: ellipsis;
 }
 
+/* Floats over the row's end instead of reserving width, so names keep the whole row until the
+   pointer asks for the invite. */
 .friendInvite {
-  position: relative;
+  position: absolute;
+  right: 8px;
+  top: 50%;
+  margin-top: -14px;
   overflow: hidden;
   display: flex;
   align-items: center;
@@ -955,7 +998,7 @@
   font: inherit;
   font-size: 12px;
   font-weight: 600;
-  color: #ffffff;
+  color: var(--glass-bright, #ffffff);
   border-radius: 14px;
   background: var(--accent);
   opacity: 0;
@@ -977,14 +1020,14 @@
 }
 
 .friendInvite[data-sent] {
-  color: #ffffff;
-  background: #30d158;
+  color: var(--glass-bright, #ffffff);
+  background: var(--win, var(--glass-online, #30d158));
 }
 
 .friendEmpty {
   padding: 20px 8px;
   font-size: 13px;
-  color: rgb(245 245 247 / 0.5);
+  color: color-mix(in srgb, var(--glass-text, #f5f5f7) 50%, transparent);
   animation: wordIn 600ms var(--soft) backwards;
 }
 
@@ -1058,9 +1101,7 @@
 
 @keyframes breathe {
   50% {
-    box-shadow:
-      inset 0 1px 0 rgb(255 255 255 / 0.35),
-      0 18px 48px color-mix(in srgb, var(--glass-accent, var(--accent)) 70%, transparent);
+    opacity: 1;
   }
 }
 
@@ -1072,9 +1113,7 @@
 
 @keyframes queuePulse {
   50% {
-    box-shadow:
-      0 0 0 2px #0a84ff,
-      0 0 0 6px rgb(10 132 255 / 0.25);
+    opacity: 1;
   }
 }
 
@@ -1096,8 +1135,8 @@
   .friends,
   .friend,
   .friendEmpty,
-  .playButton[data-idle],
-  .friend[data-status="queueing"] .friendAvatar {
+  .playHolder::before,
+  .friend[data-status="queueing"] .friendAvatar::after {
     animation: none;
   }
 }
@@ -1108,6 +1147,313 @@
 :global(:root[data-motion="reduced"]) .card,
 :global(:root[data-motion="reduced"]) .friend,
 :global(:root[data-motion="reduced"]) .friends,
-:global(:root[data-motion="reduced"]) .playButton {
+:global(:root[data-motion="reduced"]) .playButton,
+:global(:root[data-motion="reduced"]) .playHolder::before,
+:global(:root[data-motion="reduced"]) .friendAvatar::after {
   animation: none;
+}
+
+/* ---- layouts (Look → Layout) ---- */
+/* Party, Flat: every card the same height, no step down to the sides. */
+[data-layout="flat"] .partySlot:nth-child(n) {
+  height: 100%;
+}
+
+/* Party, Focus: your card wider than the rest. */
+[data-layout="focus"] .party {
+  grid-template-columns: 1fr 1fr 1.7fr 1fr 1fr;
+}
+
+/* Party, Banners / Portraits / Strip: the arrangements the standard lineup has, in Glass's own
+   materials, so changing the layout never changes the style. Same markup: each one reshapes the
+   slots and picks the art that fits (--art-wide, --art-small). */
+[data-layout="banners"] .partySlot:nth-child(n),
+[data-layout="portraits"] .partySlot:nth-child(n) {
+  height: 100%;
+}
+
+[data-layout="banners"] .glare,
+[data-layout="portraits"] .glare,
+[data-layout="strip"] .glare,
+[data-layout="banners"] .inviteFaces,
+[data-layout="portraits"] .inviteFaces,
+[data-layout="strip"] .inviteFaces {
+  display: none;
+}
+
+/* Banners: stacked rows on the wide player card, you first, invites last. */
+[data-layout="banners"] .party {
+  grid-template-columns: minmax(0, 640px);
+  grid-template-rows: repeat(5, minmax(0, 1fr));
+  justify-content: center;
+  gap: 8px;
+}
+
+[data-layout="banners"] .partySlot {
+  container-type: size;
+}
+
+[data-layout="banners"] .partySlot:has([data-self]) {
+  order: -1;
+}
+
+[data-layout="banners"] .partySlot:has(.invite) {
+  order: 1;
+}
+
+[data-layout="banners"] .card,
+[data-layout="banners"] .invite {
+  border-radius: 16px;
+}
+
+[data-layout="banners"] .cardArt {
+  inset: 0;
+  background-image: var(--art-wide), linear-gradient(160deg, #3a3d48, #15171c);
+  background-position: left center;
+}
+
+[data-layout="banners"] .cardGlass {
+  inset: 6px 6px 6px auto;
+  width: min(58%, 300px);
+  padding: 0 8px 0 14px;
+  border-radius: 11px;
+}
+
+[data-layout="banners"] .crown,
+[data-layout="banners"] .kick {
+  top: 50%;
+  margin-top: -14px;
+}
+
+[data-layout="banners"] .kick {
+  right: calc(min(58%, 300px) + 14px);
+}
+
+[data-layout="banners"] .invite {
+  flex-direction: row;
+  gap: 10px;
+}
+
+[data-layout="banners"] .inviteRing {
+  inset: 5px;
+  border-radius: 12px;
+}
+
+[data-layout="banners"] .inviteIcon {
+  width: min(34px, 70cqh);
+  height: min(34px, 70cqh);
+}
+
+/* A short row keeps the name and the ready ring; the rank line goes first. */
+@container (max-height: 46px) {
+  [data-layout="banners"] .cardText small {
+    display: none;
+  }
+
+  [data-layout="banners"] .ringWrap,
+  [data-layout="banners"] .ring {
+    width: 24px;
+    height: 24px;
+  }
+}
+
+/* Portraits: round faces over a glass name plate; yours a little bigger, ringed in light. */
+[data-layout="portraits"] .party {
+  container-type: size;
+  gap: 2.5%;
+}
+
+[data-layout="portraits"] .partySlot {
+  --portrait: min(15cqw, calc(100cqh - 84px), 150px);
+  justify-content: center;
+}
+
+[data-layout="portraits"] .partySlot:has([data-self]) {
+  --portrait: min(17cqw, calc(100cqh - 84px), 170px);
+}
+
+[data-layout="portraits"] .card {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 12px;
+  overflow: visible;
+  border-radius: 0;
+  box-shadow: none;
+}
+
+[data-layout="portraits"] .card:active {
+  transform: none;
+}
+
+[data-layout="portraits"] .cardArt {
+  position: relative;
+  inset: auto;
+  flex: none;
+  width: var(--portrait);
+  height: var(--portrait);
+  border-radius: 50%;
+  background-image: var(--art-small), linear-gradient(160deg, #3a3d48, #15171c);
+  background-position: center;
+  box-shadow:
+    inset 0 0 0 0.5px color-mix(in srgb, var(--glass-line, #ffffff) 25%, transparent),
+    0 18px 44px rgb(0 0 0 / 0.42);
+  transition: transform 260ms var(--soft);
+}
+
+[data-layout="portraits"] .card:active .cardArt {
+  transform: scale(0.985);
+}
+
+[data-layout="portraits"] .card[data-self] .cardArt {
+  box-shadow:
+    0 0 0 2px color-mix(in srgb, var(--glass-line, #ffffff) 60%, transparent),
+    0 18px 44px rgb(0 0 0 / 0.45);
+}
+
+[data-layout="portraits"] .cardGlass {
+  position: relative;
+  inset: auto;
+  width: min(100%, 210px);
+  padding: 8px 8px 8px 14px;
+  border-radius: 16px;
+}
+
+[data-layout="portraits"] .crown,
+[data-layout="portraits"] .kick {
+  top: calc(50% - (var(--portrait) + 64px) / 2);
+}
+
+[data-layout="portraits"] .crown {
+  left: calc(50% - var(--portrait) / 2);
+}
+
+[data-layout="portraits"] .kick {
+  right: calc(50% - var(--portrait) / 2);
+}
+
+[data-layout="portraits"] .invite {
+  flex: none;
+  align-self: center;
+  width: var(--portrait);
+  height: var(--portrait);
+  margin-bottom: 64px;
+  gap: 6px;
+  border-radius: 50%;
+  font-size: 12.5px;
+}
+
+[data-layout="portraits"] .inviteRing {
+  inset: 8px;
+  border-radius: 50%;
+}
+
+[data-layout="portraits"] .inviteIcon {
+  width: 40%;
+  height: 40%;
+}
+
+/* Strip: one short row of glass tiles, face, name and ready ring, for bars and tight spots. */
+[data-layout="strip"] .party {
+  gap: 8px;
+}
+
+[data-layout="strip"] .partySlot:nth-child(n) {
+  height: min(100%, 68px);
+  container-type: size;
+}
+
+[data-layout="strip"] .card,
+[data-layout="strip"] .invite {
+  border-radius: 16px;
+}
+
+[data-layout="strip"] .card {
+  background: color-mix(in srgb, var(--glass-fill, #181a20) 55%, transparent);
+  backdrop-filter: blur(24px) saturate(180%);
+}
+
+[data-layout="strip"] .cardArt {
+  inset: 6px auto 6px 6px;
+  width: calc(100cqh - 12px);
+  border-radius: 11px;
+  background-image: var(--art-small), linear-gradient(160deg, #3a3d48, #15171c);
+  background-position: center;
+}
+
+[data-layout="strip"] .cardGlass {
+  inset: 0 0 0 calc(100cqh - 2px);
+  padding: 0 8px 0 10px;
+  border-radius: 0;
+  background: none;
+  box-shadow: none;
+  backdrop-filter: none;
+}
+
+[data-layout="strip"] .cardText b {
+  font-size: 13.5px;
+}
+
+[data-layout="strip"] .cardText small {
+  font-size: 11px;
+}
+
+[data-layout="strip"] .ringWrap,
+[data-layout="strip"] .ring {
+  width: 26px;
+  height: 26px;
+}
+
+[data-layout="strip"] .crown,
+[data-layout="strip"] .kick {
+  top: 4px;
+  width: 22px;
+  height: 22px;
+}
+
+[data-layout="strip"] .crown {
+  left: 4px;
+}
+
+[data-layout="strip"] .kick {
+  right: 4px;
+}
+
+[data-layout="strip"] .invite {
+  flex-direction: row;
+  gap: 8px;
+  font-size: 13px;
+}
+
+[data-layout="strip"] .inviteRing {
+  inset: 5px;
+  border-radius: 12px;
+}
+
+[data-layout="strip"] .inviteIcon {
+  width: 30px;
+  height: 30px;
+}
+
+/* Play, Side by side: the mode switcher beside the button instead of over it. */
+[data-layout="side"] .play {
+  flex-direction: row;
+  gap: 18px;
+}
+
+/* Play, Button only: just the big button; the mode stays as picked. */
+[data-layout="button"] .modesFrame {
+  display: none;
+}
+
+/* Greeting, Centred. */
+[data-layout="centred"] .hello {
+  align-items: center;
+  text-align: center;
+}
+
+/* Greeting, Big: a headline-sized title. */
+[data-layout="big"] .helloTitle {
+  font-size: clamp(44px, 7.5vh, 92px);
 }

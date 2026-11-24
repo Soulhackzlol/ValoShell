@@ -1,0 +1,160 @@
+/* What the Counter-Strike home looks add to their styles' own sheets: CS2's mode cards and
+   player plate, and CS 1.6's sunken picture box and stat bar inside a VGUI window. */
+
+/* ---- CS2: mode cards on slate, the picked one lit and outlined ---- */
+
+.cs2Modes {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+  width: 100%;
+  height: 100%;
+  color: #e8eaed;
+}
+
+.cs2Heading {
+  font-size: 13px;
+  font-weight: 700;
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
+  color: rgb(232 234 237 / 0.7);
+}
+
+.cs2Cards {
+  display: grid;
+  flex: 1;
+  grid-template-columns: repeat(auto-fill, minmax(140px, 1fr));
+  grid-auto-rows: minmax(90px, 1fr);
+  gap: 6px;
+  min-height: 0;
+  overflow: hidden auto;
+  scrollbar-width: thin;
+}
+
+.cs2Card {
+  position: relative;
+  display: flex;
+  align-items: flex-end;
+  padding: 10px;
+  overflow: hidden;
+  border: 0;
+  background: #1c222b;
+  box-shadow: inset 0 0 0 1px rgb(255 255 255 / 0.08);
+  cursor: pointer;
+}
+
+.cs2Card[data-active] {
+  background: #2b3442;
+  box-shadow: inset 0 0 0 2px #e8eaed;
+}
+
+.cs2Card:disabled:not([data-active]) {
+  opacity: 0.55;
+  cursor: default;
+}
+
+.cs2Art {
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  opacity: 0.35;
+  transition: opacity 140ms ease;
+}
+
+.cs2Card:hover:not(:disabled) .cs2Art,
+.cs2Card[data-active] .cs2Art {
+  opacity: 0.6;
+}
+
+.cs2Name {
+  position: relative;
+  font-size: 15px;
+  font-weight: 700;
+  text-transform: uppercase;
+  color: #ffffff;
+  text-shadow: 0 1px 3px #000;
+}
+
+/* ---- CS2: the top-right player plate ---- */
+
+.cs2Plate {
+  container-type: size;
+  display: flex;
+  align-items: center;
+  justify-content: flex-end;
+  gap: 10px;
+  width: 100%;
+  height: 100%;
+  padding: 8px 10px;
+  color: #e8eaed;
+  background: linear-gradient(to left, rgb(20 25 32 / 0.85), transparent);
+}
+
+.cs2Who {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-end;
+  min-width: 0;
+}
+
+.cs2Who b {
+  max-width: 100%;
+  overflow: hidden;
+  font-size: clamp(16px, 20cqh, 30px);
+  white-space: nowrap;
+  text-overflow: ellipsis;
+}
+
+.cs2Who span {
+  font-size: clamp(12px, 10cqh, 16px);
+  color: #9aa4b2;
+}
+
+.cs2Avatar {
+  flex: none;
+  width: clamp(40px, 70cqh, 140px);
+  aspect-ratio: 1;
+  object-fit: cover;
+  box-shadow: 0 0 0 2px #4b69ff;
+}
+
+/* ---- CS 1.6: a sunken picture box beside the window's text lines ---- */
+
+.cs16Row {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+}
+
+.cs16Box {
+  display: grid;
+  flex: none;
+  place-items: center;
+  width: 72px;
+  height: 72px;
+  background: #3e4637;
+  box-shadow: inset 1px 1px 0 #292c21, inset -1px -1px 0 #8c9284;
+}
+
+.cs16Image {
+  width: 90%;
+  height: 90%;
+  object-fit: contain;
+}
+
+.cs16Lines {
+  display: flex;
+  flex: 1;
+  flex-direction: column;
+  gap: 4px;
+  min-width: 0;
+}
+
+/* VGUI's progress bar: sunken trough, flat amber fill. */
+.cs16Bar {
+  height: 10px;
+  background: linear-gradient(90deg, #c4b550 calc(var(--progress) * 100%), #3e4637 0);
+  box-shadow: inset 1px 1px 0 #292c21, inset -1px -1px 0 #8c9284;
+}

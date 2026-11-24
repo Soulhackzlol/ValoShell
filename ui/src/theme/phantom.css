@@ -1,0 +1,54 @@
+/* Phantom: Persona 5's red, black and white over the whole menu. Shared pieces (the queue
+   picker, the store, the record) become black paper with red rules and poster titles; a faint
+   halftone sits over the screen like printed paper. */
+:root[data-skin="phantom"] {
+  --nav-top: 76px;
+  --panel: color-mix(in srgb, var(--phantom-ink, #0b0b0b) 92%, transparent);
+  --panel-strong: var(--phantom-ink, #0b0b0b);
+  --surface-raised: color-mix(in srgb, var(--phantom-ink, #0b0b0b) 94%, transparent);
+  --surface-popup: var(--phantom-ink, #0b0b0b);
+  --border-subtle: color-mix(in srgb, var(--phantom-paper, #ffffff) 14%, transparent);
+  --border-default: color-mix(in srgb, var(--phantom-paper, #ffffff) 28%, transparent);
+  --border-strong: var(--phantom-red, #e5191c);
+  --play: var(--phantom-red, #e5191c);
+  --play-hover: #ff2a2d;
+  --play-pressed: #b51013;
+  --on-play: var(--phantom-paper, #ffffff);
+  --radius-xs: 0px;
+  --radius-sm: 0px;
+  --radius-md: 0px;
+  --radius-lg: 0px;
+  --radius-outer: 0px;
+}
+
+/* Borrowed pieces: black paper with a red rule down the left, titles in the poster face. */
+:root[data-skin="phantom"] [data-part="piece"]:not([data-kind^="ph-"]) > [data-part="piece-content"] > :not([data-own-frame]) {
+  border-radius: 0;
+  box-shadow:
+    inset 4px 0 0 var(--phantom-red, #e5191c),
+    8px 8px 0 color-mix(in srgb, var(--phantom-red, #e5191c) 70%, transparent);
+}
+
+:root[data-skin="phantom"] [data-part="piece"]:not([data-kind^="ph-"]) :is(h1, h2, h3) {
+  font-family: var(--font-display);
+  font-weight: 400;
+  letter-spacing: 0.02em;
+  text-transform: uppercase;
+}
+
+:root[data-skin="phantom"] [data-part="piece"]:not([data-kind^="ph-"]) [data-part="play"] {
+  font-family: var(--font-display);
+  text-transform: uppercase;
+  clip-path: polygon(2% 0, 100% 6%, 98% 100%, 0 90%);
+}
+
+/* Printed paper: a fine halftone over everything, under the cursor. */
+:root[data-skin="phantom"] body::after {
+  content: "";
+  position: fixed;
+  inset: 0;
+  z-index: 2147483000;
+  pointer-events: none;
+  background: radial-gradient(circle, rgb(255 255 255 / 0.05) 0 1px, transparent 1.5px) 0 0 / 6px 6px;
+  mix-blend-mode: overlay;
+}

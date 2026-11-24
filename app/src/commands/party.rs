@@ -1,6 +1,11 @@
-//! Party lobby commands: thin wrappers over `PartyService`.
+//! Party lobby commands: thin wrappers over `PartyService`, the party and team chat, and the
+//! account restrictions that decide whether queueing works.
 
+use domain::ids::Puuid;
+use services::Ctx;
+use services::chat::{ChatScope, ChatService, ChatView};
 use services::party::{PartyService, PartyView};
+use services::penalties::{PenaltyView, read_penalties};
 use tauri::State;
 
 type CommandResult<T = ()> = Result<T, String>;
@@ -9,6 +14,44 @@ type CommandResult<T = ()> = Result<T, String>;
 #[tauri::command]
 pub fn get_party(party: State<'_, PartyService>) -> Option<PartyView> {
     party.current()
+}
+
+/// Party, agent-select and whisper chat as last read.
+#[tauri::command]
+pub fn get_chat(chat: State<'_, ChatService>) -> Option<ChatView> {
+    chat.current()
+}
+
+/// Send a message to the party or, in agent select, the team.
+#[tauri::command]
+pub async fn chat_send(
+    chat: State<'_, ChatService>,
+    scope: ChatScope,
+    text: String,
+) -> CommandResult {
+    chat.send(scope, &text)
+        .await
+        .map_err(|error| error.to_string())
+}
+
+/// Whisper a friend.
+#[tauri::command]
+pub async fn chat_send_direct(
+    chat: State<'_, ChatService>,
+    puuid: String,
+    text: String,
+) -> CommandResult {
+    chat.send_direct(&Puuid::new(puuid), &text)
+        .await
+        .map_err(|error| error.to_string())
+}
+
+/// Active queue bans, delays and other restrictions, read fresh.
+#[tauri::command]
+pub async fn get_penalties(ctx: State<'_, Ctx>) -> CommandResult<Vec<PenaltyView>> {
+    read_penalties(&ctx)
+        .await
+        .map_err(|error| error.to_string())
 }
 
 /// Fetch the party now.

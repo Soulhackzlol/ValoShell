@@ -1,0 +1,74 @@
+/* Phantom nav: a black strip torn at the bottom edge, tabs as leaning paper blocks. */
+.nav {
+  position: absolute;
+  inset: 0 0 auto;
+  z-index: 30;
+  display: flex;
+  align-items: center;
+  gap: 18px;
+  height: var(--nav-top, 76px);
+  padding: 0 24px;
+  background: var(--phantom-ink, #0b0b0b);
+  clip-path: polygon(0 0, 100% 0, 100% 78%, 70% 92%, 38% 82%, 0 100%);
+}
+
+.mark {
+  font-size: 28px;
+  color: var(--phantom-red, #e5191c);
+  rotate: -12deg;
+}
+
+.tabs {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  margin: 0 auto;
+}
+
+.slot {
+  display: inline-block;
+}
+
+.tab {
+  display: inline-block;
+  padding: 6px 14px 4px;
+  font-family: var(--font-display);
+  font-size: 22px;
+  line-height: 1;
+  text-transform: uppercase;
+  color: var(--phantom-ink, #0b0b0b);
+  text-decoration: none;
+  background: var(--phantom-paper, #ffffff);
+  clip-path: polygon(4% 0, 100% 6%, 96% 100%, 0 92%);
+  transition:
+    scale 200ms cubic-bezier(0.2, 1.4, 0.4, 1),
+    background 120ms var(--ease-standard),
+    color 120ms var(--ease-standard);
+}
+
+.tab:hover {
+  scale: 1.1;
+}
+
+.active {
+  color: var(--phantom-paper, #ffffff);
+  background: var(--phantom-red, #e5191c);
+  scale: 1.22;
+}
+
+.active:hover {
+  scale: 1.26;
+}
+
+.live {
+  color: var(--phantom-paper, #ffffff);
+  background: var(--phantom-ink, #0b0b0b);
+  outline: 2px solid var(--phantom-red, #e5191c);
+  outline-offset: -2px;
+}
+
+.side {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+}

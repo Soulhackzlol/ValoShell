@@ -4,6 +4,7 @@ import type { FriendView } from "~/bindings/FriendView";
 import { call } from "~/ipc/commands";
 import { onAppEvent } from "~/ipc/events";
 import { preloadArt } from "~/ui/Art";
+import { partyLabel } from "~/ui/stacks";
 
 const [friends, setFriendList] = createSignal<FriendView[]>([]);
 const setFriends = (next: FriendView[]) => {
@@ -13,7 +14,7 @@ const setFriends = (next: FriendView[]) => {
 const [isDrawerOpen, setDrawerOpen] = createSignal(false);
 
 onAppEvent("friends", setFriends);
-void call("get_friends", {}).then(setFriends, () => undefined);
+void call("get_friends", {}).then(setFriends, (error) => console.warn("get_friends_failed", error));
 
 export { friends, isDrawerOpen, setDrawerOpen };
 
@@ -57,8 +58,15 @@ export function isElsewhere(friend: FriendView): boolean {
   return friend.status === "away" && friend.product !== "" && friend.product !== "valorant";
 }
 
-/** One line on what a friend is doing: "In queue · Swiftplay", "League of Legends", "Lotus 9-6". */
+/** One line on what a friend is doing: "In queue · Swiftplay · Duo", "League of Legends",
+ *  "Lotus 9-6 · Trio". The party size rides along so every friends look shows the lobby. */
 export function friendActivity(friend: FriendView): string {
+  const party = partyLabel(friend.party_size);
+  const activity = activityOf(friend);
+  return party ? `${activity} · ${party}` : activity;
+}
+
+function activityOf(friend: FriendView): string {
   if (friend.status === "online") {
     const product = friend.product || friend.detail;
     return product && product !== "valorant" ? productName(product) : STATUS_WORDS.online;
@@ -66,6 +74,5 @@ export function friendActivity(friend: FriendView): string {
   if (isElsewhere(friend)) return `${STATUS_WORDS.away} · ${productName(friend.product)}`;
   if (friend.status === "in_match" && friend.detail) return friend.detail;
   if (friend.queue && friend.status !== "menus") return `${STATUS_WORDS[friend.status]} · ${friend.queue}`;
-  if (friend.status === "menus" && friend.party_size > 1) return `Available · party of ${friend.party_size}`;
   return STATUS_WORDS[friend.status];
 }

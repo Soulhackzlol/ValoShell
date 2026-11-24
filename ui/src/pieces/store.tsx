@@ -8,6 +8,7 @@ import { playCue } from "~/menu/sound";
 import { storeView } from "~/state/views";
 import { Art } from "~/ui/Art";
 import { Empty } from "~/ui/controls";
+import { ViewStatus } from "~/ui/ViewStatus";
 import styles from "./store.module.css";
 
 export function useNow(intervalMs = 1000): () => number {
@@ -69,18 +70,7 @@ function ItemCard(props: { item: StoreItem; index: number; isWide?: boolean }) {
 }
 
 export function Status(props: { what: string }) {
-  return (
-    <Show
-      when={storeView.error()}
-      fallback={<Empty title={props.what}>{storeView.isLoading() ? "Opening the store…" : "Connect to VALORANT to see the store."}</Empty>}
-    >
-      {(error) => (
-        <Empty title={props.what}>
-          <span>{error()}</span>
-        </Empty>
-      )}
-    </Show>
-  );
+  return <ViewStatus view={storeView} title={props.what} loading="Opening the store…" idle="Connect to VALORANT to see the store." />;
 }
 
 export function StoreDaily(_props: PieceProps) {
@@ -121,9 +111,12 @@ export function StoreBundle(_props: PieceProps) {
         <Show when={view().bundles[shown()] ?? view().bundles[0]} fallback={<Empty title="Featured">No bundle right now.</Empty>}>
           {(bundle) => (
             <section class={styles.bundle}>
-              <div class={styles.bundleArt}>
-                <Art src={bundle().image} fallback={<span />} />
-              </div>
+              {/* Keyed on the art, so switching bundles fades the new one in. */}
+              <Show keyed when={bundle().image ?? ""}>
+                <div class={styles.bundleArt}>
+                  <Art src={bundle().image} fallback={<span />} />
+                </div>
+              </Show>
               <div class={styles.bundleShade} />
               <div class={styles.bundleInfo}>
                 <span class="overline">Featured · {formatDuration(remaining(bundle().ends_in_s, view().observed_at_ms, now()))}</span>

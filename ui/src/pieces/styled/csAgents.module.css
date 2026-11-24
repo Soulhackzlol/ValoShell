@@ -1,0 +1,239 @@
+/* Counter-Strike agents as an inventory. CS:GO (Panorama): slate panels with a dark header strip,
+   lighter slate cards, a rarity bar along each card's foot, orange for the picked one. CS2: near
+   black flat cards lit from below in the rarity colour, a white hairline on the picked one. */
+
+.inventory {
+  --cs-panel: rgb(43 50 56 / 0.94);
+  --cs-head: rgb(27 31 35 / 0.96);
+  --cs-card: linear-gradient(to bottom, #49535c, #353c43);
+  --cs-pick: #f5a623;
+  --cs-text: #e6ebee;
+  container-type: size;
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) minmax(320px, 38%);
+  grid-template-rows: minmax(0, 1fr);
+  gap: 14px;
+  width: 100%;
+  height: 100%;
+  font-family: var(--font-text);
+  color: var(--cs-text);
+}
+
+.inventory[data-era="cs2"] {
+  --cs-panel: rgb(16 19 23 / 0.92);
+  --cs-head: rgb(10 12 15 / 0.96);
+  --cs-card: #15191e;
+  --cs-pick: #ffffff;
+}
+
+.panel,
+.inspect {
+  position: relative;
+  min-height: 0;
+  background: var(--cs-panel);
+  box-shadow: 0 6px 18px rgb(0 0 0 / 0.4);
+}
+
+.inventory[data-era="csgo"] :is(.panel, .inspect) {
+  border-radius: 3px;
+}
+
+.panel {
+  display: flex;
+  flex-direction: column;
+}
+
+.head {
+  display: flex;
+  align-items: center;
+  gap: 2px;
+  padding: 0 12px;
+  height: 44px;
+  background: var(--cs-head);
+}
+
+.title {
+  margin-right: 14px;
+  font-family: var(--font-display);
+  font-size: 18px;
+  font-weight: 700;
+  text-transform: uppercase;
+}
+
+.tab {
+  height: 100%;
+  padding: 0 12px;
+  font-size: 12px;
+  font-weight: 700;
+  text-transform: uppercase;
+  color: rgb(230 235 238 / 0.55);
+  transition: color 120ms ease, box-shadow 120ms ease;
+}
+
+.tab:hover {
+  color: var(--cs-text);
+}
+
+.tab[data-on] {
+  color: var(--cs-text);
+  box-shadow: inset 0 -2px 0 var(--cs-pick);
+}
+
+.grid {
+  flex: 1;
+  min-height: 0;
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(130px, 1fr));
+  grid-auto-rows: max-content;
+  align-content: start;
+  gap: 8px;
+  padding: 12px;
+  overflow: hidden auto;
+  scrollbar-width: thin;
+}
+
+/* An item card: the agent, their name, the rarity bar along the foot. */
+.item {
+  position: relative;
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+  padding: 8px 8px 10px;
+  text-align: left;
+  background: var(--cs-card);
+  box-shadow: inset 0 -3px 0 var(--grade);
+  transition: filter 120ms ease, box-shadow 120ms ease, translate 160ms ease;
+}
+
+.inventory[data-era="cs2"] .item {
+  background: linear-gradient(to top, color-mix(in srgb, var(--grade) 22%, transparent), transparent 60%), var(--cs-card);
+  box-shadow: inset 0 -2px 0 var(--grade), inset 0 0 0 1px rgb(255 255 255 / 0.04);
+}
+
+.item:hover {
+  filter: brightness(1.15);
+  translate: 0 -2px;
+}
+
+.item[data-on] {
+  box-shadow: inset 0 -3px 0 var(--grade), 0 0 0 2px var(--cs-pick);
+}
+
+.item[data-locked] {
+  filter: grayscale(0.8) brightness(0.7);
+}
+
+.itemArt {
+  width: 100%;
+  aspect-ratio: 4 / 3;
+  object-fit: cover;
+  object-position: center 25%;
+}
+
+.itemName {
+  overflow: hidden;
+  font-size: 12px;
+  white-space: nowrap;
+  text-overflow: ellipsis;
+  color: rgb(230 235 238 / 0.7);
+}
+
+.itemName b {
+  color: var(--cs-text);
+}
+
+/* Inspect: the agent large on a dark floor tinted by their grade, the facts underneath. */
+.inspect {
+  display: grid;
+  grid-template-rows: minmax(0, 1fr) auto;
+  overflow: hidden;
+  background:
+    radial-gradient(70% 50% at 50% 70%, color-mix(in srgb, var(--grade) 30%, transparent), transparent 75%),
+    var(--cs-panel);
+}
+
+.inspectArt {
+  width: 100%;
+  height: 100%;
+  min-height: 0;
+  object-fit: contain;
+  object-position: center bottom;
+  scale: 1.15;
+  transform-origin: 50% 100%;
+}
+
+.inspectText {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+  padding: 14px 16px 16px;
+  background: var(--cs-head);
+  box-shadow: inset 0 2px 0 var(--grade);
+}
+
+.grade {
+  font-size: 12px;
+  font-weight: 700;
+  text-transform: uppercase;
+  color: var(--grade);
+}
+
+.name {
+  margin: 0;
+  font-family: var(--font-display);
+  font-size: clamp(24px, 5cqh, 40px);
+  font-weight: 700;
+  line-height: 1;
+}
+
+.abilities {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 4px;
+  margin: 4px 0 0;
+  padding: 0;
+  list-style: none;
+}
+
+.ability {
+  display: grid;
+  grid-template-columns: 22px minmax(0, 1fr) auto;
+  align-items: center;
+  gap: 8px;
+  width: 100%;
+  padding: 5px 8px;
+  font-size: 12px;
+  text-align: left;
+  background: rgb(255 255 255 / 0.05);
+}
+
+.ability span {
+  overflow: hidden;
+  white-space: nowrap;
+  text-overflow: ellipsis;
+}
+
+.ability[data-on] {
+  box-shadow: inset 2px 0 0 var(--cs-pick);
+  background: rgb(255 255 255 / 0.1);
+}
+
+.ability kbd {
+  font-size: 11px;
+  opacity: 0.7;
+}
+
+.abilityIcon {
+  width: 22px;
+  height: 22px;
+  object-fit: contain;
+}
+
+.text {
+  margin: 4px 0 0;
+  max-height: 6em;
+  overflow: hidden auto;
+  font-size: 13px;
+  line-height: 1.5;
+  color: rgb(230 235 238 / 0.8);
+}

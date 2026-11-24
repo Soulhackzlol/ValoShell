@@ -79,6 +79,13 @@ pub fn list_documents(dir: &Path) -> Result<Vec<String>, DocumentError> {
 /// One document; `None` when it does not exist.
 pub fn load_document(dir: &Path, name: &str) -> Result<Option<Value>, DocumentError> {
     let file = document_file(dir, name)?;
+    // The looks folder takes files shared by others, so check the size before reading it all.
+    if let Ok(metadata) = std::fs::metadata(&file)
+        && metadata.len() > MAX_DOCUMENT_BYTES as u64
+    {
+        let kilobytes = usize::try_from(metadata.len() / 1024).unwrap_or(usize::MAX);
+        return Err(DocumentError::TooLarge(kilobytes));
+    }
     let text = match std::fs::read_to_string(&file) {
         Ok(text) => text,
         Err(error) if error.kind() == std::io::ErrorKind::NotFound => return Ok(None),
@@ -102,6 +109,12 @@ pub fn save_document(dir: &Path, name: &str, document: &Value) -> Result<(), Doc
     std::fs::write(&temporary, text).map_err(|error| with_path(error, &temporary))?;
     std::fs::rename(&temporary, &file).map_err(|error| with_path(error, &file))?;
     Ok(())
+}
+
+/// Where a stored document lives, to show it in the file explorer; `None` when it does not exist.
+pub fn document_path(dir: &Path, name: &str) -> Result<Option<PathBuf>, DocumentError> {
+    let file = document_file(dir, name)?;
+    Ok(file.is_file().then_some(file))
 }
 
 /// Delete a document; deleting a missing one is fine.
@@ -154,6 +167,35 @@ mod tests {
         let error = save_document(&dir, "../evil", &json!({})).unwrap_err();
 
         assert!(matches!(error, DocumentError::InvalidName(_)));
+    }
+
+    #[test]
+    fn document_path_points_at_saved_documents_only() {
+        let dir = temp_dir("path");
+        save_document(&dir, "Shared", &json!({})).unwrap();
+
+        let found = document_path(&dir, "Shared").unwrap();
+
+        assert_eq!(found, Some(dir.join("Shared.json")));
+        assert_eq!(document_path(&dir, "Missing").unwrap(), None);
+        assert!(matches!(
+            document_path(&dir, "../Shared"),
+            Err(DocumentError::InvalidName(_))
+        ));
+        let _ = std::fs::remove_dir_all(&dir);
+    }
+
+    #[test]
+    fn oversized_files_are_refused_before_reading() {
+        let dir = temp_dir("oversized");
+        std::fs::create_dir_all(&dir).unwrap();
+        let padding = " ".repeat(MAX_DOCUMENT_BYTES + 1);
+        std::fs::write(dir.join("huge.json"), format!("{{}}{padding}")).unwrap();
+
+        let error = load_document(&dir, "huge").unwrap_err();
+
+        assert!(matches!(error, DocumentError::TooLarge(_)));
+        let _ = std::fs::remove_dir_all(&dir);
     }
 
     #[test]

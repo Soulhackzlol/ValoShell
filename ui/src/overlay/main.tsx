@@ -4,6 +4,9 @@ import { render } from "solid-js/web";
 import { Stage } from "~/studio/Stage";
 import { followStudio, loadStudio } from "~/studio/store";
 import { bindTheme } from "~/studio/theme";
+// Streamer mode, contrast and colour vision must hold over the game too; settings.ts also
+// follows the menu's changes live.
+import "~/state/settings";
 import "../theme/tokens.css";
 import "../theme/base.css";
 import "./overlay.css";

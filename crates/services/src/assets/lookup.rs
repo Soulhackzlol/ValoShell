@@ -7,7 +7,8 @@ use riot::api::pd::entitlements as item_types;
 use super::index::{AssetIndex, ItemInfo, ItemKind, Table, key};
 use super::records::{
     Agent, Buddy, BuddyLevel, Bundle, Contract, Currency, Flex, GameMap, GameMode, LevelBorder,
-    PlayerCard, PlayerTitle, Queue, Season, Skin, SkinChroma, SkinLevel, Spray, Tier, Weapon,
+    Mission, PlayerCard, PlayerTitle, Queue, Season, Skin, SkinChroma, SkinLevel, Spray, Tier,
+    Weapon,
 };
 
 fn sorted<T>(table: &Table<T>, name: impl Fn(&T) -> &str) -> Vec<Arc<T>> {
@@ -60,6 +61,11 @@ impl AssetIndex {
         self.weapon(self.weapon_of_skin.get(&key(skin_uuid))?)
     }
 
+    /// Every skin, alphabetical.
+    pub fn skins(&self) -> Vec<Arc<Skin>> {
+        sorted(&self.skins, |skin| &skin.display_name)
+    }
+
     pub fn skin(&self, uuid: &str) -> Option<Arc<Skin>> {
         self.skins.get(&key(uuid)).cloned()
     }
@@ -83,6 +89,11 @@ impl AssetIndex {
 
     pub fn buddy_level(&self, uuid: &str) -> Option<Arc<BuddyLevel>> {
         self.buddy_levels.get(&key(uuid)).cloned()
+    }
+
+    /// The buddy a level belongs to (entitlements and guns carry level ids).
+    pub fn buddy_of_level(&self, level_uuid: &str) -> Option<Arc<Buddy>> {
+        self.buddy(self.buddy_of_level.get(&key(level_uuid))?)
     }
 
     pub fn spray(&self, uuid: &str) -> Option<Arc<Spray>> {
@@ -130,6 +141,26 @@ impl AssetIndex {
 
     pub fn contract(&self, uuid: &str) -> Option<Arc<Contract>> {
         self.contracts.get(&key(uuid)).cloned()
+    }
+
+    /// The battle pass of one act: the contract whose content relates to that season.
+    pub fn battle_pass_of_act(&self, act_uuid: &str) -> Option<Arc<Contract>> {
+        let act = key(act_uuid);
+        self.contracts
+            .values()
+            .find(|contract| {
+                let content = &contract.content;
+                content
+                    .relation_type
+                    .as_deref()
+                    .is_some_and(|kind| kind.eq_ignore_ascii_case("season"))
+                    && content.relation_uuid.as_deref().map(key) == Some(act.clone())
+            })
+            .cloned()
+    }
+
+    pub fn mission(&self, uuid: &str) -> Option<Arc<Mission>> {
+        self.missions.get(&key(uuid)).cloned()
     }
 
     pub fn season(&self, uuid: &str) -> Option<Arc<Season>> {

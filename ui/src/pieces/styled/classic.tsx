@@ -1,17 +1,20 @@
 // CS 1.6-style pieces in the old VGUI look: olive bevelled windows with a title bar,
 // sunken list boxes, yellow selection and raised buttons. "Find Match" picks the mode and
-// queues; "Friends" is a server-browser style table of friends with an invite button.
-import { For, Show, createSignal, type JSX } from "solid-js";
+// queues; "Friends" is a server-browser style table of friends with an invite button. Their
+// layouts (Look -> Layout) are CSS only, in classic.module.css.
+import { For, createSignal, type JSX } from "solid-js";
 import type { FriendView } from "~/bindings/FriendView";
 import type { PieceProps } from "~/studio/registry";
 import { playCue } from "~/menu/sound";
 import { friends, setDrawerOpen } from "~/state/friends";
+import { partyLabel } from "~/ui/stacks";
 import { partyActions } from "~/state/party";
 import { settings, updateSettings } from "~/state/settings";
+import { canInvite } from "./socialActions";
 import { usePlay } from "./usePlay";
 import styles from "./classic.module.css";
 
-function Window(props: { title: string; children: JSX.Element; footer: JSX.Element }) {
+export function Window(props: { title: string; children: JSX.Element; footer: JSX.Element }) {
   return (
     <section class={styles.window}>
       <header class={styles.titleBar}>
@@ -27,7 +30,7 @@ function Window(props: { title: string; children: JSX.Element; footer: JSX.Eleme
 }
 
 /** Enter or Space on a focused list row acts like a click. */
-function onActivate(event: KeyboardEvent, act: () => void): void {
+export function onActivate(event: KeyboardEvent, act: () => void): void {
   if (event.key !== "Enter" && event.key !== " ") return;
   event.preventDefault();
   act();
@@ -35,7 +38,7 @@ function onActivate(event: KeyboardEvent, act: () => void): void {
 
 // ---- find match -------------------------------------------------------------------------
 
-function titleOf(props: PieceProps, fallback: string): string {
+export function titleOf(props: PieceProps, fallback: string): string {
   const title = props.piece.props["title"];
   return typeof title === "string" && title ? title : fallback;
 }
@@ -52,7 +55,7 @@ export function Cs16Play(props: PieceProps) {
   const mainLabel = () => {
     if (play.searchClock() !== null) return "Cancel";
     if (!play.isOwner()) return play.isReady() ? "Not ready" : "Ready";
-    return "Find match";
+    return play.isCustom() ? "Start game" : "Find match";
   };
   return (
     <Window
@@ -137,6 +140,10 @@ export function Cs16Browser(props: PieceProps) {
   const [selected, setSelected] = createSignal<string | null>(null);
   const shown = () => (filter() === "all" ? friends() : friends().filter((friend) => friend.status !== "offline"));
   const picked = () => friends().find((friend) => friend.puuid === selected());
+  const isPickedInvitable = () => {
+    const friend = picked();
+    return friend !== undefined && canInvite(friend);
+  };
   return (
     <Window
       title={titleOf(props, "Friends")}
@@ -148,7 +155,7 @@ export function Cs16Browser(props: PieceProps) {
           </button>
           <button
             class={styles.button}
-            disabled={!picked()}
+            disabled={!isPickedInvitable()}
             onClick={() => {
               const friend = picked();
               if (friend) void partyActions.invite(`${friend.game_name}#${friend.tag_line}`);
@@ -185,13 +192,9 @@ export function Cs16Browser(props: PieceProps) {
                 onClick={() => setSelected(friend.puuid)}
                 onKeyDown={(event) => onActivate(event, () => setSelected(friend.puuid))}
               >
-                <span>{friend.game_name}</span>
+                <span data-sensitive>{friend.game_name}</span>
                 <span>{STATUS_TEXT[friend.status]}</span>
-                <span>
-                  <Show when={friend.party_size > 1} fallback={readable(friend.detail)}>
-                    {friend.detail || `Party of ${friend.party_size}`}
-                  </Show>
-                </span>
+                <span>{[readable(friend.detail), partyLabel(friend.party_size)].filter(Boolean).join(" · ")}</span>
               </div>
             )}
           </For>

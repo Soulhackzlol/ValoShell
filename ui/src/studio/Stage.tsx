@@ -4,6 +4,7 @@
 import { Dynamic } from "solid-js/web";
 import { For, Show, createEffect, createSignal, onCleanup, onMount, type JSX } from "solid-js";
 import { playCue } from "~/menu/sound";
+import { appliedUiScale } from "~/state/uiScale";
 import {
   type Edge,
   EDGES,
@@ -19,7 +20,12 @@ import {
   toPx,
   touchingGuides,
 } from "./geometry";
-import { pieceDef } from "./registry";
+import { PieceContextProvider, frameAttributes, frameContextOf, isShownNow } from "./pieceFrame";
+import { registerFitter } from "./fit";
+import { layoutOf, minPxOf } from "./pieceLayout";
+import { accentOf, clampScale, pieceLookVars } from "./pieceLook";
+import { type PieceDef, drawnDef, pieceDef } from "./registry";
+import { pieceFamily } from "./skins";
 import { SNAPPY, type SpringHandle, VelocityTracker, project, rubberClamp, runSpring } from "./spring";
 import { isEditing, materializeStage, selectedId, setSelectedId, stagePieces, updatePiece } from "./store";
 import { pieceTransitionName } from "./transitions";
@@ -81,6 +87,26 @@ export function Stage(props: { id: StageId; class?: string; children?: JSX.Eleme
   );
 }
 
+// Minimums are what the content needs at 100%: under a bigger Interface size the stage has
+// fewer CSS px, so they shrink with it, or editing at 125% would save pieces that stay too
+// big at 100%. A piece drawn at its own bigger Size needs that much more room.
+function scaledMinSize(def: PieceDef | undefined, piece: Piece): { w: number; h: number } {
+  const min = def ? minPxOf(def, piece) : { w: 40, h: 30 };
+  const factor = clampScale(piece.style.scale) / appliedUiScale();
+  return { w: min.w * factor, h: min.h * factor };
+}
+
+// A layout or look picked in the inspector that needs more room than the piece has (a look's
+// small rank piece switched to the shared card) grows it just enough, kept on the stage, in
+// the same undo step as the pick (studio/fit.ts).
+function fitPiece(piece: Piece, current: PxRect, min: { w: number; h: number }, context: StageContext): void {
+  const stage = context.size();
+  const fitted = clampRect(current, stage, min);
+  if (fitted.w === current.w && fitted.h === current.h) return;
+  const next = toFraction(fitted, stage);
+  updatePiece(context.id, piece.id, (draft) => void (draft.rect = next), `layout.${piece.id}`);
+}
+
 function PieceView(props: { piece: Piece; order: number; context: StageContext }) {
   const def = () => pieceDef(props.piece.kind);
   const [live, setLive] = createSignal<PxRect | null>(null);
@@ -90,7 +116,21 @@ function PieceView(props: { piece: Piece; order: number; context: StageContext }
 
   const rect = () => live() ?? toPx(props.piece.rect, props.context.size());
   const isSelected = () => selectedId() === props.piece.id;
-  const minSize = () => def()?.minPx ?? { w: 40, h: 30 };
+  const frame = () => frameContextOf(props.piece, rect());
+  const layout = () => {
+    const current = def();
+    return current ? layoutOf(current, props.piece, frame().size) : null;
+  };
+  /** A shared arrangement is drawn by the job's standard piece in this look's materials. */
+  const drawn = () => {
+    const current = def();
+    return current ? drawnDef(current, layout()) : undefined;
+  };
+  const sharedLook = () => (drawn() !== def() ? (pieceFamily(props.piece.kind) ?? undefined) : undefined);
+  // While editing every piece stays on the canvas, whatever moment its rule waits for.
+  const isShown = () => isEditing() || isShownNow(props.piece);
+  const minSize = () => scaledMinSize(def(), props.piece);
+  onCleanup(registerFitter(props.piece.id, () => fitPiece(props.piece, rect(), minSize(), props.context)));
 
   const otherRects = () =>
     stagePieces(props.context.id)
@@ -227,17 +267,36 @@ function PieceView(props: { piece: Piece; order: number; context: StageContext }
         >
           <div
             class={`${styles.body} ${surfaceClass()}`}
+            {...frameAttributes(props.piece, frame(), isShown())}
+            data-waiting={isEditing() && !isShownNow(props.piece) ? "" : undefined}
+            onAnimationEnd={(event) => {
+              // An entrance plays once, when the piece appears; closing Studio must not replay it.
+              if (event.target === event.currentTarget && !isEditing()) event.currentTarget.setAttribute("data-entered", "");
+            }}
             data-part="piece"
             data-kind={props.piece.kind}
             data-glow={props.piece.style.isGlowing ? "" : undefined}
-            style={{ opacity: props.piece.style.opacity, "border-radius": `${props.piece.style.radius}px` }}
+            data-accent={accentOf(props.piece.style) ? "" : undefined}
+            data-layout={layout() ?? undefined}
+            data-look={sharedLook()}
+            style={{
+              opacity: props.piece.style.opacity,
+              "border-radius": `${props.piece.style.radius}px`,
+              "--enter-delay": `${props.piece.style.delay}ms`,
+              ...pieceLookVars(props.piece.style),
+            }}
           >
-            <Dynamic
-              component={definition().component}
-              piece={props.piece}
-              stage={props.context.id}
-              isEditing={isEditing()}
-            />
+            {/* Content size zooms this layer; the piece keeps its box (stage.module.css). */}
+            <div class={styles.content} data-part="piece-content">
+              <PieceContextProvider value={frame}>
+                <Dynamic
+                  component={(drawn() ?? definition()).component}
+                  piece={props.piece}
+                  stage={props.context.id}
+                  isEditing={isEditing()}
+                />
+              </PieceContextProvider>
+            </div>
           </div>
           <Show when={isEditing()}>
             <div

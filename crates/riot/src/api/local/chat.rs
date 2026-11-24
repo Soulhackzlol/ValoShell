@@ -46,7 +46,8 @@ pub fn get_participants(cid: &str) -> Request {
 pub enum MessageKind {
     /// Party, team or all chat.
     GroupChat,
-    /// Whisper. UNVERIFIED on 13.08: the `cid` is the friend's `pid`.
+    /// Whisper: the `cid` is the friend's `pid` (`<puuid>@<chat server>`). Verified on a live
+    /// client (2026-10-24): the conversation it creates has that id and type `chat`.
     Whisper,
 }
 

@@ -1,0 +1,112 @@
+/* Night City nav: a dark glass strip with a red hairline, red tabs with mono indexes; the open
+   tab lit cyan with a bar under it, as the game's hub menu marks the open page. */
+.nav {
+  position: absolute;
+  inset: 0 0 auto;
+  z-index: 30;
+  display: flex;
+  align-items: center;
+  gap: 24px;
+  height: var(--nav-top, 64px);
+  padding: 0 24px;
+  background: color-mix(in srgb, var(--nightcity-panel, #0e0b10) 92%, transparent);
+  border-bottom: 1px solid color-mix(in srgb, var(--nightcity-red, #ff5e57) 45%, transparent);
+}
+
+.brand {
+  font-family: var(--font-display);
+  font-size: 22px;
+  font-weight: 700;
+  color: var(--nightcity-yellow, #fcee0a);
+}
+
+.brand b {
+  color: var(--nightcity-red, #ff5e57);
+}
+
+.tabs {
+  display: flex;
+  gap: 4px;
+  margin: 0 auto;
+}
+
+.tab {
+  position: relative;
+  display: inline-flex;
+  align-items: baseline;
+  gap: 8px;
+  padding: 8px 16px;
+  font-family: var(--font-display);
+  font-size: 18px;
+  font-weight: 700;
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+  color: var(--nightcity-red, #ff5e57);
+  text-decoration: none;
+  transition:
+    color 120ms var(--ease-standard),
+    background 120ms var(--ease-standard);
+}
+
+.tab::after {
+  content: "";
+  position: absolute;
+  left: 16px;
+  right: 16px;
+  bottom: 0;
+  height: 2px;
+  background: var(--nightcity-cyan, #5ef6ff);
+  box-shadow: 0 0 10px var(--nightcity-cyan, #5ef6ff);
+  scale: 0 1;
+  transition: scale 160ms var(--ease-decelerate);
+}
+
+.tab:hover {
+  color: var(--nightcity-cyan, #5ef6ff);
+}
+
+.index {
+  font-family: var(--font-mono);
+  font-size: 11px;
+  color: color-mix(in srgb, var(--nightcity-red, #ff5e57) 65%, transparent);
+}
+
+.active,
+.active:hover {
+  color: var(--nightcity-cyan, #5ef6ff);
+  background: linear-gradient(to top, color-mix(in srgb, var(--nightcity-cyan, #5ef6ff) 14%, transparent), transparent);
+  text-shadow: 0 0 12px color-mix(in srgb, var(--nightcity-cyan, #5ef6ff) 60%, transparent);
+}
+
+.active::after {
+  scale: 1 1;
+}
+
+.active .index {
+  color: var(--nightcity-cyan, #5ef6ff);
+}
+
+.live {
+  color: var(--nightcity-red, #ff5e57);
+}
+
+.side {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+}
+
+/* Narrow windows: tighter tabs so the system buttons stay on screen down to 1100 px. */
+@media (max-width: 1280px) {
+  .nav {
+    gap: 14px;
+    padding: 0 16px;
+  }
+
+  .tab {
+    gap: 6px;
+    padding: 8px 10px;
+    font-size: 14px;
+    letter-spacing: 0.04em;
+  }
+}

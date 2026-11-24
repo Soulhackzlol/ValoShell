@@ -44,6 +44,11 @@ button:disabled {
   cursor: default;
 }
 
+/* Match rows that open their summary (see menu/openMatch.ts). */
+[data-opens-match] {
+  cursor: pointer;
+}
+
 :focus-visible {
   outline: 2px solid var(--accent);
   outline-offset: 2px;
@@ -85,6 +90,12 @@ button:disabled {
 [data-streamer] [data-sensitive] {
   filter: blur(6px);
   pointer-events: none;
+}
+
+/* A secret typed into a field (a party code) can't be blurred without blocking the typing, so
+   streamer mode draws it as dots instead, like a password. */
+[data-streamer] input[data-secret] {
+  -webkit-text-security: disc;
 }
 
 /* Motion setting (Esc menu): "Reduced" stills every animation and transition; "System"

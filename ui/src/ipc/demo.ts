@@ -4,200 +4,41 @@
 // Loaded only outside Tauri (dynamic import in `call`).
 import type { AgentCard } from "~/bindings/AgentCard";
 import type { AppEvent } from "~/bindings/AppEvent";
-import type { CareerView } from "~/bindings/CareerView";
+import type { ChatMessageView } from "~/bindings/ChatMessageView";
+import type { ChatView } from "~/bindings/ChatView";
 import type { Catalog } from "~/bindings/Catalog";
 import type { CollectionView } from "~/bindings/CollectionView";
 import type { ConnectionStatus } from "~/bindings/ConnectionStatus";
-import type { FriendView } from "~/bindings/FriendView";
-import type { HistoryView } from "~/bindings/HistoryView";
-import type { NewsView } from "~/bindings/NewsView";
-import type { MatchRow } from "~/bindings/MatchRow";
+import type { FriendRequestView } from "~/bindings/FriendRequestView";
+import type { CosmeticKind } from "~/bindings/CosmeticKind";
+import type { IdentityChange } from "~/bindings/IdentityChange";
+import type { IdentityView } from "~/bindings/IdentityView";
 import type { GameSnapshot } from "~/bindings/GameSnapshot";
 import type { LobbyPlayerView } from "~/bindings/LobbyPlayerView";
 import type { LobbyView } from "~/bindings/LobbyView";
-import type { MapCard } from "~/bindings/MapCard";
-import type { MemberView } from "~/bindings/MemberView";
 import type { PartyView } from "~/bindings/PartyView";
 import type { PostMatchPlayer } from "~/bindings/PostMatchPlayer";
 import type { PostMatchView } from "~/bindings/PostMatchView";
-import type { PregamePlayerView } from "~/bindings/PregamePlayerView";
 import type { PregameView } from "~/bindings/PregameView";
-import type { QueueOption } from "~/bindings/QueueOption";
-import type { RankBadge } from "~/bindings/RankBadge";
 import type { Settings } from "~/bindings/Settings";
-import type { SkinOption } from "~/bindings/SkinOption";
-import type { StoreItem } from "~/bindings/StoreItem";
-import type { StoreView } from "~/bindings/StoreView";
 import type { WalletView } from "~/bindings/WalletView";
 import type { InstantCloneState } from "~/bindings/InstantCloneState";
 import type { ArgsOf, Command, ResultOf } from "./commands";
-import { DEMO_WEAPON_ART, type DemoSkin } from "./demoArt";
+import { withDefaults } from "./demoSettings";
+import { demoCommunityLook, demoCommunityLooks, demoCommunityThumb } from "./demoCommunity";
+import { forcedViewState } from "./demoStates";
+import { isLookPreview } from "./runtime";
+import { demoCheckForUpdate, demoInstallUpdate, demoUpdate } from "./demoUpdate";
 import { dispatchAppEvent } from "./events";
+import { MEDIA, playerCard, CARDS, DEMO_LOCKED_AGENTS, AGENTS, MAPS, QUEUES, demoCustomLobby, title, agentCard, mapCard, type ApiAgent, rank, mapArt, member, WEAPONS, EQUIPPED, weaponSkins, FRIENDS } from "./demoData";
+import { demoStore, demoCareer, demoLeaderboard, demoCosmeticOptions, initialDemoIdentity, demoProgress, demoNews, demoStats, demoSkinCards, demoSearchSkins, demoHistory, demoSkinOptions, pregamePlayer, demoAgentStore } from "./demoViews";
 
-const MEDIA = "https://media.valorant-api.com";
 const STORAGE_PREFIX = "valoshell.demo.";
-const TIERS = `${MEDIA}/competitivetiers/03621f52-342b-cf4e-4f86-9350a49c6d04`;
-
-/** A player card's three crops, as the party and friends views carry them. */
-function playerCard(uuid: string): Pick<MemberView, "card_tall" | "card_wide" | "card_small"> {
-  return {
-    card_tall: `${MEDIA}/playercards/${uuid}/largeart.png`,
-    card_wide: `${MEDIA}/playercards/${uuid}/wideart.png`,
-    card_small: `${MEDIA}/playercards/${uuid}/smallart.png`,
-  };
-}
-
-const CARDS = {
-  champions: "7ae0ca6c-44fc-9fe2-9361-9abaecee53bb",
-  reyna: "e9dcc215-4b83-90e4-ba3b-4f8d32568eb6",
-  oni: "aeca98db-4737-5e0f-3476-7eb8a16eb696",
-  clove: "faa3c3b5-4b0b-1f20-b383-01b7b83126ff",
-  neon: "cec2424b-483e-da2e-4369-f0a8822f96b5",
-  glitchpop: "df3adf8c-4fa3-5f57-544d-eabf8b68713d",
-  spectrum: "006e03e5-4fdb-c400-4c5b-5f815980f403",
-  jett: "ab5a453a-f726-4e04-b277-f30d56a8b152",
-  prime: "d93ad22d-4db7-b6bc-5e9c-e5959bb9dd76",
-  rgx: "cada2e3f-4b1d-8279-3e1a-49984a71d4d3",
-  hush: "d1794848-4323-429a-269a-83b81a87a4c6",
-};
-
-/** Every demo skin by name, with the weapon it belongs to. */
-const SKINS_BY_NAME = new Map<string, DemoSkin>(Object.values(DEMO_WEAPON_ART).flatMap(([, skins]) => skins.map((skin) => [skin[0], skin] as const)));
-
-function skinArt(name: string): string | null {
-  const skin = SKINS_BY_NAME.get(name);
-  return skin ? `${MEDIA}/${skin[1]}` : null;
-}
-
-const DEMO_LOCKED_AGENTS: readonly string[] = ["FADE", "HARBOR", "OMEN", "VYSE"];
-
-const AGENTS: ReadonlyArray<[string, string, string]> = [
-  ["ASTRA", "41fb69c1-4189-7b37-f117-bcaf1e96f1bf", "Controller"],
-  ["BREACH", "5f8d3a7f-467b-97f3-062c-13acf203c006", "Initiator"],
-  ["BRIMSTONE", "9f0d8ba9-4140-b941-57d3-a7ad57c6b417", "Controller"],
-  ["CHAMBER", "22697a3d-45bf-8dd7-4fec-84a9e28c69d7", "Sentinel"],
-  ["CLOVE", "1dbf2edd-4729-0984-3115-daa5eed44993", "Controller"],
-  ["CYPHER", "117ed9e3-49f3-6512-3ccf-0cada7e3823b", "Sentinel"],
-  ["DEADLOCK", "cc8b64c8-4b25-4ff9-6e7f-37b4da43d235", "Sentinel"],
-  ["FADE", "dade69b4-4f5a-8528-247b-219e5a1facd6", "Initiator"],
-  ["GEKKO", "e370fa57-4757-3604-3648-499e1f642d3f", "Initiator"],
-  ["HARBOR", "95b78ed7-4637-86d9-7e41-71ba8c293152", "Controller"],
-  ["ISO", "0e38b510-41a8-5780-5e8f-568b2a4f2d6c", "Duelist"],
-  ["JETT", "add6443a-41bd-e414-f6ad-e58d267f4e95", "Duelist"],
-  ["KAY/O", "601dbbe7-43ce-be57-2a40-4abd24953621", "Initiator"],
-  ["KILLJOY", "1e58de9c-4950-5125-93e9-a0aee9f98746", "Sentinel"],
-  ["NEON", "bb2a4828-46eb-8cd1-e765-15848195d751", "Duelist"],
-  ["OMEN", "8e253930-4c05-31dd-1b6c-968525494517", "Controller"],
-  ["PHOENIX", "eb93336a-449b-9c1b-0a54-a891f7921d69", "Duelist"],
-  ["RAZE", "f94c3b30-42be-e959-889c-5aa313dba261", "Duelist"],
-  ["REYNA", "a3bfb853-43b2-7238-a4f1-ad90e9e46bcc", "Duelist"],
-  ["SAGE", "569fdd95-4d10-43ab-ca70-79becc718b46", "Sentinel"],
-  ["SKYE", "6f2a04ca-43e0-be17-7f36-b3908627744d", "Initiator"],
-  ["SOVA", "320b2a48-4d9b-a075-30f1-1f93a9b638fa", "Initiator"],
-  ["TEJO", "b444168c-4e35-8076-db47-ef9bf368f384", "Initiator"],
-  ["VIPER", "707eab51-4836-f488-046a-cda6bf494859", "Controller"],
-  ["VYSE", "efba5359-4016-a1e5-7626-b1ae76895940", "Sentinel"],
-  ["WAYLAY", "df1cb487-4902-002e-5c17-d28e83e78588", "Duelist"],
-  ["YORU", "7f94d92c-4234-0a36-9646-3a87eb8b5c89", "Duelist"],
-];
-
-const MAPS: ReadonlyArray<[string, string, string]> = [
-  ["ABYSS", "Infinity", "224b0a95-48b9-f703-1bd8-67aca101a61f"],
-  ["ASCENT", "Ascent", "7eaecc1b-4337-bbf6-6ab9-04b8f06b3319"],
-  ["BIND", "Duality", "2c9d57ec-4431-9c5e-2939-8f9ef6dd5cba"],
-  ["BREEZE", "Foxtrot", "2fb9a4fd-47b8-4e7d-a969-74b4046ebd53"],
-  ["CORRODE", "Rook", "1c18ab1f-420d-0d8b-71d0-77ad3c439115"],
-  ["FRACTURE", "Canyon", "b529448b-4d60-346e-e89e-00a4c527a405"],
-  ["HAVEN", "Triad", "2bee0dc9-4ffe-519b-1cbd-7fbe763a6047"],
-  ["ICEBOX", "Port", "e2ad5c54-4114-a870-9641-8ea21279579a"],
-  ["LOTUS", "Jam", "2fe4ed3a-450a-948b-6d6b-e89a78e680a9"],
-  ["PEARL", "Pitt", "fd267378-4d1d-484f-ff52-77821ed10dc2"],
-  ["SPLIT", "Bonsai", "d960549e-485c-e861-8d71-aa9d1aed12a2"],
-  ["SUNSET", "Juliett", "92584fbe-486a-b1b2-9faa-39b0f486b498"],
-];
-
-/** A demo queue with the asset tables' card art and glyph (valorant-api queue uuids). */
-function demoQueue(id: string, label: string, uuid: string, hasIcon: boolean): QueueOption {
-  const base = `${MEDIA}/gamemodequeues/${uuid}`;
-  return { id, label, art: `${base}/listviewicontall.png`, icon: hasIcon ? `${base}/displayicon.png` : null };
-}
-
-const QUEUES: QueueOption[] = [
-  demoQueue("unrated", "Unrated", "494b69f1-4e3a-1b03-c2cd-a4875d6e9cb6", false),
-  demoQueue("competitive", "Competitive", "d2faff85-4964-f52e-b6b5-73a5d66ccad6", true),
-  demoQueue("swiftplay", "Swiftplay", "2d257217-464c-7c4b-efc6-51a55365d44a", true),
-  demoQueue("spikerush", "Spike Rush", "3938d5da-43bf-1e8c-f09f-858caf145975", true),
-  demoQueue("deathmatch", "Deathmatch", "f3126c5e-4a6c-1f02-b216-cb9bf58df856", false),
-  demoQueue("hurm", "Team Deathmatch", "1400f385-4905-96ff-8e1e-f8a4acb8c64d", true),
-  demoQueue("custom", "Custom", "63d60a3e-4838-695d-9077-e9af5ed523ca", false),
-];
-
-/** The custom lobby the demo opens: you defending on Ascent, Nova attacking, Kite watching. */
-function demoCustomLobby(): NonNullable<PartyView["custom"]> {
-  return {
-    map_name: "Ascent",
-    map_splash: mapArt("Ascent", "splash"),
-    mode_name: "Standard",
-    server_name: "Madrid",
-    attackers: ["demo-nova"],
-    defenders: ["demo-self"],
-    spectators: ["demo-kite"],
-    is_autobalance_on: true,
-    autobalance_min_players: 6,
-  };
-}
-
-function title(name: string): string {
-  return name.charAt(0) + name.slice(1).toLowerCase().replace(/\/(.)/, (_, letter: string) => `/${letter.toUpperCase()}`);
-}
-
-/** Page tints by role for the demo; the real ones come per agent from the asset tables. */
-const DEMO_TINTS: Record<string, string[]> = {
-  Duelist: ["#5e2a3c", "#3a1a2a", "#8a3a52", "#21101a"],
-  Controller: ["#4b2a7a", "#2c1a52", "#6a3fa8", "#170f2e"],
-  Initiator: ["#2a5a4a", "#183a30", "#3f7a62", "#0c1f1a"],
-  Sentinel: ["#2a4a6a", "#1a2e44", "#3f6a90", "#0f1a28"],
-};
-
-function agentCard([name, uuid, role]: readonly [string, string, string]): AgentCard {
-  return {
-    uuid,
-    display_name: title(name),
-    upper_name: name,
-    role,
-    icon: `${MEDIA}/agents/${uuid}/displayicon.png`,
-    portrait: `${MEDIA}/agents/${uuid}/fullportrait.png`,
-    background: `${MEDIA}/agents/${uuid}/background.png`,
-    description: `${title(name)} brings their own toolkit to every round. The full bio shows when ValoShell has the game's asset tables.`,
-    colors: DEMO_TINTS[role] ?? ["#2a3c52", "#1b2a3a", "#3d5570", "#0f1923"],
-    role_icon: null,
-    abilities: [],
-  };
-}
-
-function mapCard([name, internalId, uuid]: readonly [string, string, string]): MapCard {
-  return {
-    internal_id: internalId,
-    display_name: title(name),
-    upper_name: name,
-    splash: `${MEDIA}/maps/${uuid}/splash.png`,
-    list_icon: `${MEDIA}/maps/${uuid}/listviewicon.png`,
-    is_team_deathmatch: false,
-  };
-}
 
 let catalog: Catalog = {
   agents: AGENTS.map(agentCard),
   maps: MAPS.map(mapCard),
 };
-
-interface ApiAgent {
-  uuid: string;
-  description?: string;
-  backgroundGradientColors?: string[];
-  role?: { displayIcon?: string } | null;
-  abilities?: { slot: string; displayName: string; description?: string; displayIcon?: string | null }[];
-}
 
 /** The real bios, colours and abilities from valorant-api.com, the same source the app's asset
  *  cache reads; offline, the demo keeps its placeholders. */
@@ -225,52 +66,9 @@ const fullCatalog: Promise<Catalog> = fetch("https://valorant-api.com/v1/agents?
   })
   .catch(() => catalog);
 
-function rank(tier: number, name: string, color: string): RankBadge {
-  return { tier, name, icon: `${TIERS}/${tier}/largeicon.png`, color };
-}
-
-function mapArt(name: string, crop: "splash" | "listviewicon"): string | null {
-  const map = MAPS.find(([upperName]) => upperName === name.toUpperCase());
-  return map ? `${MEDIA}/maps/${map[2]}/${crop}.png` : null;
-}
-
-function member(name: string, tag: string, extra: Partial<MemberView>): MemberView {
-  return {
-    puuid: `demo-${name.toLowerCase()}`,
-    game_name: name,
-    tag_line: tag,
-    is_self: false,
-    is_owner: false,
-    is_ready: true,
-    account_level: 120,
-    card_tall: null,
-    card_wide: null,
-    card_small: null,
-    title: null,
-    title_es: null,
-    level_border: `${MEDIA}/levelborders/7e7feff1-44c2-301e-767d-d9b2b1cd9051/smallplayercardappearance.png`,
-    rank: rank(14, "Gold 2", "e5c46bff"),
-    ping_ms: 24,
-    ...extra,
-  };
-}
-
-function defaultSettings(): Settings {
-  return {
-    region: "eu",
-    match_flow: {
-      should_hide_on_lock: true,
-      should_hide_on_match_start: true,
-      should_return_in_menus: true,
-      should_minimize_game_in_menus: false,
-    },
-    lobby: { should_rank_enemies_in_agent_select: false },
-    interface: { theme: "valorant-dark", ui_volume: 0.6, motion: "system", backdrop: "default" },
-    streamer: { is_enabled: false, should_hide_own_name: true },
-  };
-}
-
 function load<T>(key: string, fallback: T): T {
+  // A gallery preview starts from the demo's defaults, whatever the browser preview saved.
+  if (isLookPreview) return fallback;
   try {
     const raw = localStorage.getItem(STORAGE_PREFIX + key);
     return raw ? (JSON.parse(raw) as T) : fallback;
@@ -280,6 +78,7 @@ function load<T>(key: string, fallback: T): T {
 }
 
 function persist(key: string, value: unknown): void {
+  if (isLookPreview) return;
   try {
     localStorage.setItem(STORAGE_PREFIX + key, JSON.stringify(value));
   } catch {
@@ -287,7 +86,7 @@ function persist(key: string, value: unknown): void {
   }
 }
 
-let settings: Settings = load("settings", defaultSettings());
+let settings: Settings = withDefaults(load<Partial<Settings>>("settings", {}));
 const connection: ConnectionStatus = { state: "connected", riot_id: "s1moscs#EUW", region: "eu" };
 let game: GameSnapshot = {
   phase: "menus",
@@ -351,156 +150,29 @@ function setGame(next: Partial<GameSnapshot>): void {
 
 // ---- store and career -------------------------------------------------------------------
 
-function storeItem(name: string, price: number, discounted: number | null = null, currency = "vp", edition: string | null = null, image: string | null = skinArt(name)): StoreItem {
-  return {
-    id: `demo-${name.toLowerCase().replace(/\W+/g, "-")}`,
-    name,
-    image,
-    price,
-    discounted_price: discounted,
-    discount_percent: discounted === null ? null : Math.round((1 - discounted / price) * 100),
-    currency,
-    edition,
-  };
+let demoIdentityState: IdentityView | null = null;
+
+function demoIdentity(): IdentityView {
+  demoIdentityState ??= initialDemoIdentity();
+  return demoIdentityState;
 }
 
-function demoStore(): StoreView {
-  return {
-    daily: [
-      storeItem("Reaver Vandal", 1775, null, "vp", "Premium"),
-      storeItem("Prime Spectre", 1775, null, "vp", "Premium"),
-      storeItem("Oni Phantom", 1775, null, "vp", "Premium"),
-      storeItem("Glitchpop Odin", 2175, null, "vp", "Exclusive"),
-    ],
-    daily_ends_in_s: 9 * 3600 + 1234,
-    bundles: [
-      {
-        name: "Neo Frontier",
-        image: `${MEDIA}/bundles/4d368017-4f98-1e89-dbec-31abd2533eb9/displayicon.png`,
-        price: 8700,
-        discounted_price: 5829,
-        ends_in_s: 5 * 86400 + 3600,
-        items: [storeItem("Neo Frontier Sheriff", 2175, 1458), storeItem("Neo Frontier Phantom", 2175, 1458), storeItem("Neo Frontier Axe", 4350, 2915, "vp", null, `${MEDIA}/weaponskins/cdcfab50-425d-6410-7a54-6aa913b7ce48/displayicon.png`)],
-      },
-      {
-        name: "VCT x LOUD",
-        image: `${MEDIA}/bundles/8feb9ed1-441a-73b6-55ed-ff836011701e/displayicon.png`,
-        price: 2175,
-        discounted_price: null,
-        ends_in_s: 9 * 86400,
-        items: [storeItem("VCT x LOUD Classic", 2175, null, "vp", null, `${MEDIA}/weaponskins/0aa66a21-41d9-8c50-f2ef-3988b57bfd52/displayicon.png`)],
-      },
-    ],
-    night_market: [storeItem("Elderflame Operator", 2475, 1237), storeItem("Ion Phantom", 1775, 1065), storeItem("Sakura Classic", 875, 525)],
-    night_market_ends_in_s: 6 * 86400,
-    accessories: [
-      storeItem("Hush Card", 4000, null, "kc", null, `${MEDIA}/playercards/${CARDS.hush}/largeart.png`),
-      storeItem("Clutch Spray", 2000, null, "kc", null, `${MEDIA}/sprays/890c4f6d-4794-3d88-617b-1b906c7a8ea6/fulltransparenticon.png`),
-      storeItem("The Spike Buddy", 3000, null, "kc", null, `${MEDIA}/buddies/0ec28d81-498c-af58-722c-baa60a84151c/displayicon.png`),
-    ],
-    accessories_end_in_s: 3 * 86400,
-    observed_at_ms: Date.now(),
-  };
-}
-
-function demoCareer(): CareerView {
-  const diamond = rank(18, "Diamond 1", "b87de8ff");
-  const plat = rank(17, "Platinum 3", "4fbfd4ff");
-  const maps = ["Ascent", "Bind", "Lotus", "Haven", "Split", "Sunset", "Icebox", "Pearl"];
-  const earned = [21, -14, 18, 23, -9, 17, -19, 24, 15, -12];
-  let rr = 41;
-  const updates = earned.map((delta, index) => {
-    const after = rr;
-    rr -= delta;
-    return {
-      match_id: `demo-match-${index}`,
-      map_name: maps[index % maps.length] ?? "Ascent",
-      map_image: mapArt(maps[index % maps.length] ?? "Ascent", "listviewicon"),
-      started_at_ms: Date.now() - index * 20 * 3600 * 1000,
-      rr_earned: delta,
-      rr_after: after < 0 ? after + 100 : after,
-      rank_after: after < 0 ? plat : diamond,
-      is_promotion: index === 3,
-      is_demotion: false,
-      afk_penalty: 0,
-    };
-  });
-  return { rank: diamond, rr: 41, leaderboard_rank: 0, wins: 34, games: 61, peak: rank(19, "Diamond 2", "b87de8ff"), placements_left: 0, updates };
-}
-
-/** playvalorant.com's news as the app reads it (October 2026, Spanish). */
-function demoNews(): NewsView {
-  const image = (id: string) => `https://cmsassets.rgpub.io/sanity/images/dsfx7636/news_live/${id}.jpg?accountingTag=VAL&w=640`;
-  const item = (title: string, category: string, id: string, url: string, published_at: string, summary: string) => ({ title, category, summary, image: image(id), url, published_at });
-  return {
-    items: [
-      item("VOCÊ É BRABA // Game Changers Championship", "esports", "549e358e98eb8249c230b805a493bb11ec65b765-3840x2160", "https://www.youtube.com/watch?v=69sKYwsxUM8", "2026-10-20T15:00:00.000Z", "VCT Game Changers Championship 2026: del 22 de octubre al 1 de noviembre en São Paulo, Brasil."),
-      item("¡ÁLZATE Y CAE! // Tráiler de Hush - VALORANT", "game_updates", "511ed3c6f31074a8225f6b9597d686f17eeef8d3-1920x1080", "https://www.youtube.com/watch?v=pyir73S9kFU", "2026-10-18T06:00:00.000Z", "Nueva agente duelista disponible en la Temporada 26 // ACTO VI"),
-      item("Clasificatorias del Kickoff de VCT EMEA 2027", "esports", "a12af144cabbe2b642e799a596ed2d69c2712a25-3840x2160", "https://valorantesports.com/es-es/news/2027-vct-emea-kickoff-qualifiers", "2026-10-15T16:00:00.000Z", "Dad el primer paso hacia el VCT EMEA 2027. Inscribíos ya en las clasificatorias abiertas de EMEA"),
-      item("LA ÚLTIMA PALABRA // Avance de agente - VALORANT", "game_updates", "561c2fe972b26b563bf2a0c58c329de7d234082a-1920x1080", "https://www.youtube.com/watch?v=kiaLEAFx_FA", "2026-10-15T12:00:00.000Z", "Pronto descubriréis quién tiene la última palabra."),
-      item("VCT 2027: la gira mundial", "esports", "3ac79a3f7c8f8e4c452febf366629442e0ba2a87-1920x1080", "https://valorantesports.com/es-es/news/vct-2027-the-global-tour/", "2026-10-15T13:00:00.000Z", "El VALORANT Champions Tour se va de gira en 2027 con más torneos, más formas de competir y más VCT cerca de vosotros."),
-    ],
-    patch_version: "13.08",
-    patch_url: "https://playvalorant.com/es-es/news/game-updates/valorant-patch-notes-13-08",
-  };
-}
-
-const HISTORY_MAPS = ["Abyss", "Corrode", "Lotus", "Haven", "Bind", "Sunset", "Ascent", "Pearl", "Split"];
-
-function demoHistory(): HistoryView {
-  const brimstone = "9f0d8ba9-4140-b941-57d3-a7ad57c6b417";
-  const clove = "1dbf2edd-4729-0984-3115-daa5eed44993";
-  const lines: [string, string, number, number, number, number, number, number, MatchRow["mvp"], number | null, number | null][] = [
-    [brimstone, "swiftplay", 3, 5, 0, 231, 0, 5, null, null, null],
-    [brimstone, "swiftplay", 3, 5, 2, 243, 1, 5, null, null, null],
-    [brimstone, "swiftplay", 11, 6, 5, 436, 4, 5, "match", null, null],
-    [brimstone, "swiftplay", 6, 4, 5, 328, 5, 4, null, null, null],
-    [brimstone, "swiftplay", 10, 2, 4, 494, 5, 1, "match", null, null],
-    [brimstone, "swiftplay", 10, 6, 9, 424, 4, 5, "match", null, null],
-    [brimstone, "competitive", 15, 9, 11, 358, 13, 6, null, 19, null],
-    [clove, "deathmatch", 5, 9, 3, 0, 0, 0, null, null, 7],
-    [brimstone, "competitive", 8, 10, 13, 253, 13, 6, null, 16, null],
-  ];
-  const labels: Record<string, string> = { swiftplay: "Swiftplay", competitive: "Competitive", deathmatch: "Deathmatch" };
-  return {
-    rows: lines.map(([agent, queue, kills, deaths, assists, score, won, lost, mvp, rr, place], index) => ({
-      match_id: `demo-history-${index}`,
-      queue_id: queue,
-      queue_label: labels[queue] ?? queue,
-      map_name: HISTORY_MAPS[index % HISTORY_MAPS.length] ?? "Abyss",
-      map_splash: mapArt(HISTORY_MAPS[index % HISTORY_MAPS.length] ?? "Abyss", "splash"),
-      agent_name: agent === clove ? "Clove" : "Brimstone",
-      agent_icon: `${MEDIA}/agents/${agent}/displayicon.png`,
-      kills,
-      deaths,
-      assists,
-      score,
-      result: queue === "deathmatch" ? "defeat" : won > lost ? "victory" : won < lost ? "defeat" : "draw",
-      rounds_won: won,
-      rounds_lost: lost,
-      placement: place,
-      mvp: mvp ?? null,
-      rr_change: rr,
-      started_at_ms: Date.now() - index * 3 * 3600 * 1000,
-    })),
-  };
-}
-
-const WEAPONS: ReadonlyArray<[string, string]> = [
-  ["Classic", "Sidearm"], ["Shorty", "Sidearm"], ["Frenzy", "Sidearm"], ["Ghost", "Sidearm"], ["Sheriff", "Sidearm"],
-  ["Stinger", "SMG"], ["Spectre", "SMG"], ["Bucky", "Shotgun"], ["Judge", "Shotgun"],
-  ["Bulldog", "Rifle"], ["Guardian", "Rifle"], ["Phantom", "Rifle"], ["Vandal", "Rifle"],
-  ["Marshal", "Sniper"], ["Outlaw", "Sniper"], ["Operator", "Sniper"], ["Ares", "Heavy"], ["Odin", "Heavy"], ["Melee", "Melee"],
-];
-/** Which of a weapon's demo skins it wears (-1: the standard skin), so the loadout looks lived in. */
-const EQUIPPED: Record<string, number> = { Classic: 0, Shorty: -1, Frenzy: 2, Ghost: 1, Sheriff: 0, Stinger: -1, Spectre: 1, Bucky: -1, Judge: 1, Bulldog: 2, Guardian: 0, Phantom: 0, Vandal: 0, Marshal: 1, Outlaw: -1, Operator: 3, Ares: -1, Odin: 1, Melee: 0 };
-
-function chromaArt(uuid: string, crop: "swatch" | "fullrender"): string {
-  return `${MEDIA}/weaponskinchromas/${uuid}/${crop}.png`;
-}
-
-function weaponSkins(name: string): [string, DemoSkin[]] {
-  return DEMO_WEAPON_ART[name] ?? ["", []];
+/** Like the backend: swap the one thing the change names and answer the new identity. */
+function demoEquipIdentity(change: IdentityChange): IdentityView {
+  let next = demoIdentity();
+  const find = (kind: CosmeticKind, id: string | null) => demoCosmeticOptions(kind).find((option) => option.id === id) ?? null;
+  if (change.kind === "card") next = { ...next, card: find("card", change.id) };
+  if (change.kind === "title") next = { ...next, title: find("title", change.id) };
+  if (change.kind === "expression") {
+    const expressions = next.expressions.map((slot) => (slot.slot === change.slot ? { ...slot, item: find(slot.kind, change.id) } : slot));
+    next = { ...next, expressions };
+  }
+  if (change.kind === "buddy") {
+    const buddies = next.buddies.map((line) => (line.weapon_id === change.weapon_id ? { ...line, buddy: find("buddy", change.id) } : line));
+    next = { ...next, buddies };
+  }
+  demoIdentityState = next;
+  return next;
 }
 
 let collection: CollectionView = {
@@ -516,74 +188,19 @@ let collection: CollectionView = {
   }),
 };
 
-function demoSkinOptions(weaponId: string): SkinOption[] {
-  const name = WEAPONS.find(([weapon]) => `w-${weapon.toLowerCase()}` === weaponId)?.[0] ?? "Weapon";
-  const [weaponUuid, skins] = weaponSkins(name);
-  const standard: SkinOption = {
-    skin_id: `s-${name}`,
-    name,
-    image: weaponUuid ? `${MEDIA}/weapons/${weaponUuid}/displayicon.png` : null,
-    chromas: [],
-    owned_levels: 1,
-    total_levels: 1,
-    levels: [{ level_id: `l-${name}-0`, name, effect: null, video: null, is_owned: true }],
-    edition: null,
-  };
-  return [
-    standard,
-    ...skins.map(([skin, icon, edition, levelCount, chromas], index): SkinOption => {
-      const owned = Math.min(levelCount, 2 + (index % 3));
-      return {
-        skin_id: `s-${skin}`,
-        name: skin,
-        image: `${MEDIA}/${icon}`,
-        chromas: chromas.map(([chromaName, uuid, hasSwatch], chroma) => ({
-          chroma_id: uuid,
-          name: chromaName,
-          swatch: hasSwatch ? chromaArt(uuid, "swatch") : null,
-          image: chromaArt(uuid, "fullrender"),
-          video: null,
-          is_owned: chroma < 2,
-        })),
-        owned_levels: owned,
-        total_levels: levelCount,
-        levels: Array.from({ length: levelCount }, (_, level) => ({
-          level_id: `l-${skin}-${level}`,
-          name: level === 0 ? skin : `${skin} Level ${level + 1}`,
-          effect: level === 0 ? null : (["VFX", "Animation", "Finisher", "Kill Banner"][level - 1] ?? null),
-          video: null,
-          is_owned: level < owned,
-        })),
-        edition,
-      };
-    }),
-  ];
-}
-
 // ---- match loop -------------------------------------------------------------------------
 
 function demoAgent(name: string): AgentCard | undefined {
   return catalog.agents.find((agent) => agent.upper_name === name);
 }
 
-function pregamePlayer(memberView: MemberView): PregamePlayerView {
-  return {
-    puuid: memberView.puuid,
-    is_self: memberView.is_self,
-    game_name: memberView.game_name,
-    tag_line: memberView.tag_line,
-    agent_uuid: null,
-    agent_name: null,
-    agent_icon: null,
-    selection: "",
-    account_level: memberView.account_level,
-    rank: memberView.rank,
-  };
-}
-
 function setPregame(next: PregameView | null): void {
+  const isStarting = pregame === null && next !== null;
   pregame = next;
   emit({ type: "pregame", data: next });
+  // Like Riot: the team chat exists only during agent select (one teammate hides their name).
+  if (next === null) setDemoChat({ team: [], is_team_open: false });
+  else if (isStarting) later(2500, () => setDemoChat({ is_team_open: true, team: [chatLine("i'll smoke", { author_agent: "Omen" })] }));
 }
 
 function updateAlly(puuid: string, agentName: string, selection: "selected" | "locked"): void {
@@ -635,37 +252,6 @@ function startAgentSelect(): void {
   later(9600, () => updateAlly("demo-byte", "BREACH", "locked"));
   later(1200, () => setLobby(demoLobby(true)));
 }
-
-function friend(name: string, tag: string, status: FriendView["status"], card: string | null, extra: Partial<FriendView> = {}): FriendView {
-  const isValorant = status !== "offline" && status !== "online";
-  return {
-    puuid: `f-${name.toLowerCase()}`,
-    game_name: name,
-    tag_line: tag,
-    status,
-    detail: "",
-    party_size: 1,
-    note: "",
-    last_online_ms: null,
-    card_small: card ? `${MEDIA}/playercards/${card}/smallart.png` : null,
-    account_level: isValorant ? 40 + ((name.length * 53) % 300) : null,
-    queue: isValorant ? "Competitive" : "",
-    product: status === "offline" ? "" : status === "online" ? "league_of_legends" : "valorant",
-    ...extra,
-  };
-}
-
-const FRIENDS: FriendView[] = [
-  friend("Luna", "EUW", "menus", CARDS.clove),
-  friend("Ghost", "0001", "menus", CARDS.neon, { detail: "Party of 2", party_size: 2, queue: "Unrated" }),
-  friend("BoomBot", "777", "queueing", CARDS.glitchpop, { queue: "Swiftplay" }),
-  friend("Skyline", "333", "in_match", CARDS.spectrum, { detail: "Lotus 9-6", party_size: 3 }),
-  friend("Mia", "FR", "agent_select", CARDS.jett),
-  friend("Rook", "LOL", "online", null, { detail: "league_of_legends" }),
-  friend("Tom", "1312", "away", CARDS.prime),
-  friend("Ivy", "IVY", "offline", CARDS.rgx, { last_online_ms: Date.now() - 5 * 3600 * 1000 }),
-  friend("Max", "99", "offline", CARDS.hush, { last_online_ms: Date.now() - 3 * 86400 * 1000 }),
-];
 
 let lobby: LobbyView | null = null;
 
@@ -770,6 +356,8 @@ function postMatchLine(player: LobbyPlayerView, rounds: number, seed: number): P
     assists: (seed * 13) % 9,
     score,
     acs: Math.round((score / rounds) * 10) / 10,
+    stack_size: player.stack_size,
+    stack_group: player.stack_group,
   };
 }
 
@@ -820,6 +408,59 @@ function demoPostMatch(won: number, lost: number): PostMatchView {
   };
 }
 
+/** A past match from the demo history or the demo RR list, as the backend would build it. */
+function demoMatchSummary(matchId: string): PostMatchView {
+  const row = demoHistory().rows.find((entry) => entry.match_id === matchId);
+  const update = demoCareer().updates.find((entry) => entry.match_id === matchId);
+  const mapName = row?.map_name ?? update?.map_name;
+  if (!mapName) throw new Error("Could not open that match: Riot has no details for it.");
+  const isWin = row ? row.result === "victory" : (update?.rr_earned ?? 0) >= 0;
+  const base = demoPostMatch(row?.rounds_won ?? (isWin ? 13 : 9), row?.rounds_lost ?? (isWin ? 9 : 13));
+  const queueId = row?.queue_id ?? "competitive";
+  return {
+    ...base,
+    match_id: matchId,
+    map_name: mapName,
+    map_splash: mapArt(mapName, "splash"),
+    queue_id: queueId,
+    queue_label: row?.queue_label ?? "Competitive",
+    is_ranked: queueId === "competitive",
+    started_at_ms: row?.started_at_ms ?? update?.started_at_ms ?? base.started_at_ms,
+    rr_change: update?.rr_earned ?? row?.rr_change ?? null,
+    rr_after: update?.rr_after ?? null,
+    rank_after: update?.rank_after ?? null,
+    is_seen: true,
+  };
+}
+
+/** The demo player's RR before a match; the RR change of a ranked result adds to it. */
+const DEMO_RR_BEFORE = 41;
+
+/** The preview's sample match: a 13-9 win worth a typical ranked gain. */
+const PREVIEW_SCORE = { won: 13, lost: 9, rr: 21 } as const;
+
+/** The gallery preview: set the demo's state for `page` at once, instead of playing the match
+ * loop up to it (that takes a minute). Pages outside a match get the menus' state back. */
+export function prepareDemoPage(page: string): void {
+  if (page === "agent-select") {
+    if (!pregame) startAgentSelect();
+    updateAlly("demo-self", "JETT", "selected");
+    return;
+  }
+  setPregame(null);
+  if (page === "live") {
+    setGame({ phase: "ingame", map_name: "Ascent", ally_score: 7, enemy_score: 5, side: "attack" });
+    setLobby(demoLobby(false));
+    return;
+  }
+  setGame({ phase: "menus", map_name: "", ally_score: null, enemy_score: null, side: null, queue: "" });
+  if (page !== "post-match") return;
+  const rank_after = rank(18, "Diamond 1", "b87de8ff");
+  const summary = demoPostMatch(PREVIEW_SCORE.won, PREVIEW_SCORE.lost);
+  postMatch = { ...summary, rr_change: PREVIEW_SCORE.rr, rr_after: DEMO_RR_BEFORE + PREVIEW_SCORE.rr, rank_after };
+  emit({ type: "post_match", data: postMatch });
+}
+
 /** Like the backend: the summary a moment after the menus return, the RR change later. */
 function announcePostMatch(won: number, lost: number): void {
   later(1800, () => {
@@ -829,7 +470,7 @@ function announcePostMatch(won: number, lost: number): void {
     later(2600, () => {
       if (!postMatch) return;
       const delta = { victory: 21, defeat: -16, draw: 2 }[postMatch.result];
-      postMatch = { ...postMatch, rr_change: delta, rr_after: 41 + delta, rank_after: rank(18, "Diamond 1", "b87de8ff") };
+      postMatch = { ...postMatch, rr_change: delta, rr_after: DEMO_RR_BEFORE + delta, rank_after: rank(18, "Diamond 1", "b87de8ff") };
       emit({ type: "post_match", data: postMatch });
     });
   });
@@ -864,6 +505,62 @@ function playRounds(round: number): void {
 type Handler<C extends Command> = (args: ArgsOf<C>) => ResultOf<C> | Promise<ResultOf<C>>;
 type HandlerTable = { [C in Command]: Handler<C> };
 
+/** The demo party's chat; agent select adds a team chat with a hidden-name teammate. */
+let demoChat: ChatView = {
+  party: [
+    { id: "c1", author: "nyxie", author_agent: null, is_self: false, is_system: false, body: "one more?", sent_at_ms: Date.now() - 90_000 },
+    { id: "c2", author: "s1moscs", author_agent: null, is_self: true, is_system: false, body: "yes, queueing", sent_at_ms: Date.now() - 60_000 },
+  ],
+  team: [],
+  // Whispers; Luna's reply arrives a moment after launch (demoWhisperReply), so it is unread.
+  direct: [
+    {
+      puuid: "f-luna",
+      game_name: "Luna",
+      tag_line: "EUW",
+      messages: [
+        { id: "d1", author: "", author_agent: null, is_self: true, is_system: false, body: "you on tonight?", sent_at_ms: Date.now() - 600_000 },
+      ],
+    },
+    {
+      puuid: "f-mia",
+      game_name: "Mia",
+      tag_line: "FR",
+      messages: [{ id: "d3", author: "Mia", author_agent: null, is_self: false, is_system: false, body: "gg last night", sent_at_ms: Date.now() - 3_600_000 }],
+    },
+  ],
+  is_party_open: true,
+  is_team_open: false,
+};
+
+function chatLine(body: string, extra: Partial<ChatMessageView>): ChatMessageView {
+  return { id: `c-${Date.now()}-${Math.random()}`, author: "", author_agent: null, is_self: false, is_system: false, body, sent_at_ms: Date.now(), ...extra };
+}
+
+function setDemoChat(next: Partial<ChatView>): void {
+  demoChat = { ...demoChat, ...next };
+  emit({ type: "chat", data: demoChat });
+}
+
+/** Luna answers the demo's open whisper shortly after launch, so an unread whisper shows. */
+const LUNA_REPLY_DELAY_MS = 1500;
+setTimeout(() => {
+  const reply = chatLine("yes! invite me when you queue", { author: "Luna" });
+  setDemoChat({ direct: demoChat.direct.map((thread) => (thread.puuid === "f-luna" ? { ...thread, messages: [...thread.messages, reply] } : thread)) });
+}, LUNA_REPLY_DELAY_MS);
+
+/** One request each way, so both rows can be designed without a second account. */
+let demoRequests: FriendRequestView[] = [
+  { puuid: "req-nova", game_name: "Nova", tag_line: "EUW", is_incoming: true },
+  { puuid: "req-kite", game_name: "Kite", tag_line: "0451", is_incoming: false },
+];
+
+function dropRequest(puuid: string): null {
+  if (!demoRequests.some((request) => request.puuid === puuid)) throw new Error("Could not answer: that request is no longer pending.");
+  demoRequests = demoRequests.filter((request) => request.puuid !== puuid);
+  return null;
+}
+
 function needPregame(): PregameView {
   if (!pregame) throw new Error("Could not pick: you are not in agent select.");
   return pregame;
@@ -882,12 +579,22 @@ const HANDLERS: HandlerTable = {
   get_game_videos: () => [],
   get_ui_sounds: () => [],
   open_sounds_folder: () => null,
+  // The browser preview has no file explorer; the gallery still lists the demo's saved looks.
+  open_looks_folder: () => null,
+  reveal_look: () => null,
+  community_looks: () => demoCommunityLooks(),
+  community_look: demoCommunityLook,
+  community_thumb: demoCommunityThumb,
   resolve_embed_link: () => null,
   get_wallet: () => wallet,
   quit_app: () => null,
   get_store: () => demoStore(),
   get_career: () => demoCareer(),
+  get_progress: () => demoProgress(),
+  get_leaderboard: () => demoLeaderboard(),
   get_match_history: () => demoHistory(),
+  get_match_summary: ({ matchId }) => demoMatchSummary(matchId),
+  get_stats: () => demoStats(),
   get_news: () => demoNews(),
   get_lobby: () => lobby,
   // A finished match is already on record, so the screen can be designed before playing one.
@@ -902,11 +609,16 @@ const HANDLERS: HandlerTable = {
   },
   get_friends: () => FRIENDS,
   get_collection: () => collection,
+  get_identity: () => demoIdentity(),
+  search_store_skins: ({ query }) => demoSearchSkins(query),
+  get_skin_cards: ({ skinIds }) => demoSkinCards().filter((card) => skinIds.includes(card.skin_id)),
+  get_cosmetic_options: ({ kind }) => demoCosmeticOptions(kind),
+  equip_identity: ({ change }) => demoEquipIdentity(change),
   get_skin_options: ({ weaponId }) => demoSkinOptions(weaponId),
   // A few agents stay locked, so locked tiles can be designed without an account.
   get_agent_progress: () => ({
     owned: AGENTS.filter(([name]) => !DEMO_LOCKED_AGENTS.includes(name)).map(([, uuid]) => uuid),
-    mastery: AGENTS.map(([, uuid], index) => ({ agent_uuid: uuid, act_level: index % 5, lifetime_level: (index * 7) % 23 })),
+    mastery: AGENTS.map(([, uuid], index) => ({ agent_uuid: uuid, act_level: index % 5, lifetime_level: (index * 7) % 23, points: (index * 131) % 900 })),
   }),
   equip_skin: ({ weaponId, skinId, chromaId }) => {
     const option = demoSkinOptions(weaponId).find((entry) => entry.skin_id === skinId);
@@ -921,6 +633,42 @@ const HANDLERS: HandlerTable = {
     return collection;
   },
   get_party: () => party,
+  get_penalties: () => [],
+  get_friend_requests: () => demoRequests,
+  friend_request_accept: ({ puuid }) => dropRequest(puuid),
+  friend_request_remove: ({ puuid }) => dropRequest(puuid),
+  friend_request_send: ({ riotId }) => {
+    const [name, tag] = riotId.split("#").map((part) => part.trim());
+    if (!name || !tag) throw new Error("Could not add the friend: type the Riot ID as Name#Tag.");
+    demoRequests = [...demoRequests, { puuid: `req-${name.toLowerCase()}`, game_name: name, tag_line: tag, is_incoming: false }];
+    return null;
+  },
+  get_service_status: () => [],
+  get_agent_store: () => demoAgentStore(),
+  get_favorite_skins: () => [],
+  get_chat: () => demoChat,
+  get_update: demoUpdate,
+  check_for_update: demoCheckForUpdate,
+  install_update: demoInstallUpdate,
+  chat_send: ({ scope, text }) => {
+    const line = chatLine(text.trim(), { author: "s1moscs", is_self: true });
+    if (scope === "team") setDemoChat({ team: [...demoChat.team, line] });
+    else setDemoChat({ party: [...demoChat.party, line] });
+    return null;
+  },
+  chat_send_direct: ({ puuid, text }) => {
+    const friendView = FRIENDS.find((candidate) => candidate.puuid === puuid);
+    if (!friendView) throw new Error("Could not send that: you can only message friends.");
+    const addLine = (line: ChatMessageView) => {
+      const thread = demoChat.direct.find((candidate) => candidate.puuid === puuid) ?? { puuid, game_name: friendView.game_name, tag_line: friendView.tag_line, messages: [] };
+      const others = demoChat.direct.filter((candidate) => candidate.puuid !== puuid);
+      setDemoChat({ direct: [{ ...thread, messages: [...thread.messages, line] }, ...others] });
+    };
+    addLine(chatLine(text.trim(), { is_self: true }));
+    // Online friends answer, so the unread badge can be seen without a second account.
+    if (friendView.status !== "offline") later(2000, () => addLine(chatLine("ok 👍", { author: friendView.game_name })));
+    return null;
+  },
   party_refresh: () => party,
   party_change_queue: ({ queueId }) => {
     const queue = QUEUES.find((option) => option.id === queueId);
@@ -1023,7 +771,17 @@ const HANDLERS: HandlerTable = {
     persist(`docs.${kind}`, load<string[]>(`docs.${kind}`, []).filter((entry) => entry !== name));
     return null;
   },
+  save_loadout_preset: ({ name }) => {
+    const names = load<string[]>("docs.loadouts", []);
+    if (!names.includes(name)) persist("docs.loadouts", [...names, name]);
+    return null;
+  },
+  apply_loadout_preset: ({ name }) => {
+    if (!load<string[]>("docs.loadouts", []).includes(name)) throw new Error(`No saved loadout is called "${name}".`);
+    return { collection, skipped: 0 };
+  },
   set_overlay_enabled: () => null,
+  set_window_mode: () => null,
   set_overlay_preview: () => null,
   instant_clone_state: () => demoDelay,
   instant_clone_send: ({ action, delayMs }) => {
@@ -1037,6 +795,8 @@ const HANDLERS: HandlerTable = {
 export async function handle<C extends Command>(command: C, args: ArgsOf<C>): Promise<ResultOf<C>> {
   const handler = HANDLERS[command] as Handler<C>;
   await new Promise((resolve) => setTimeout(resolve, 40));
+  const forced = forcedViewState(command);
+  if (forced) return forced;
   try {
     return await handler(args);
   } catch (error) {

@@ -263,6 +263,71 @@ pub struct Contract {
     #[serde(deserialize_with = "null_as_default")]
     pub display_name: String,
     pub display_icon: Option<String>,
+    #[serde(deserialize_with = "null_as_default")]
+    pub content: ContractContent,
+}
+
+/// What a contract is for and the rewards along it.
+#[derive(Debug, Clone, Default, Deserialize)]
+#[serde(rename_all = "camelCase", default)]
+pub struct ContractContent {
+    /// `Season` for a battle pass, `Agent` or `Event` otherwise.
+    pub relation_type: Option<String>,
+    /// The act uuid of a battle pass.
+    pub relation_uuid: Option<String>,
+    #[serde(deserialize_with = "null_as_default")]
+    pub chapters: Vec<ContractChapter>,
+}
+
+#[derive(Debug, Clone, Default, Deserialize)]
+#[serde(rename_all = "camelCase", default)]
+pub struct ContractChapter {
+    pub is_epilogue: bool,
+    #[serde(deserialize_with = "null_as_default")]
+    pub levels: Vec<ContractLevel>,
+    #[serde(deserialize_with = "null_as_default")]
+    pub free_rewards: Vec<ContractReward>,
+}
+
+/// One tier: the XP it takes and what it unlocks.
+#[derive(Debug, Clone, Default, Deserialize)]
+#[serde(rename_all = "camelCase", default)]
+pub struct ContractLevel {
+    pub xp: i64,
+    pub reward: ContractReward,
+}
+
+#[derive(Debug, Clone, Default, Deserialize)]
+#[serde(rename_all = "camelCase", default)]
+pub struct ContractReward {
+    /// `EquippableSkinLevel`, `EquippableCharmLevel`, `PlayerCard`, `Spray`, `Title`, `Currency`...
+    #[serde(rename = "type", deserialize_with = "null_as_default")]
+    pub reward_type: String,
+    #[serde(deserialize_with = "null_as_default")]
+    pub uuid: String,
+    pub amount: i64,
+}
+
+#[derive(Debug, Clone, Default, Deserialize)]
+#[serde(rename_all = "camelCase", default)]
+pub struct Mission {
+    pub uuid: String,
+    pub title: Option<String>,
+    /// `EAresMissionType::Weekly`, `EAresMissionType::Daily`, ...
+    #[serde(rename = "type")]
+    pub mission_type: Option<String>,
+    pub xp_grant: i64,
+    pub progress_to_complete: i64,
+    #[serde(deserialize_with = "null_as_default")]
+    pub objectives: Vec<MissionObjective>,
+}
+
+#[derive(Debug, Clone, Default, Deserialize)]
+#[serde(rename_all = "camelCase", default)]
+pub struct MissionObjective {
+    #[serde(deserialize_with = "null_as_default")]
+    pub objective_uuid: String,
+    pub value: i64,
 }
 
 #[derive(Debug, Clone, Default, Deserialize)]

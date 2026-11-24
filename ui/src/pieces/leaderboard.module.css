@@ -1,0 +1,162 @@
+/* Same panel and row language as the ranked history next to it (career.module.css). */
+.board {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-3);
+  width: 100%;
+  height: 100%;
+  min-height: 0;
+  padding: var(--space-5);
+  background: var(--panel);
+  box-shadow: inset 0 0 0 1px var(--border-subtle);
+}
+
+.header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: var(--space-3);
+}
+
+.title {
+  font-family: var(--font-display);
+  font-stretch: calc(118% * var(--stretch, 1));
+  font-size: clamp(18px, 1.6vw, 26px);
+  font-weight: 800;
+  letter-spacing: 1px;
+  text-transform: uppercase;
+}
+
+.subtitle {
+  font-size: var(--text-caption);
+  color: var(--text-3);
+}
+
+.refresh {
+  display: grid;
+  place-items: center;
+  width: 28px;
+  height: 28px;
+  border-radius: 3px;
+  color: var(--text-3);
+}
+
+.refresh:hover:not(:disabled) {
+  color: var(--text-1);
+  background: rgb(255 255 255 / 0.08);
+}
+
+.rows,
+.own {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+  padding: 0;
+  list-style: none;
+}
+
+.rows {
+  flex: 1;
+  min-height: 0;
+  overflow: hidden auto;
+}
+
+.own {
+  flex: none;
+  padding-top: var(--space-2);
+  border-top: 1px dashed var(--border-subtle);
+}
+
+.row {
+  display: grid;
+  grid-template-columns: 44px 32px minmax(0, 1fr) 28px 64px 48px;
+  align-items: center;
+  gap: var(--space-3);
+  min-height: 40px;
+  padding-right: var(--space-3);
+  background: rgb(255 255 255 / 0.035);
+  animation: slide 420ms var(--ease-decelerate) both;
+  animation-delay: calc(var(--stagger) * 30ms);
+}
+
+.row[data-self] {
+  background: var(--accent-soft);
+  box-shadow: inset 3px 0 0 var(--accent);
+}
+
+.place {
+  text-align: center;
+  font-weight: 700;
+  color: var(--text-2);
+}
+
+.card {
+  width: 32px;
+  height: 32px;
+  object-fit: cover;
+  background: rgb(255 255 255 / 0.05);
+}
+
+.name {
+  overflow: hidden;
+  white-space: nowrap;
+  text-overflow: ellipsis;
+  font-weight: 600;
+}
+
+.name small {
+  margin-left: 4px;
+  color: var(--text-3);
+}
+
+.tier {
+  width: 28px;
+  height: 28px;
+  object-fit: contain;
+}
+
+.rr {
+  text-align: right;
+  font-weight: 700;
+}
+
+.rr small {
+  margin-left: 2px;
+  font-size: var(--text-caption);
+  color: var(--text-3);
+}
+
+.wins {
+  text-align: right;
+  font-size: var(--text-caption);
+  color: var(--text-3);
+}
+
+@keyframes slide {
+  from {
+    opacity: 0;
+    transform: translateX(16px);
+  }
+}
+
+/* ---- layouts (Studio > Look > Layout; studio/pieceLayout.ts); "full" is the look above ---- */
+
+/* Compact: no player cards or win counts, tighter rows; fits a narrow column. */
+[data-layout="compact"] .row {
+  grid-template-columns: 36px minmax(0, 1fr) 24px 64px;
+  min-height: 30px;
+}
+
+[data-layout="compact"] .card,
+[data-layout="compact"] .wins {
+  display: none;
+}
+
+/* Top 5: the head of the board and your own place, no scrolling. */
+[data-layout="top"] .rows {
+  overflow: hidden;
+}
+
+[data-layout="top"] .rows > li:nth-child(n + 6) {
+  display: none;
+}

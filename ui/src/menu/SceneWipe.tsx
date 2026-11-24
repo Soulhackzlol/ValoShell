@@ -26,6 +26,8 @@ const STYLE_DEFAULTS: Record<Skin, Kind> = {
   halo: "blur",
   pipboy: "fade",
   league: "fade",
+  phantom: "wipe",
+  nightcity: "shutter",
 };
 
 const BASE_MS: Record<Kind, number> = {

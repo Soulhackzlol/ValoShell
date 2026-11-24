@@ -44,7 +44,7 @@ export function CurrentNav() {
   const isActive = (tab: IconTab) => !tab.isShortcut && current() === tab.path && view() === tab.view;
   return (
     <>
-      <header class={styles.bar} data-part="nav" data-tauri-drag-region>
+      <header class={styles.bar} data-part="nav">
         <A
           href="/home"
           class={styles.play}

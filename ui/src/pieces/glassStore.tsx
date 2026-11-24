@@ -8,13 +8,8 @@ import { playCue } from "~/menu/sound";
 import { formatDuration } from "./store";
 import { BundleArt, EDITION_TINT, ItemArt, gradeOf, partsOf } from "./storeArt";
 import { pointerGlow } from "./styled/glassMotion";
+import type { FrontProps } from "./storeShelves";
 import styles from "./glassStore.module.css";
-
-export interface GlassFrontProps {
-  view: StoreView;
-  /** Seconds left on a section, live. */
-  left: (endsInS: number) => number;
-}
 
 type Tab = "featured" | "night" | "accessories";
 
@@ -72,11 +67,11 @@ function ItemTile(props: { item: StoreItem; index: number; size: "small" | "row"
   );
 }
 
-function Hero(props: GlassFrontProps) {
+function Hero(props: FrontProps) {
   return (
     <Show when={props.view.bundles[0]}>
       {(bundle) => (
-        <section ref={(element) => pointerGlow(element, 2)} class={styles.hero} onMouseEnter={hover}>
+        <section ref={(element) => pointerGlow(element)} class={styles.hero} onMouseEnter={hover}>
           <BundleArt bundle={bundle()} class={styles.heroArt} />
           <span class={styles.heroShade} />
           <span class={styles.glare} />
@@ -94,7 +89,7 @@ function Hero(props: GlassFrontProps) {
   );
 }
 
-export function GlassFront(props: GlassFrontProps) {
+export function GlassFront(props: FrontProps) {
   const [tab, setTab] = createSignal<Tab>("featured");
   const tabs = (): { id: Tab; label: string }[] => [
     { id: "featured", label: "Featured" },

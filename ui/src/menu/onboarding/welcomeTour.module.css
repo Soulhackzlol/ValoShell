@@ -1,0 +1,259 @@
+/* Welcome tour: a centred card over a light scrim, so a style picked on step 2 shows behind it.
+   Layering: above the Esc menu (80), under the style intro (100), which plays first and then
+   reveals it. Tokens only, so every style recolours it; skins reach it through data-part. */
+.scrim {
+  position: fixed;
+  inset: 0;
+  z-index: 85;
+  background: color-mix(in srgb, var(--surface-sunken) 55%, transparent);
+  animation: fade 260ms var(--ease-decelerate) both;
+}
+
+.tour {
+  position: fixed;
+  top: 50%;
+  left: 50%;
+  z-index: 86;
+  container: tour / inline-size;
+  display: grid;
+  grid-template-rows: auto minmax(0, 1fr) auto;
+  width: min(760px, calc(100vw - 32px));
+  max-height: calc(100vh - 64px);
+  color: var(--text-1);
+  background: var(--surface-overlay);
+  box-shadow: inset 0 0 0 1px var(--border-default), var(--shadow-overlay);
+  transform: translate(-50%, -50%);
+  animation: rise 320ms var(--ease-decelerate) both;
+}
+
+.head,
+.foot {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+  padding: 14px 24px;
+}
+
+.head {
+  border-bottom: 1px solid var(--border-subtle);
+}
+
+.foot {
+  border-top: 1px solid var(--border-subtle);
+}
+
+.skip {
+  font-size: var(--text-caption);
+  font-weight: 600;
+  color: var(--text-2);
+}
+
+.skip:hover {
+  color: var(--text-1);
+}
+
+.body {
+  display: flex;
+  flex-direction: column;
+  gap: 14px;
+  min-height: 0;
+  padding: 22px 24px;
+  overflow: hidden auto;
+}
+
+.body h2 {
+  margin: 0;
+  font-family: var(--font-display);
+  font-size: clamp(22px, 4cqi, 32px);
+  outline: none;
+}
+
+/* Shared settings sections bring their Esc-menu heading; the step's title already says it. */
+.body section h2 {
+  display: none;
+}
+
+.lead {
+  max-width: 60ch;
+  margin: 0;
+  color: var(--text-2);
+  line-height: 1.5;
+}
+
+/* ---- step 1: promises ---- */
+.promises {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(min(260px, 100%), 1fr));
+  gap: 10px;
+  margin: 6px 0 0;
+  padding: 0;
+  list-style: none;
+}
+
+.promises li {
+  display: flex;
+  align-items: flex-start;
+  gap: 10px;
+  padding: 12px 14px;
+  font-size: var(--text-body);
+  line-height: 1.45;
+  color: var(--text-2);
+  background: color-mix(in srgb, var(--text-1) 4%, transparent);
+  box-shadow: inset 0 0 0 1px var(--border-subtle);
+}
+
+.promises svg {
+  flex: none;
+  color: var(--positive);
+}
+
+/* ---- step 2: styles, each a swatch of its own colours ---- */
+.styles {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(150px, 1fr));
+  gap: 10px;
+}
+
+.style {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+  padding: 8px 8px 10px;
+  text-align: left;
+  color: var(--text-1);
+  background: color-mix(in srgb, var(--text-1) 4%, transparent);
+  box-shadow: inset 0 0 0 1px var(--border-subtle);
+}
+
+.style:hover {
+  box-shadow: inset 0 0 0 1px var(--border-strong);
+}
+
+.style[aria-pressed="true"] {
+  box-shadow: inset 0 0 0 2px var(--accent);
+}
+
+.swatch {
+  display: block;
+  height: 54px;
+  margin-bottom: 6px;
+  background: var(--swatch-ground);
+  box-shadow: inset 0 0 0 1px color-mix(in srgb, var(--swatch-text) 18%, transparent);
+}
+
+/* The style's accent as its play-button stripe. */
+.swatch i {
+  display: block;
+  width: 46%;
+  height: 10px;
+  margin: 32px 0 0 10px;
+  background: var(--swatch-accent);
+}
+
+.style b {
+  font-size: 13px;
+}
+
+.style small {
+  font-size: var(--text-caption);
+  color: var(--text-3);
+}
+
+/* ---- step 5: keys ---- */
+.shortcuts {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(min(300px, 100%), 1fr));
+  gap: 8px 24px;
+  margin: 0;
+}
+
+.shortcuts div {
+  display: grid;
+  grid-template-columns: 130px minmax(0, 1fr);
+  align-items: center;
+  gap: 12px;
+}
+
+.shortcuts dt {
+  display: flex;
+  gap: 4px;
+}
+
+.shortcuts dd {
+  margin: 0;
+  font-size: var(--text-body);
+  color: var(--text-2);
+}
+
+.shortcuts kbd {
+  min-width: 26px;
+  padding: 3px 7px;
+  text-align: center;
+  font: 600 var(--text-caption) / 1.2 var(--font-mono);
+  color: var(--text-1);
+  background: color-mix(in srgb, var(--text-1) 8%, transparent);
+  box-shadow: inset 0 -2px 0 var(--border-default);
+}
+
+/* ---- footer ---- */
+.dots {
+  display: flex;
+  gap: 0;
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+
+/* A 24px hit area (WCAG 2.5.8) around a small dot drawn by ::before. */
+.dots button {
+  display: grid;
+  place-items: center;
+  min-width: 24px;
+  height: 24px;
+}
+
+.dots button::before {
+  content: "";
+  width: 9px;
+  height: 9px;
+  border-radius: 50%;
+  background: var(--border-strong);
+}
+
+.dots button[aria-current="step"]::before {
+  width: 24px;
+  border-radius: 5px;
+  background: var(--accent);
+}
+
+.actions {
+  display: flex;
+  gap: 8px;
+}
+
+/* Small windows: tighter padding and one column of keys. */
+@container tour (max-width: 520px) {
+  .head,
+  .foot,
+  .body {
+    padding-inline: 16px;
+  }
+
+  .shortcuts div {
+    grid-template-columns: 100px minmax(0, 1fr);
+  }
+}
+
+@keyframes rise {
+  from {
+    opacity: 0;
+    transform: translate(-50%, calc(-50% + 16px));
+  }
+}
+
+@keyframes fade {
+  from {
+    opacity: 0;
+  }
+}

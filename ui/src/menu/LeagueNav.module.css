@@ -274,7 +274,7 @@
   bottom: calc(-7 * var(--u));
   min-width: calc(24 * var(--u));
   padding: 0 calc(4 * var(--u));
-  font-size: calc(9.5 * var(--u));
+  font-size: max(10px, calc(9.5 * var(--u)));
   font-weight: 600;
   line-height: calc(13 * var(--u));
   text-align: center;
@@ -373,7 +373,7 @@
   height: calc(24 * var(--u));
   padding: 0 calc(8 * var(--u));
   font: inherit;
-  font-size: calc(10.5 * var(--u));
+  font-size: max(10.5px, calc(10.5 * var(--u)));
   font-weight: 600;
   letter-spacing: 0.06em;
   text-transform: uppercase;
@@ -452,7 +452,7 @@
 
 .friendText small {
   overflow: hidden;
-  font-size: calc(10.5 * var(--u));
+  font-size: max(10.5px, calc(10.5 * var(--u)));
   white-space: nowrap;
   text-overflow: ellipsis;
   color: var(--ring, #5b5a56);

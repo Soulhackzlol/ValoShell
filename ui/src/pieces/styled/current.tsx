@@ -13,10 +13,13 @@ import { openExternal } from "~/pieces/widgets";
 import { agentByUpperName, catalog } from "~/state/catalog";
 import { setDrawerOpen } from "~/state/friends";
 import { party, partyActions } from "~/state/party";
+import { copyPartyCode } from "~/state/partyCode";
 import { isConnected, ownRiotId } from "~/state/session";
 import { pushToast } from "~/state/toasts";
 import { newsView, storeView } from "~/state/views";
 import { Art } from "~/ui/Art";
+import { ChatFrame, ChatUnread } from "./chatFrame";
+import { useChatLine } from "./chatLine";
 import { CustomModeRows, isCustomLobby } from "./currentCustom";
 import { usePlay } from "./usePlay";
 import { ChatGlyph, CodeGlyph, CompetitiveGlyph, LeaveGlyph, PadlockGlyph, RangeGlyph, SpikeGlyph } from "./valIcons";
@@ -206,9 +209,7 @@ export function ValMode(props: PieceProps) {
       await partyActions.generateCode();
       code = party()?.invite_code ?? null;
     }
-    if (!code) return;
-    await navigator.clipboard?.writeText(code).catch(() => undefined);
-    pushToast("positive", vt("codeCopied"), code);
+    if (code) await copyPartyCode(code, vt("codeCopied"));
   };
   return (
     <section class={styles.mode} data-custom={isCustomLobby() ? "" : undefined} style={colorVars(props, ["button", "edge"])}>
@@ -260,7 +261,9 @@ export function ValMode(props: PieceProps) {
         <RangeGlyph size={28} />
       </button>
       <button class={styles.modeButton} disabled={!isConnected()} onMouseEnter={() => playCue("hover")} onClick={() => void copyCode()}>
-        <span>{view()?.invite_code ?? textProp(props, "codeLabel", "partyCode")}</span>
+        <Show when={view()?.invite_code} fallback={<span>{textProp(props, "codeLabel", "partyCode")}</span>}>
+          {(code) => <span data-sensitive>{code()}</span>}
+        </Show>
         <CodeGlyph size={29} />
       </button>
       <button
@@ -504,15 +507,6 @@ export function ValFind(props: PieceProps) {
     if (isCustomLobby()) return vt("start");
     return textProp(props, "label", "findMatch");
   };
-  // In a custom lobby the owner's button starts the game instead of a search.
-  const press = () => {
-    if (isCustomLobby() && play.isOwner()) {
-      playCue("confirm");
-      void partyActions.startCustom();
-    } else {
-      play.press();
-    }
-  };
   return (
     <div class={styles.find} style={colorVars(props, ["fill", "frame"])}>
       <Show when={play.searchClock()}>
@@ -528,7 +522,7 @@ export function ValFind(props: PieceProps) {
         data-searching={play.searchClock() !== null ? "" : undefined}
         disabled={play.searchClock() === null && !play.canStart()}
         onMouseEnter={() => playCue("hover")}
-        onClick={press}
+        onClick={() => play.press()}
       >
         <span>{label()}</span>
       </button>
@@ -658,18 +652,31 @@ function ExternalGlyph() {
 // ---- party chat line -----------------------------------------------------------------------
 
 export function ValChat(props: PieceProps) {
-  const [text, setText] = createSignal("");
+  const line = useChatLine();
   return (
-    <form
-      class={styles.chat}
-      onSubmit={(event) => {
-        event.preventDefault();
-        setText("");
-      }}
-    >
-      <span class={styles.chatLabel}>{textProp(props, "label", "partyChat")}</span>
-      <input value={text()} spellcheck={false} onInput={(event) => setText(event.currentTarget.value)} />
-      <ChatGlyph class={styles.chatIcon} />
-    </form>
+    <ChatFrame line={line}>
+      <form
+        class={styles.chat}
+        data-sending={line.isSending() ? "" : undefined}
+        onSubmit={(event) => {
+          event.preventDefault();
+          line.submit();
+        }}
+      >
+        <span class={styles.chatLabel}>{textProp(props, "label", "partyChat")}</span>
+        <input
+          value={line.text()}
+          spellcheck={false}
+          disabled={!line.canSend()}
+          onInput={(event) => line.onInput(event.currentTarget.value)}
+          onKeyDown={(event) => line.onKeyDown(event)}
+          placeholder={line.placeholder("", vt("chatClosed"))}
+        />
+        <button type="button" data-part="chat-open" class={styles.chatOpen} title={vt("openChat")} aria-label={vt("openChat")} onClick={() => line.openChat()}>
+          <ChatGlyph class={styles.chatIcon} />
+          <ChatUnread line={line} />
+        </button>
+      </form>
+    </ChatFrame>
   );
 }

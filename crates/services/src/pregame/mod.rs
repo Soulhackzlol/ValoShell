@@ -128,14 +128,21 @@ impl PregameService {
             Read::NotInPregame | Read::Failed => return,
         };
         let allies = pregame.ally_team.iter().flat_map(|team| &team.players);
-        let puuids: Vec<_> = allies.filter_map(|player| player.subject.clone()).collect();
+        // Like the lobby: a player who hides their name is never looked up (party members
+        // still show, as the party already knows them).
+        let puuids: Vec<_> = allies
+            .filter(|player| !player.player_identity.incognito)
+            .filter_map(|player| player.subject.clone())
+            .collect();
         self.inner.names.learn(&session, puuids).await;
         let index = self.inner.assets.index();
         let names = self.inner.names.snapshot();
+        let party = self.inner.names.party();
         let context = PregameContext {
             index: &index,
             own: &session.puuid,
             names: &names,
+            party: &party,
             now_ms: now_ms(),
         };
         let view = pregame_view(&pregame, &context);

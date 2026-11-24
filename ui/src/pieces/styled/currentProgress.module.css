@@ -6,7 +6,7 @@
   width: 100%;
   height: 100%;
   font-family: var(--font-din);
-  color: #ece8e1;
+  color: var(--current-ink, #ece8e1);
 }
 
 .heading {
@@ -33,8 +33,8 @@
   min-height: 0;
   display: flex;
   flex-direction: column;
-  background: var(--val-panel, rgb(18 30 46 / 0.82));
-  box-shadow: inset 0 0 0 2px rgb(236 232 225 / 0.22);
+  background: var(--val-panel, color-mix(in srgb, var(--current-panel, #121e2e) 82%, transparent));
+  box-shadow: inset 0 0 0 2px color-mix(in srgb, var(--current-line, #ece8e1) 22%, transparent);
 }
 
 .boxHead {
@@ -44,7 +44,7 @@
   padding: 14px 30px;
   font-size: 14px;
   letter-spacing: 0.3px;
-  background: rgb(255 255 255 / 0.06);
+  background: color-mix(in srgb, var(--current-line, #ffffff) 6%, transparent);
 }
 
 .boxHead b {
@@ -53,7 +53,7 @@
 }
 
 .boxHead span {
-  color: rgb(236 232 225 / 0.6);
+  color: color-mix(in srgb, var(--current-ink, #ece8e1) 60%, transparent);
 }
 
 .boxHead[data-weekly] {
@@ -64,7 +64,7 @@
 .boxNote {
   margin: 10px 30px;
   font-size: 13px;
-  color: rgb(236 232 225 / 0.55);
+  color: color-mix(in srgb, var(--current-ink, #ece8e1) 55%, transparent);
 }
 
 .checkpoints {
@@ -78,7 +78,7 @@
   place-items: center;
   width: 62px;
   height: 62px;
-  box-shadow: inset 0 0 0 2px rgb(236 232 225 / 0.35);
+  box-shadow: inset 0 0 0 2px color-mix(in srgb, var(--current-line, #ece8e1) 35%, transparent);
   transform: rotate(45deg);
 }
 
@@ -89,8 +89,8 @@
 }
 
 .checkpoint[data-done] {
-  background: var(--val-accent, #2ee6c5);
-  color: #0f1923;
+  background: var(--val-accent, var(--current-teal, #2ee6c5));
+  color: var(--current-panel, #0f1923);
 }
 
 .checkpointBars {
@@ -102,7 +102,7 @@
 .checkpointBars i {
   flex: 1;
   height: 2px;
-  background: rgb(236 232 225 / 0.25);
+  background: color-mix(in srgb, var(--current-line, #ece8e1) 25%, transparent);
 }
 
 .weekly {
@@ -116,7 +116,7 @@
   flex: none;
   width: 20px;
   height: 20px;
-  box-shadow: inset 0 0 0 2px rgb(236 232 225 / 0.4);
+  box-shadow: inset 0 0 0 2px color-mix(in srgb, var(--current-line, #ece8e1) 40%, transparent);
   transform: rotate(45deg);
 }
 
@@ -133,14 +133,14 @@
   position: relative;
   display: block;
   height: 4px;
-  background: rgb(236 232 225 / 0.2);
+  background: color-mix(in srgb, var(--current-line, #ece8e1) 20%, transparent);
 }
 
 .bar i,
 .tierBar i {
   position: absolute;
   inset: 0 auto 0 0;
-  background: #ece8e1;
+  background: var(--current-line, #ece8e1);
 }
 
 .weeklyNumbers {
@@ -151,7 +151,7 @@
 
 .weeklyNumbers b {
   font-weight: 500;
-  color: var(--val-accent, #2ee6c5);
+  color: var(--val-accent, var(--current-teal, #2ee6c5));
 }
 
 .passBox {
@@ -172,7 +172,7 @@
 
 .ends b {
   font-weight: 600;
-  color: #f0c86a;
+  color: var(--current-gold, #f0c86a);
 }
 
 .reward {
@@ -194,7 +194,7 @@
 }
 
 .premium svg {
-  color: #f0c86a;
+  color: var(--current-gold, #f0c86a);
 }
 
 .rewardName {
@@ -217,7 +217,7 @@
 .xpLeft {
   margin-left: auto;
   text-transform: none;
-  color: var(--val-accent, #2ee6c5);
+  color: var(--val-accent, var(--current-teal, #2ee6c5));
 }
 
 .tierBar {
@@ -236,9 +236,9 @@
   min-width: 280px;
   padding: 10px 20px;
   font: inherit;
-  color: #0f1923;
-  background: #ece8e1;
-  outline: 1px solid #ece8e1;
+  color: var(--current-panel, #0f1923);
+  background: var(--current-line, #ece8e1);
+  outline: 1px solid var(--current-line, #ece8e1);
   outline-offset: 5px;
 }
 
@@ -275,7 +275,7 @@
   gap: 8px;
   padding: 0 130px 0 20px;
   background: linear-gradient(120deg, rgb(26 32 46 / 0.92), rgb(30 44 72 / 0.9));
-  box-shadow: inset 0 0 0 2px rgb(236 232 225 / 0.22);
+  box-shadow: inset 0 0 0 2px color-mix(in srgb, var(--current-line, #ece8e1) 22%, transparent);
 }
 
 .objective b {
@@ -290,11 +290,11 @@
   gap: 4px;
   font-size: 12px;
   text-transform: uppercase;
-  color: #f0c86a;
+  color: var(--current-gold, #f0c86a);
 }
 
 .objective:not([data-locked]) small {
-  color: var(--val-accent, #2ee6c5);
+  color: var(--val-accent, var(--current-teal, #2ee6c5));
 }
 
 .segments {
@@ -306,11 +306,11 @@
 .segments i {
   flex: 1;
   height: 4px;
-  background: rgb(236 232 225 / 0.3);
+  background: color-mix(in srgb, var(--current-line, #ece8e1) 30%, transparent);
 }
 
 .segments i[data-on] {
-  background: #ece8e1;
+  background: var(--current-line, #ece8e1);
 }
 
 .objectiveIcon {
@@ -323,9 +323,9 @@
   height: 98px;
   font-size: 11px;
   text-transform: uppercase;
-  color: #ece8e1;
-  background: rgb(10 16 24 / 0.6);
-  box-shadow: inset 0 0 0 2px rgb(236 232 225 / 0.5);
+  color: var(--current-ink, #ece8e1);
+  background: color-mix(in srgb, var(--current-panel, #0a1018) 60%, transparent);
+  box-shadow: inset 0 0 0 2px color-mix(in srgb, var(--current-line, #ece8e1) 50%, transparent);
   transform: translateY(-50%);
 }
 
@@ -344,7 +344,7 @@
   width: 100%;
   height: 100%;
   font-family: var(--font-din);
-  color: #ece8e1;
+  color: var(--current-ink, #ece8e1);
 }
 
 .modesTitle {
@@ -370,11 +370,11 @@
 .modeTile {
   position: relative;
   overflow: hidden;
-  box-shadow: inset 0 0 0 1px rgb(255 255 255 / 0.15);
+  box-shadow: inset 0 0 0 1px color-mix(in srgb, var(--current-line, #ffffff) 15%, transparent);
 }
 
 .modeTile[data-active] {
-  outline: 2px solid var(--val-accent, #ece8e1);
+  outline: 2px solid var(--val-accent, var(--current-line, #ece8e1));
   outline-offset: 3px;
 }
 
@@ -390,7 +390,7 @@
 
 .modeEmpty {
   display: block;
-  background: linear-gradient(160deg, #3b4652, #18212b);
+  background: linear-gradient(160deg, var(--current-tile, #3b4652), var(--current-panel, #18212b));
 }
 
 .modeTile:hover:not(:disabled) .modeImage {
@@ -400,7 +400,11 @@
 .modeShade {
   position: absolute;
   inset: 0;
-  background: linear-gradient(to bottom, transparent 40%, rgb(10 16 24 / 0.88));
+  background: linear-gradient(
+    to bottom,
+    transparent 40%,
+    color-mix(in srgb, var(--current-panel, #0a1018) 88%, transparent)
+  );
 }
 
 .modeName {
@@ -411,9 +415,52 @@
   font-size: 30px;
   font-weight: 700;
   text-transform: uppercase;
-  color: #ffffff;
+  color: var(--current-bright, #ffffff);
 }
 
 .modesEmpty {
-  color: rgb(236 232 225 / 0.6);
+  color: color-mix(in srgb, var(--current-ink, #ece8e1) 60%, transparent);
+}
+
+/* ---- Progress layouts. Client: missions in a narrow column, the pass beside them. ---- */
+/* Pass first: the battle pass on the left, missions to its right. */
+[data-layout="pass-first"] .page {
+  grid-template-columns: minmax(0, 2.6fr) minmax(0, 1fr);
+}
+
+[data-layout="pass-first"] .pass {
+  order: -1;
+}
+
+/* Stacked: the pass across the top, missions in a wide band under it. */
+[data-layout="stacked"] .page {
+  grid-template-columns: minmax(0, 1fr);
+  grid-template-rows: minmax(0, 1.6fr) minmax(0, 1fr);
+}
+
+[data-layout="stacked"] .pass {
+  order: -1;
+}
+
+/* ---- Modes layouts. Client: a grid of tiles. ---- */
+/* Banners: one mode per row, a wide strip of its art. */
+[data-layout="banners"] .modeGrid {
+  grid-template-columns: minmax(0, 1fr);
+  grid-auto-rows: clamp(72px, 11vh, 120px);
+}
+
+[data-layout="banners"] .modeName {
+  bottom: 50%;
+  translate: 0 50%;
+  font-size: 40px;
+}
+
+/* Big: fewer, larger tiles. */
+[data-layout="big"] .modeGrid {
+  grid-template-columns: repeat(auto-fill, minmax(380px, 1fr));
+  grid-auto-rows: clamp(220px, 34vh, 380px);
+}
+
+[data-layout="big"] .modeName {
+  font-size: 44px;
 }

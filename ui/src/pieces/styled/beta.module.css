@@ -3,9 +3,9 @@
 
 .slab,
 .dossier {
-  --paper: #ece8e1;
-  --navy: #0f1923;
-  --red: #ff4655;
+  --paper: var(--beta-paper, #ece8e1);
+  --navy: var(--beta-navy, #0f1923);
+  --red: var(--beta-red, #ff4655);
   position: relative;
   display: flex;
   flex-direction: column;
@@ -71,7 +71,7 @@
   font-weight: 500;
   letter-spacing: 1.4px;
   text-transform: uppercase;
-  color: rgb(15 25 35 / 0.55);
+  color: color-mix(in srgb, var(--beta-navy, #0f1923) 55%, transparent);
 }
 
 .mode:hover:not(:disabled) {
@@ -179,8 +179,8 @@
   width: 38%;
   max-width: 160px;
   overflow: hidden;
-  background: rgb(15 25 35 / 0.12);
-  box-shadow: inset 0 0 0 1px rgb(15 25 35 / 0.25);
+  background: color-mix(in srgb, var(--beta-navy, #0f1923) 12%, transparent);
+  box-shadow: inset 0 0 0 1px color-mix(in srgb, var(--beta-navy, #0f1923) 25%, transparent);
 }
 
 .portraitImage {
@@ -194,7 +194,11 @@
   display: block;
   width: 100%;
   height: 100%;
-  background: repeating-linear-gradient(135deg, rgb(15 25 35 / 0.1) 0 6px, transparent 6px 12px);
+  background: repeating-linear-gradient(
+    135deg,
+    color-mix(in srgb, var(--beta-navy, #0f1923) 10%, transparent) 0 6px,
+    transparent 6px 12px
+  );
 }
 
 .fields {
@@ -211,7 +215,7 @@
   font-size: 9px;
   letter-spacing: 1.4px;
   text-transform: uppercase;
-  color: rgb(15 25 35 / 0.5);
+  color: color-mix(in srgb, var(--beta-navy, #0f1923) 50%, transparent);
 }
 
 .fieldLabel:first-child {
@@ -298,7 +302,7 @@
   height: 100%;
   pointer-events: none;
   text-align: right;
-  color: rgb(236 232 225 / 0.42);
+  color: color-mix(in srgb, var(--beta-paper, #ece8e1) 42%, transparent);
 }
 
 .watermarkMain {
@@ -348,7 +352,7 @@
 .empty {
   display: grid;
   place-items: center;
-  box-shadow: inset 0 0 0 1px rgb(255 255 255 / 0.32);
+  box-shadow: inset 0 0 0 1px color-mix(in srgb, var(--beta-line, #ffffff) 32%, transparent);
   transition: box-shadow var(--dur-fast) var(--ease-standard), background var(--dur-fast) var(--ease-standard);
 }
 
@@ -359,12 +363,12 @@
   top: 0;
   width: 1px;
   height: 14px;
-  background: rgb(255 255 255 / 0.5);
+  background: color-mix(in srgb, var(--beta-line, #ffffff) 50%, transparent);
 }
 
 .empty:hover:not(:disabled) {
-  background: rgb(255 255 255 / 0.04);
-  box-shadow: inset 0 0 0 1px rgb(255 255 255 / 0.6);
+  background: color-mix(in srgb, var(--beta-line, #ffffff) 4%, transparent);
+  box-shadow: inset 0 0 0 1px color-mix(in srgb, var(--beta-line, #ffffff) 60%, transparent);
 }
 
 /* Corner brackets that close in on hover, like the beta's targeting frames. */
@@ -372,7 +376,7 @@
   position: absolute;
   inset: 10px;
   pointer-events: none;
-  --c: rgb(255 255 255 / 0.45);
+  --c: color-mix(in srgb, var(--beta-line, #ffffff) 45%, transparent);
   background:
     linear-gradient(var(--c), var(--c)) left top / 12px 1px no-repeat,
     linear-gradient(var(--c), var(--c)) left top / 1px 12px no-repeat,
@@ -391,7 +395,7 @@
 .empty:hover:not(:disabled) .emptyCorners {
   inset: 22px;
   opacity: 1;
-  --c: var(--accent2, #bfe1dd);
+  --c: var(--accent2, var(--beta-mint, #bfe1dd));
 }
 
 .emptyPlus {
@@ -402,8 +406,8 @@
   place-items: center;
   width: 34px;
   height: 34px;
-  color: rgb(255 255 255 / 0.4);
-  border: 1px solid rgb(255 255 255 / 0.2);
+  color: color-mix(in srgb, var(--beta-text, #ffffff) 40%, transparent);
+  border: 1px solid color-mix(in srgb, var(--beta-line, #ffffff) 20%, transparent);
   transform: translate(-50%, -50%) rotate(45deg);
   transition:
     transform 420ms var(--ease-decelerate),
@@ -416,8 +420,8 @@
 }
 
 .empty:hover:not(:disabled) .emptyPlus {
-  color: #ffffff;
-  border-color: var(--accent2, #bfe1dd);
+  color: var(--beta-text, #ffffff);
+  border-color: var(--accent2, var(--beta-mint, #bfe1dd));
   transform: translate(-50%, -50%) rotate(225deg) scale(1.1);
 }
 
@@ -431,13 +435,13 @@
   font-weight: 600;
   letter-spacing: 4px;
   text-transform: uppercase;
-  color: rgb(255 255 255 / 0);
+  color: color-mix(in srgb, var(--beta-text, #ffffff) 0%, transparent);
   transition: color var(--dur-fast) var(--ease-standard);
 }
 
 .empty:hover .emptyLabel,
 .empty:disabled .emptyLabel {
-  color: rgb(255 255 255 / 0.6);
+  color: color-mix(in srgb, var(--beta-text, #ffffff) 60%, transparent);
 }
 
 .cardArt {
@@ -458,7 +462,7 @@
   width: 88%;
   height: 92%;
   fill: none;
-  stroke: rgb(255 255 255 / 0.75);
+  stroke: color-mix(in srgb, var(--beta-line, #ffffff) 75%, transparent);
   stroke-width: 1;
   pointer-events: none;
 }
@@ -524,7 +528,7 @@
   width: 24px;
   height: 24px;
   transform: rotate(45deg);
-  background: #f2b843;
+  background: var(--beta-gold, #f2b843);
 }
 
 .card[data-self] .diamond {
@@ -539,14 +543,14 @@
   font-weight: 700;
   white-space: nowrap;
   text-overflow: ellipsis;
-  color: #ffffff;
+  color: var(--beta-text, #ffffff);
 }
 
 .cardDivider {
   width: 1px;
   height: 14px;
   margin: 2px 0 4px;
-  background: rgb(255 255 255 / 0.5);
+  background: color-mix(in srgb, var(--beta-line, #ffffff) 50%, transparent);
 }
 
 .stat {
@@ -562,7 +566,7 @@
   font-weight: 700;
   letter-spacing: 1px;
   text-transform: uppercase;
-  color: #ffffff;
+  color: var(--beta-text, #ffffff);
 }
 
 .stat small {
@@ -570,7 +574,7 @@
   font-weight: 700;
   letter-spacing: 1.6px;
   text-transform: uppercase;
-  color: rgb(255 255 255 / 0.75);
+  color: color-mix(in srgb, var(--beta-text, #ffffff) 75%, transparent);
 }
 
 .stat[data-dim] b {
@@ -596,7 +600,7 @@
   align-items: center;
   margin-bottom: 10px;
   font-family: var(--font-display);
-  color: #ffffff;
+  color: var(--beta-text, #ffffff);
 }
 
 .selfLevel b {
@@ -619,7 +623,7 @@
   font-weight: 700;
   letter-spacing: 5px;
   text-transform: uppercase;
-  color: #ffffff;
+  color: var(--beta-text, #ffffff);
 }
 
 /* ---- party and friends column ---- */
@@ -640,8 +644,8 @@
   justify-content: center;
   gap: 6px;
   height: clamp(110px, 16%, 150px);
-  color: #2f3b40;
-  background: var(--accent-2);
+  color: var(--theme-on-play, #2f3b40);
+  background: var(--theme-play, var(--accent-2));
   transition: filter var(--dur-fast) var(--ease-standard);
 }
 
@@ -673,7 +677,7 @@
 .socialScroll {
   flex: 1;
   min-height: 0;
-  overflow: auto;
+  overflow: hidden auto;
 }
 
 .socialHead,
@@ -687,8 +691,8 @@
   font-weight: 700;
   letter-spacing: 3px;
   text-transform: uppercase;
-  color: #ffffff;
-  background: rgb(255 255 255 / 0.06);
+  color: var(--beta-text, #ffffff);
+  background: color-mix(in srgb, var(--beta-line, #ffffff) 6%, transparent);
 }
 
 .socialHead b,
@@ -703,7 +707,7 @@
 }
 
 .socialFold:hover {
-  background: rgb(255 255 255 / 0.1);
+  background: color-mix(in srgb, var(--beta-line, #ffffff) 10%, transparent);
 }
 
 .socialRow {
@@ -719,12 +723,12 @@
 }
 
 .socialRow:hover {
-  background: rgb(255 255 255 / 0.05);
+  background: color-mix(in srgb, var(--beta-line, #ffffff) 5%, transparent);
 }
 
 .socialRow[data-self] {
   border-left-color: var(--accent);
-  background: rgb(255 255 255 / 0.07);
+  background: color-mix(in srgb, var(--beta-line, #ffffff) 7%, transparent);
 }
 
 .portrait {
@@ -736,7 +740,7 @@
   font-size: 16px;
   font-weight: 700;
   text-transform: uppercase;
-  color: rgb(255 255 255 / 0.7);
+  color: color-mix(in srgb, var(--beta-text, #ffffff) 70%, transparent);
   background: linear-gradient(160deg, #2a3a3f, #141b1e);
 }
 
@@ -749,11 +753,11 @@
 }
 
 .socialRow[data-valorant] {
-  border-left-color: rgb(191 225 221 / 0.55);
+  border-left-color: color-mix(in srgb, var(--beta-mint, #bfe1dd) 55%, transparent);
 }
 
 .socialRow[data-status="online"] .rowText em {
-  color: rgb(255 255 255 / 0.45);
+  color: color-mix(in srgb, var(--beta-text, #ffffff) 45%, transparent);
   letter-spacing: 1px;
 }
 
@@ -774,7 +778,7 @@
 .rowText small {
   font-size: 10px;
   font-weight: 600;
-  color: rgb(255 255 255 / 0.5);
+  color: color-mix(in srgb, var(--beta-text, #ffffff) 50%, transparent);
 }
 
 .rowText b {
@@ -782,7 +786,7 @@
   font-size: 12px;
   white-space: nowrap;
   text-overflow: ellipsis;
-  color: #ffffff;
+  color: var(--beta-text, #ffffff);
 }
 
 .rowText em {
@@ -801,19 +805,19 @@
   flex: none;
   display: flex;
   height: 64px;
-  background: rgb(255 255 255 / 0.04);
+  background: color-mix(in srgb, var(--beta-line, #ffffff) 4%, transparent);
 }
 
 .socialFoot button {
   flex: 1;
   display: grid;
   place-items: center;
-  color: rgb(255 255 255 / 0.8);
+  color: color-mix(in srgb, var(--beta-text, #ffffff) 80%, transparent);
 }
 
 .socialFoot button:hover {
-  color: #ffffff;
-  background: rgb(255 255 255 / 0.06);
+  color: var(--beta-text, #ffffff);
+  background: color-mix(in srgb, var(--beta-line, #ffffff) 6%, transparent);
 }
 
 /* ---- CLOSED / MATCHMADE pills ---- */
@@ -839,9 +843,9 @@
   font-weight: 800;
   letter-spacing: 3px;
   text-transform: uppercase;
-  color: rgb(255 255 255 / 0.88);
+  color: color-mix(in srgb, var(--beta-text, #ffffff) 88%, transparent);
   background: rgb(150 158 160 / 0.42);
-  box-shadow: inset 0 -2px 0 rgb(255 255 255 / 0.12);
+  box-shadow: inset 0 -2px 0 color-mix(in srgb, var(--beta-line, #ffffff) 12%, transparent);
   transition:
     background var(--dur-fast) var(--ease-standard),
     box-shadow var(--dur-fast) var(--ease-standard),
@@ -850,7 +854,7 @@
 
 .pill:hover:not(:disabled) {
   background: rgb(170 178 180 / 0.62);
-  box-shadow: inset 0 -2px 0 var(--accent2, #bfe1dd);
+  box-shadow: inset 0 -2px 0 var(--accent2, var(--beta-mint, #bfe1dd));
 }
 
 .pill:active:not(:disabled) {
@@ -859,7 +863,7 @@
 
 .pill[data-open] {
   color: #0c1315;
-  background: var(--accent2, #bfe1dd);
+  background: var(--accent2, var(--beta-mint, #bfe1dd));
 }
 
 .pill:disabled {
@@ -891,7 +895,7 @@
   place-items: center;
   width: 24px;
   height: min(32px, 100%);
-  color: rgb(255 255 255 / 0.55);
+  color: color-mix(in srgb, var(--beta-text, #ffffff) 55%, transparent);
   opacity: 0;
   transition:
     opacity 200ms ease,
@@ -904,7 +908,7 @@
 }
 
 .pillArrow:hover {
-  color: #ffffff;
+  color: var(--beta-text, #ffffff);
 }
 
 .pillArrow:first-child:hover {
@@ -934,6 +938,17 @@
   place-items: center;
   width: 100%;
   height: 100%;
-  color: rgb(255 255 255 / 0.45);
+  color: color-mix(in srgb, var(--beta-text, #ffffff) 45%, transparent);
   background: linear-gradient(to bottom, #39434a, #232a2f);
+}
+
+/* ---- lineup layouts (Look → Layout). Lineup: you taller in the middle. ---- */
+/* Level: every card the same height. */
+[data-layout="level"] .slot[data-center] {
+  height: 90%;
+}
+
+/* Hero: your card wider than the squad's. */
+[data-layout="hero"] .slot[data-center] {
+  flex: 1.8;
 }

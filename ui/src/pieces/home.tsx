@@ -27,6 +27,11 @@ export function useClock(intervalMs = 1000): () => number {
 
 // ---- lineup -----------------------------------------------------------------------------
 
+/** A CSS `url()` for card art, or `none` when the member has none. */
+export function artUrl(src: string | null): string {
+  return src ? `url("${src}")` : "none";
+}
+
 /** Five slots with the local player in the middle, the others around them (as the game). */
 export function useLineupSlots(): () => (MemberView | null)[] {
   return createMemo<(MemberView | null)[]>(() => {
@@ -62,7 +67,13 @@ function MemberCard(props: { member: MemberView; stagger: number; showRank: bool
     <article
       class={styles.card}
       classList={{ [styles.own ?? ""]: props.member.is_self }}
-      style={{ "--stagger": props.stagger, "--card-art": props.member.card_tall ? `url("${props.member.card_tall}")` : "none" }}
+      style={{
+        "--stagger": props.stagger,
+        "--card-art": artUrl(props.member.card_tall),
+        // Layouts pick the art that fits their shape: banners use the wide card, portraits the small.
+        "--card-wide": artUrl(props.member.card_wide ?? props.member.card_tall),
+        "--card-small": artUrl(props.member.card_small ?? props.member.card_tall),
+      }}
     >
       <div class={styles.cardArt} />
       <div class={styles.cardShade} />
@@ -78,7 +89,7 @@ function MemberCard(props: { member: MemberView; stagger: number; showRank: bool
       </Show>
       <div class={styles.cardInfo}>
         <Show when={props.showRank}>
-          <span class={styles.rank} style={{ "--rank": rankColor(props.member.rank.color) }}>
+          <span class={styles.rank} style={{ "--rank": rankColor(props.member.rank.color) }} title={props.member.rank.name}>
             <Art src={props.member.rank.icon} fallback={<span class={styles.rankDot} />} />
             {props.member.rank.name}
           </span>
@@ -230,9 +241,11 @@ export function PlayBar(props: PieceProps) {
                 data-part="play"
                 disabled={!view() || isPartyBusy() || (view()?.restricted_seconds ?? 0) > 0}
                 onMouseEnter={() => playCue("hover")}
-                onClick={() => void partyActions.startQueue()}
+                onClick={() => void partyActions.start()}
               >
-                {(view()?.restricted_seconds ?? 0) > 0 ? formatClock(view()?.restricted_seconds ?? 0) : label()}
+                <span>{(view()?.restricted_seconds ?? 0) > 0 ? formatClock(view()?.restricted_seconds ?? 0) : label()}</span>
+                {/* Only the Big button layout shows it: there the mode picker is hidden. */}
+                <span class={styles.playMode}>{view()?.queue.label ?? ""}</span>
               </button>
             }
           >

@@ -38,7 +38,7 @@ export function HaloLobby(_props: PieceProps) {
     if (play.searchClock() !== null) return "Stop searching";
     if (play.penaltyClock()) return `Restricted ${play.penaltyClock()}`;
     if (!play.isOwner()) return play.isReady() ? "Not ready" : "Ready";
-    return "Start matchmaking";
+    return play.isCustom() ? "Start game" : "Start matchmaking";
   };
   // Fixed rows with live fields: the buttons stay mounted, so focus and a press survive the clock.
   const options: LobbyOption[] = [
@@ -139,15 +139,15 @@ export function HaloRoster(props: PieceProps) {
           {(member, index) => (
             <li class={styles.row} style={{ "--band": BANDS[index % BANDS.length] }} data-self={member().is_self ? "" : undefined}>
               <span class={styles.emblem}>
-                <Art src={member().card_small ?? member().card_tall} class={styles.emblemImage} fallback={<span>{member().game_name.slice(0, 1)}</span>} />
+                <Art src={member().card_small ?? member().card_tall} class={styles.emblemImage} fallback={<span data-sensitive>{member().game_name.slice(0, 1)}</span>} />
               </span>
-              <span class={styles.gamertag}>
+              <span class={styles.gamertag} data-sensitive>
                 {member().game_name}
                 <Show when={member().is_owner}>
                   <Crown size={13} />
                 </Show>
               </span>
-              <span class={styles.serviceTag}>{member().tag_line.slice(0, 4).toUpperCase()}</span>
+              <span class={styles.serviceTag} data-sensitive>{member().tag_line.slice(0, 4).toUpperCase()}</span>
               <span class={`${styles.level} num`}>{member().account_level ?? "–"}</span>
               <span class={styles.rank} title={member().rank.name}>
                 <Art src={member().rank.icon} class={styles.rankIcon} fallback={<span class={styles.rankEmpty} />} />

@@ -1,0 +1,256 @@
+/* Glass match report: the map's splash softly blurred behind everything, a frosted result card
+   (green for a win, red for a loss), a row of rounded stat tiles and a frosted scoreboard
+   where your line carries the accent. Opacity and transform only animate. */
+
+.report {
+  --g-fill: var(--glass-fill, #181a20);
+  --g-text: var(--glass-text, #f5f5f7);
+  --g-line: var(--glass-line, #ffffff);
+  --g-soft: cubic-bezier(0.2, 1, 0.3, 1);
+  --g-result: var(--win, #30d158);
+  position: relative;
+  isolation: isolate;
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) minmax(0, 1.4fr);
+  grid-template-rows: auto minmax(0, 1fr);
+  gap: 14px;
+  width: 100%;
+  height: 100%;
+  padding: 14px;
+  overflow: hidden;
+  border-radius: 26px;
+  font-family: var(--font-text);
+  color: var(--g-text);
+}
+
+.report[data-result="defeat"] {
+  --g-result: var(--loss, #ff453a);
+}
+
+.report[data-result="draw"] {
+  --g-result: color-mix(in srgb, var(--g-text) 70%, transparent);
+}
+
+/* The splash sits on its own layer so the blur never touches the text. */
+.report::before {
+  content: "";
+  position: absolute;
+  inset: -24px;
+  z-index: -1;
+  background: var(--splash) center / cover;
+  filter: blur(18px) brightness(0.55);
+}
+
+.card,
+.tile,
+.board {
+  background: color-mix(in srgb, var(--g-fill) 50%, transparent);
+  backdrop-filter: blur(28px) saturate(180%);
+  box-shadow:
+    inset 0 1px 0 color-mix(in srgb, var(--g-line) 20%, transparent),
+    inset 0 0 0 0.5px color-mix(in srgb, var(--g-line) 14%, transparent),
+    0 18px 50px rgb(0 0 0 / 0.3);
+}
+
+.card {
+  grid-row: 1 / -1;
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+  justify-content: flex-end;
+  gap: 10px;
+  padding: 22px;
+  border-radius: 22px;
+  animation: riseIn 700ms var(--g-soft) backwards;
+}
+
+.context {
+  font-size: 13px;
+  font-weight: 600;
+  color: color-mix(in srgb, var(--g-text) 65%, transparent);
+}
+
+.result {
+  margin: 0;
+  font-size: clamp(36px, 7vh, 72px);
+  font-weight: 750;
+  letter-spacing: -0.04em;
+  line-height: 0.95;
+  color: var(--g-result);
+}
+
+.score {
+  display: flex;
+  gap: 8px;
+  font-size: 30px;
+  font-weight: 700;
+}
+
+.score span {
+  opacity: 0.4;
+}
+
+.rr {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  padding: 4px 14px 4px 4px;
+  border-radius: 999px;
+  background: color-mix(in srgb, var(--rank) 24%, transparent);
+}
+
+.rr img {
+  width: 28px;
+  height: 28px;
+}
+
+.rr[data-down] b {
+  color: var(--loss, #ff453a);
+}
+
+.pending {
+  font-size: 13px;
+  color: color-mix(in srgb, var(--g-text) 60%, transparent);
+}
+
+.continue {
+  margin-top: 8px;
+  height: 44px;
+  padding: 0 32px;
+  font: inherit;
+  font-size: 15px;
+  font-weight: 650;
+  color: var(--theme-on-play, #ffffff);
+  border-radius: 22px;
+  background: linear-gradient(
+    180deg,
+    color-mix(in oklch, var(--theme-play, var(--accent)) 92%, white),
+    var(--theme-play, var(--accent))
+  );
+  transition: transform 300ms cubic-bezier(0.32, 1.25, 0.5, 1);
+}
+
+.continue:hover {
+  transform: scale(1.04);
+}
+
+.continue:active {
+  transform: scale(0.97);
+}
+
+/* ---- tiles ---- */
+.tiles {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(92px, 1fr));
+  gap: 8px;
+}
+
+.tile {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+  padding: 12px 14px;
+  border-radius: 16px;
+  animation: riseIn 600ms var(--g-soft) backwards;
+  animation-delay: calc(200ms + var(--i) * 50ms);
+}
+
+.tile b {
+  font-size: 20px;
+  font-weight: 700;
+}
+
+.tile small {
+  font-size: 11px;
+  color: color-mix(in srgb, var(--g-text) 55%, transparent);
+}
+
+/* ---- scoreboard ---- */
+.board {
+  min-height: 0;
+  display: grid;
+  align-content: start;
+  gap: 4px;
+  margin: 0;
+  padding: 10px;
+  overflow: hidden auto;
+  list-style: none;
+  border-radius: 22px;
+  scrollbar-width: thin;
+}
+
+.row {
+  display: grid;
+  grid-template-columns: 30px minmax(0, 1fr) auto 4ch;
+  align-items: center;
+  gap: 10px;
+  padding: 5px 12px 5px 5px;
+  font-size: 13px;
+  border-radius: 12px;
+  animation: riseIn 500ms var(--g-soft) backwards;
+  animation-delay: calc(300ms + var(--i) * 30ms);
+}
+
+.row[data-side="ally"] {
+  background: color-mix(in srgb, var(--win, #30d158) 8%, transparent);
+}
+
+.row[data-side="enemy"] {
+  background: color-mix(in srgb, var(--loss, #ff453a) 8%, transparent);
+}
+
+.row[data-self] {
+  background: color-mix(in srgb, var(--accent) 30%, transparent);
+}
+
+.row > b {
+  text-align: right;
+}
+
+.agent {
+  width: 30px;
+  height: 30px;
+  border-radius: 50%;
+  object-fit: cover;
+  background: color-mix(in srgb, var(--g-line) 10%, transparent);
+}
+
+.name {
+  overflow: hidden;
+  font-weight: 600;
+  white-space: nowrap;
+  text-overflow: ellipsis;
+}
+
+.name small {
+  margin-left: 4px;
+  font-weight: 400;
+  color: color-mix(in srgb, var(--g-text) 50%, transparent);
+}
+
+@keyframes riseIn {
+  from {
+    opacity: 0;
+    transform: translateY(10px);
+  }
+}
+
+:global(:root[data-motion="reduced"]) .card,
+:global(:root[data-motion="reduced"]) .tile,
+:global(:root[data-motion="reduced"]) .row {
+  animation: none;
+}
+
+/* Players queued together: the stack's colour, as the live lobby marks it. */
+.stack {
+  flex: none;
+  margin-left: 6px;
+  padding: 1px 6px;
+  font-size: 11px;
+  font-weight: 800;
+  font-style: normal;
+  letter-spacing: 1px;
+  text-transform: uppercase;
+  color: #0b0b0e;
+  background: var(--stack);
+}

@@ -37,6 +37,7 @@
 }
 
 .banner {
+  position: relative;
   display: grid;
   grid-template-columns: auto 1fr auto;
   grid-template-areas:
@@ -46,6 +47,24 @@
   align-items: end;
   column-gap: var(--space-6);
   row-gap: var(--space-2);
+}
+
+/* Once the result has landed, one pass of light in the result's colour crosses the banner. */
+.banner::after {
+  content: "";
+  position: absolute;
+  inset: 0;
+  background: linear-gradient(
+      100deg,
+      transparent 40%,
+      color-mix(in oklch, var(--result) 30%, transparent) 50%,
+      transparent 60%
+    )
+    0 0 / 300% 100% no-repeat;
+  background-position: 100% 0;
+  pointer-events: none;
+  animation: sheen 1100ms var(--ease-decelerate) both;
+  animation-delay: calc(650ms * var(--motion-scale));
 }
 
 .context {
@@ -70,7 +89,7 @@
   text-transform: uppercase;
   color: var(--result);
   text-shadow: 0 0 40px color-mix(in oklch, var(--result) 45%, transparent);
-  animation: slam 620ms cubic-bezier(0.2, 1.4, 0.4, 1) both 120ms;
+  animation: slam 620ms cubic-bezier(0.2, 1.4, 0.4, 1) both calc(120ms * var(--motion-scale));
   transform-origin: left center;
 }
 
@@ -82,7 +101,7 @@
   padding-bottom: 0.4em;
   font-size: clamp(24px, 3.4cqi, 48px);
   color: var(--text-3);
-  animation: fadeIn 500ms var(--ease-decelerate) both 520ms;
+  animation: fadeIn 500ms var(--ease-decelerate) both calc(520ms * var(--motion-scale));
 }
 
 .score b {
@@ -105,7 +124,7 @@
   color: var(--text-2);
   background: color-mix(in oklch, var(--positive) 16%, rgb(0 0 0 / 0.45));
   box-shadow: inset 0 0 0 1px color-mix(in oklch, var(--positive) 50%, transparent);
-  animation: pop 420ms var(--ease-decelerate) both 700ms;
+  animation: pop 420ms var(--ease-decelerate) both calc(700ms * var(--motion-scale));
 }
 
 .rr[data-down] {
@@ -150,7 +169,7 @@
 @container (max-width: 720px) {
   .body {
     grid-template-columns: 1fr;
-    overflow: auto;
+    overflow: hidden auto;
   }
 }
 
@@ -165,7 +184,7 @@
   display: flex;
   align-items: center;
   gap: var(--space-3);
-  animation: slide 420ms var(--ease-decelerate) both 300ms;
+  animation: slide 420ms var(--ease-decelerate) both calc(300ms * var(--motion-scale));
 }
 
 .agentIcon {
@@ -217,7 +236,7 @@
   box-shadow: inset 0 0 0 1px var(--border-subtle);
   backdrop-filter: blur(6px);
   animation: rise 460ms var(--ease-decelerate) both;
-  animation-delay: calc(380ms + var(--stagger) * 70ms);
+  animation-delay: calc((380ms + var(--stagger) * 70ms) * var(--motion-scale));
 }
 
 .tile[data-accent] {
@@ -281,7 +300,7 @@
   min-height: 0;
   margin: 0;
   padding: 0;
-  overflow: auto;
+  overflow: hidden auto;
   list-style: none;
 }
 
@@ -291,7 +310,7 @@
   background: rgb(0 0 0 / 0.42);
   box-shadow: inset 3px 0 0 var(--ally);
   animation: slide 380ms var(--ease-decelerate) both;
-  animation-delay: calc(520ms + var(--stagger) * 45ms);
+  animation-delay: calc((520ms + var(--stagger) * 45ms) * var(--motion-scale));
 }
 
 .row[data-side="enemy"] {
@@ -374,7 +393,7 @@
   align-self: end;
   min-width: 200px;
   min-height: 48px;
-  animation: fadeIn 400ms var(--ease-decelerate) both 900ms;
+  animation: fadeIn 400ms var(--ease-decelerate) both calc(900ms * var(--motion-scale));
 }
 
 @keyframes slam {
@@ -422,4 +441,27 @@
     opacity: 0;
     transform: translateX(-16px);
   }
+}
+
+@keyframes sheen {
+  from {
+    background-position: 100% 0;
+  }
+  to {
+    background-position: 0 0;
+  }
+}
+
+/* Players queued together: the stack's colour, as the live lobby marks it. */
+.stack {
+  flex: none;
+  margin-left: 6px;
+  padding: 1px 6px;
+  font-size: 9px;
+  font-weight: 800;
+  font-style: normal;
+  letter-spacing: 1px;
+  text-transform: uppercase;
+  color: #0b0b0e;
+  background: var(--stack);
 }

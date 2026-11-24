@@ -4,7 +4,7 @@
   position: absolute;
   inset: 0;
   font-family: var(--font-din);
-  color: #ece8e1;
+  color: var(--current-ink, #ece8e1);
 }
 
 .crumb {
@@ -17,13 +17,13 @@
   font-size: 14px;
   letter-spacing: 0.6px;
   text-transform: uppercase;
-  color: rgb(236 232 225 / 0.8);
+  color: color-mix(in srgb, var(--current-ink, #ece8e1) 80%, transparent);
 }
 
 .crumb i {
   width: 8px;
   height: 9px;
-  background: rgb(236 232 225 / 0.5);
+  background: color-mix(in srgb, var(--current-line, #ece8e1) 50%, transparent);
   clip-path: polygon(0 0, 100% 50%, 0 100%);
 }
 
@@ -76,13 +76,13 @@
 
 .featured i {
   font-style: normal;
-  color: rgb(236 232 225 / 0.5);
+  color: color-mix(in srgb, var(--current-ink, #ece8e1) 50%, transparent);
 }
 
 .featured b {
   font-weight: 400;
   letter-spacing: 1px;
-  color: var(--val-gold, rgb(232 196 108));
+  color: var(--val-gold, var(--current-gold, #e8c46c));
 }
 
 .bundleName {
@@ -95,7 +95,7 @@
   font-weight: 700;
   line-height: 1;
   text-transform: uppercase;
-  color: #ece8e1;
+  color: var(--current-ink, #ece8e1);
 }
 
 .bundleKind {
@@ -143,11 +143,11 @@
   font-size: 13.5px;
   letter-spacing: 0.4px;
   text-transform: uppercase;
-  color: #ece8e1;
+  color: var(--current-ink, #ece8e1);
 }
 
 .slide[data-active] {
-  color: var(--val-teal, rgb(104 255 229));
+  color: var(--val-teal, var(--current-teal, #68ffe5));
 }
 
 .slide i {
@@ -161,15 +161,14 @@
   content: "";
   position: absolute;
   inset: 0;
-  background: var(--val-teal, rgb(104 255 229));
+  background: var(--val-teal, var(--current-teal, #68ffe5));
   transform: scaleX(var(--fill, 0));
   transform-origin: left;
 }
 
 /* Cream face 7 px inside a 2 px frame whose sides break for 6 px at mid-height, as the
-   client draws its buy button. */
-.priceButton,
-.giftButton {
+   client draws its buy button (here a label: buying happens in VALORANT). */
+.priceButton {
   position: absolute;
   top: 347px;
   height: 70px;
@@ -178,8 +177,7 @@
   color: #1a2028;
 }
 
-.priceButton::before,
-.giftButton::before {
+.priceButton::before {
   content: "";
   position: absolute;
   inset: 0;
@@ -190,18 +188,13 @@
   pointer-events: none;
 }
 
+/* Also spans where the client's Gift button sat: ValoShell can't gift, so there's no button. */
 .priceButton {
   left: 1276px;
-  width: 290px;
+  width: 375px;
 }
 
-.giftButton {
-  left: 1582px;
-  width: 69px;
-}
-
-.priceButton > span,
-.giftButton > span {
+.priceButton > span {
   display: flex;
   align-items: center;
   justify-content: center;
@@ -212,7 +205,6 @@
   font-weight: 700;
   letter-spacing: 0.6px;
   background: #ece8e3;
-  transition: background 140ms ease;
 }
 
 .priceButton svg {
@@ -220,10 +212,6 @@
   height: 26px;
 }
 
-.priceButton:hover > span,
-.giftButton:hover > span {
-  background: #ffffff;
-}
 
 /* ---- daily offers ---- */
 .dailyHead {
@@ -267,14 +255,14 @@
   width: 1px;
   height: 22px;
   margin: 0 12px;
-  background: rgb(236 232 225 / 0.5);
+  background: color-mix(in srgb, var(--current-line, #ece8e1) 50%, transparent);
 }
 
 .dailyClock {
   font-size: 20px;
   font-weight: 700;
   letter-spacing: 1.6px;
-  color: var(--val-gold, rgb(232 196 108));
+  color: var(--val-gold, var(--current-gold, #e8c46c));
 }
 
 .daily {
@@ -293,14 +281,34 @@
   padding: 0;
   font: inherit;
   text-align: left;
-  color: #ece8e1;
+  color: var(--current-ink, #ece8e1);
   background: linear-gradient(to bottom, rgb(12 18 22), var(--tint) 76%);
   box-shadow: inset 0 0 0 1px rgb(72 74 80);
-  transition: box-shadow 140ms ease;
+  transition:
+    box-shadow 140ms ease,
+    transform 100ms ease;
 }
 
-.tile:hover {
-  box-shadow: inset 0 0 0 1px rgb(236 232 225 / 0.85);
+.tile:hover:not(:disabled) {
+  box-shadow: inset 0 0 0 1px color-mix(in srgb, var(--current-line, #ece8e1) 85%, transparent);
+}
+
+.tile:not(:disabled) {
+  cursor: pointer;
+}
+
+.tile:active:not(:disabled) {
+  transform: scale(0.985);
+}
+
+/* On the wishlist: a heart in the corner, the client's red. */
+.tileWish {
+  position: absolute;
+  top: 10px;
+  right: 10px;
+  z-index: 1;
+  color: #ff4655;
+  filter: drop-shadow(0 1px 2px rgb(0 0 0 / 0.6));
 }
 
 /* The edition emblem, large and faint behind the weapon, cut by the card's left edge. */
@@ -380,9 +388,10 @@
   font-weight: 700;
   letter-spacing: 0.5px;
   text-transform: uppercase;
-  color: #ffffff;
+  color: var(--current-bright, #ffffff);
+  --sheen: color-mix(in srgb, var(--current-line, #ffffff) 5%, transparent);
   background:
-    linear-gradient(to right, rgb(255 255 255 / 0.05), transparent 25% 75%, rgb(255 255 255 / 0.05)),
+    linear-gradient(to right, var(--sheen), transparent 25% 75%, var(--sheen)),
     rgb(13 29 42);
   box-shadow: inset 0 0 0 1px rgb(60 72 84);
   transition: background 140ms ease, box-shadow 140ms ease;
@@ -416,5 +425,77 @@
 
 .category:hover {
   background: rgb(26 46 62);
-  box-shadow: inset 0 0 0 1px rgb(236 232 225 / 0.6);
+  box-shadow: inset 0 0 0 1px color-mix(in srgb, var(--current-line, #ece8e1) 60%, transparent);
+}
+
+/* ---- layouts (Look → Layout). Client is the arrangement above; these move the same four
+   blocks on the same 1860 x 1032 stage. ---- */
+
+/* Offers first: today's offers lead, taller; the bundle banner follows, shorter. */
+[data-layout="offers"] .dailyHead {
+  top: 83px;
+}
+
+[data-layout="offers"] .daily {
+  top: 126px;
+}
+
+[data-layout="offers"] .tile {
+  height: 300px;
+}
+
+[data-layout="offers"] .banner {
+  top: 452px;
+  height: 420px;
+}
+
+[data-layout="offers"] .carousel {
+  top: 344px;
+}
+
+[data-layout="offers"] .categories {
+  top: 900px;
+}
+
+/* Showcase: the bundle as a tall poster on the left; offers two by two and the categories
+   stacked on the right. */
+[data-layout="showcase"] .banner {
+  width: 1000px;
+  height: 870px;
+}
+
+[data-layout="showcase"] .carousel {
+  left: 31px;
+  top: auto;
+  bottom: 28px;
+  flex-wrap: wrap;
+  max-width: 940px;
+}
+
+/* The price moves in with the narrower banner, above the carousel. */
+[data-layout="showcase"] .priceButton {
+  top: 690px;
+  left: 594px;
+}
+
+[data-layout="showcase"] .dailyHead {
+  left: 1110px;
+  top: 83px;
+  width: 670px;
+}
+
+[data-layout="showcase"] .daily {
+  left: 1110px;
+  top: 126px;
+  grid-template-columns: repeat(2, 325px);
+}
+
+[data-layout="showcase"] .tile {
+  height: 220px;
+}
+
+[data-layout="showcase"] .categories {
+  left: 1110px;
+  top: 616px;
+  grid-template-columns: repeat(2, 325px);
 }

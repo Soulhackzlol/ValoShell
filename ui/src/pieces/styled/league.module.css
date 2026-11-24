@@ -1,12 +1,13 @@
 /* League client pieces: hextech gold frames, dark navy, serif small caps. Sizes in client
    units (--u, theme/league.css). */
 .home,
-.lobby {
-  --gold: #c8aa6e;
-  --gold-dark: #785a28;
-  --cream: #f0e6d2;
+.lobby,
+.party {
+  --gold: var(--league-gold, #c8aa6e);
+  --gold-dark: var(--league-gold-dark, #785a28);
+  --cream: var(--league-cream, #f0e6d2);
   --grey: #a09b8c;
-  --teal: #0ac8b9;
+  --teal: var(--league-teal, #0ac8b9);
   position: absolute;
   inset: 0;
   font-family: var(--lol-sans);
@@ -26,9 +27,14 @@
   display: flex;
   align-items: flex-end;
   background:
-    linear-gradient(to right, rgb(1 10 19 / 0.92) 0%, rgb(1 10 19 / 0.4) 55%, transparent 100%),
+    linear-gradient(
+      to right,
+      color-mix(in srgb, var(--league-navy, #010a13) 92%, transparent) 0%,
+      color-mix(in srgb, var(--league-navy, #010a13) 40%, transparent) 55%,
+      transparent 100%
+    ),
     var(--art) center / cover no-repeat,
-    #0a1428;
+    var(--league-navy, #0a1428);
   box-shadow: inset 0 0 0 1px var(--gold-dark);
 }
 
@@ -89,10 +95,10 @@
   font-weight: 700;
   letter-spacing: 0.08em;
   text-transform: uppercase;
-  color: #cdbe91;
-  background: #1e2328;
+  color: var(--league-label, #cdbe91);
+  background: var(--league-frame, #1e2328);
   border: 2px solid transparent;
-  border-image: linear-gradient(to bottom, #c8aa6e, #785a28) 1;
+  border-image: linear-gradient(to bottom, var(--league-gold, #c8aa6e), var(--league-gold-dark, #785a28)) 1;
   transition:
     color 140ms ease,
     box-shadow 140ms ease,
@@ -102,24 +108,24 @@
 .hexButton:hover,
 .findMatch:hover:not(:disabled) {
   color: var(--cream);
-  background: linear-gradient(to bottom, #1e2328, #2c2f30);
-  border-image: linear-gradient(to bottom, #f0e6d2, #c8aa6e) 1;
-  box-shadow: 0 0 calc(10 * var(--u)) rgb(200 170 110 / 0.35);
+  background: linear-gradient(to bottom, var(--league-frame, #1e2328), #2c2f30);
+  border-image: linear-gradient(to bottom, var(--league-cream, #f0e6d2), var(--league-gold, #c8aa6e)) 1;
+  box-shadow: 0 0 calc(10 * var(--u)) color-mix(in srgb, var(--league-gold, #c8aa6e) 35%, transparent);
 }
 
 .hexButton[data-tone="teal"],
 .findMatch {
   color: #cdfafa;
-  border-image: linear-gradient(to bottom, #0ac8b9, #005a82) 1;
-  box-shadow: inset 0 0 calc(12 * var(--u)) rgb(10 200 185 / 0.25);
+  border-image: linear-gradient(to bottom, var(--league-teal, #0ac8b9), #005a82) 1;
+  box-shadow: inset 0 0 calc(12 * var(--u)) color-mix(in srgb, var(--league-teal, #0ac8b9) 25%, transparent);
 }
 
 .hexButton[data-tone="teal"]:hover {
   color: #ffffff;
-  border-image: linear-gradient(to bottom, #cdfafa, #0ac8b9) 1;
+  border-image: linear-gradient(to bottom, #cdfafa, var(--league-teal, #0ac8b9)) 1;
   box-shadow:
-    inset 0 0 calc(14 * var(--u)) rgb(10 200 185 / 0.45),
-    0 0 calc(12 * var(--u)) rgb(10 200 185 / 0.4);
+    inset 0 0 calc(14 * var(--u)) color-mix(in srgb, var(--league-teal, #0ac8b9) 45%, transparent),
+    0 0 calc(12 * var(--u)) color-mix(in srgb, var(--league-teal, #0ac8b9) 40%, transparent);
 }
 
 .side {
@@ -136,8 +142,8 @@
   padding: 0;
   text-align: left;
   color: inherit;
-  background: #0a1428;
-  box-shadow: inset 0 0 0 1px #1e2328;
+  background: var(--league-navy, #0a1428);
+  box-shadow: inset 0 0 0 1px var(--league-frame, #1e2328);
   transition: box-shadow 140ms ease;
 }
 
@@ -148,7 +154,7 @@
 .tileArt {
   flex: 1;
   min-height: 0;
-  background: var(--art) center / cover no-repeat, #091428;
+  background: var(--art) center / cover no-repeat, var(--league-navy, #091428);
 }
 
 .tileText {
@@ -159,7 +165,7 @@
 }
 
 .tileText small {
-  font-size: calc(9.5 * var(--u));
+  font-size: max(10px, calc(9.5 * var(--u)));
   letter-spacing: 0.1em;
   text-transform: uppercase;
   color: var(--gold);
@@ -180,8 +186,12 @@
 .lobby {
   display: grid;
   grid-template-columns: calc(200 * var(--u)) 1fr;
-  background: radial-gradient(ellipse at 60% 40%, rgb(10 20 40 / 0.65), rgb(1 10 19 / 0.92) 70%);
-  box-shadow: inset 0 0 0 1px #1e2328;
+  background: radial-gradient(
+    ellipse at 60% 40%,
+    color-mix(in srgb, var(--league-navy, #0a1428) 65%, transparent),
+    color-mix(in srgb, var(--league-navy, #010a13) 92%, transparent) 70%
+  );
+  box-shadow: inset 0 0 0 1px var(--league-frame, #1e2328);
 }
 
 .modes {
@@ -190,8 +200,8 @@
   gap: calc(2 * var(--u));
   overflow-y: auto;
   padding: calc(14 * var(--u)) 0;
-  background: rgb(1 10 19 / 0.75);
-  border-right: 1px solid #1e2328;
+  background: color-mix(in srgb, var(--league-navy, #010a13) 75%, transparent);
+  border-right: 1px solid var(--league-frame, #1e2328);
   scrollbar-width: thin;
   scrollbar-color: var(--gold-dark) transparent;
 }
@@ -222,12 +232,12 @@
 
 .mode:hover:not(:disabled) {
   color: var(--cream);
-  background: rgb(240 230 210 / 0.04);
+  background: color-mix(in srgb, var(--league-cream, #f0e6d2) 4%, transparent);
 }
 
 .mode[data-active] {
   color: var(--cream);
-  background: linear-gradient(to right, rgb(200 170 110 / 0.16), transparent);
+  background: linear-gradient(to right, color-mix(in srgb, var(--league-gold, #c8aa6e) 16%, transparent), transparent);
 }
 
 .mode[data-active]::before {
@@ -322,9 +332,9 @@
   max-height: calc(330 * var(--u));
   padding-bottom: calc(18 * var(--u));
   background:
-    linear-gradient(to bottom, transparent 30%, rgb(1 10 19 / 0.95) 85%),
+    linear-gradient(to bottom, transparent 30%, color-mix(in srgb, var(--league-navy, #010a13) 95%, transparent) 85%),
     var(--art) center top / cover no-repeat,
-    #0a1428;
+    var(--league-navy, #0a1428);
   clip-path: polygon(0 0, 100% 0, 100% 92%, 50% 100%, 0 92%);
   box-shadow: inset 0 0 0 1px var(--gold-dark);
 }
@@ -335,12 +345,12 @@
 
 .banner[data-empty] {
   justify-content: center;
-  background: rgb(1 10 19 / 0.5);
-  box-shadow: inset 0 0 0 1px #1e2328;
+  background: color-mix(in srgb, var(--league-navy, #010a13) 50%, transparent);
+  box-shadow: inset 0 0 0 1px var(--league-frame, #1e2328);
 }
 
 .banner[data-empty] small {
-  font-size: calc(10.5 * var(--u));
+  font-size: max(10.5px, calc(10.5 * var(--u)));
   letter-spacing: 0.06em;
   text-transform: uppercase;
   color: #5b5a56;
@@ -363,7 +373,7 @@
   border-radius: 50%;
   box-shadow:
     0 0 0 2px var(--gold-dark),
-    0 0 0 3px #010a13;
+    0 0 0 3px var(--league-navy, #010a13);
 }
 
 .bannerIcon img {
@@ -394,7 +404,7 @@
   display: flex;
   align-items: center;
   gap: calc(4 * var(--u));
-  font-size: calc(10.5 * var(--u));
+  font-size: max(10.5px, calc(10.5 * var(--u)));
   text-transform: uppercase;
   letter-spacing: 0.05em;
 }
@@ -407,7 +417,7 @@
 .ready {
   position: absolute;
   top: calc(10 * var(--u));
-  font-size: calc(10 * var(--u));
+  font-size: max(10px, calc(10 * var(--u)));
   font-weight: 700;
   letter-spacing: 0.1em;
   text-transform: uppercase;
@@ -433,8 +443,8 @@
 }
 
 .findMatch[data-state="queue"] {
-  color: #cdbe91;
-  border-image: linear-gradient(to bottom, #c8aa6e, #785a28) 1;
+  color: var(--league-label, #cdbe91);
+  border-image: linear-gradient(to bottom, var(--league-gold, #c8aa6e), var(--league-gold-dark, #785a28)) 1;
   box-shadow: none;
 }
 
@@ -455,4 +465,96 @@
 .lobbyFoot .textButton {
   position: absolute;
   right: 0;
+}
+
+/* ---- party (on its own) ---- */
+.party {
+  display: grid;
+}
+
+.party .banners {
+  height: 100%;
+  padding: 0;
+}
+
+button.banner[data-empty] {
+  font: inherit;
+  border: 0;
+  cursor: pointer;
+  transition: box-shadow 140ms ease;
+}
+
+button.banner[data-empty]:hover {
+  box-shadow: inset 0 0 0 1px var(--gold);
+}
+
+/* ---- layouts (Look → Layout) ---- */
+/* Home, Banner: the newest article alone across the whole piece. */
+[data-layout="banner"] .home {
+  grid-template-columns: 1fr;
+}
+
+[data-layout="banner"] .side {
+  display: none;
+}
+
+/* Home, Row: the banner on top, the next articles in a row under it. */
+[data-layout="row"] .home {
+  grid-template-columns: 1fr;
+  grid-template-rows: minmax(0, 1fr) calc(150 * var(--u));
+}
+
+[data-layout="row"] .side {
+  flex-direction: row;
+}
+
+/* Lobby, Party: no mode list, the banners and FIND MATCH take the room. */
+[data-layout="party"] .lobby {
+  grid-template-columns: 1fr;
+}
+
+[data-layout="party"] .modes {
+  display: none;
+}
+
+/* Lobby, Top modes: the modes as a strip of tabs over the party. */
+[data-layout="top"] .lobby {
+  grid-template-columns: 1fr;
+  grid-template-rows: auto minmax(0, 1fr);
+}
+
+[data-layout="top"] .modes {
+  flex-direction: row;
+  overflow: auto hidden;
+  padding: 0 calc(10 * var(--u));
+  border-right: 0;
+  border-bottom: 1px solid var(--league-frame, #1e2328);
+}
+
+[data-layout="top"] .modesHead {
+  align-self: center;
+  padding-bottom: 0;
+}
+
+[data-layout="top"] .mode {
+  flex: none;
+}
+
+[data-layout="top"] .mode[data-active]::before {
+  inset: auto calc(8 * var(--u)) 0;
+  width: auto;
+  height: 2px;
+}
+
+/* Party, Plates: short square plates instead of the tall banners, for a low bar. */
+[data-layout="plates"] .party .banner {
+  justify-content: center;
+  max-height: none;
+  padding-bottom: 0;
+  clip-path: none;
+}
+
+[data-layout="plates"] .party .bannerIcon {
+  width: calc(40 * var(--u));
+  height: calc(40 * var(--u));
 }

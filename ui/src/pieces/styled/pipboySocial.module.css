@@ -1,0 +1,235 @@
+/* Pip-Boy Friends and Party: the wrist computer's one language (pipboyScreens.module.css) of
+   phosphor green on near black, uppercase mono, 2px rules, the picked row a solid green bar
+   with dark type and a ▶ cursor, art drawn in green with the darks dropped out. */
+
+.screen {
+  container-type: size;
+  display: grid;
+  grid-template-rows: auto minmax(0, 1fr);
+  gap: 2cqh;
+  width: 100%;
+  height: 100%;
+  color: var(--accent);
+  text-shadow: 0 0 6px color-mix(in srgb, var(--accent) 55%, transparent);
+}
+
+.subTabs {
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: center;
+  gap: 6px 22px;
+  padding-bottom: 8px;
+  font-size: 17px;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  border-bottom: 2px solid color-mix(in srgb, var(--accent) 70%, transparent);
+}
+
+.subTabs > * {
+  opacity: 0.5;
+  transition: opacity 120ms ease;
+}
+
+.subTabs > :hover,
+.subTabs > [data-on] {
+  opacity: 1;
+}
+
+.split {
+  display: grid;
+  grid-template-columns: minmax(180px, 44%) minmax(0, 1fr);
+  gap: 3cqw;
+  min-height: 0;
+}
+
+.list {
+  display: grid;
+  align-content: start;
+  gap: 2px;
+  margin: 0;
+  padding: 0;
+  overflow: hidden auto;
+  list-style: none;
+  scrollbar-width: none;
+}
+
+.row {
+  display: grid;
+  grid-template-columns: 22px minmax(0, 1fr) auto;
+  align-items: center;
+  gap: 8px;
+  width: 100%;
+  padding: 3px 10px 3px 4px;
+  font-size: 17px;
+  letter-spacing: 0.06em;
+  text-align: left;
+  text-transform: uppercase;
+}
+
+.row:hover {
+  background: color-mix(in srgb, var(--accent) 14%, transparent);
+}
+
+.row[data-picked] {
+  color: var(--ground, #031208);
+  text-shadow: none;
+  background: var(--accent);
+}
+
+.cursor {
+  font-size: 13px;
+}
+
+.label {
+  overflow: hidden;
+  white-space: nowrap;
+  text-overflow: ellipsis;
+}
+
+.mark {
+  font-size: 12px;
+  opacity: 0.75;
+}
+
+.empty {
+  margin: 0;
+  padding: 6px 10px;
+  font-size: 17px;
+  text-transform: uppercase;
+  opacity: 0.6;
+}
+
+.detail {
+  display: flex;
+  flex-direction: column;
+  gap: 1.4cqh;
+  min-height: 0;
+  overflow: hidden auto;
+  scrollbar-width: none;
+}
+
+/* The card in one green, the shading crushed, the darks dropped out. */
+.art {
+  flex: 1;
+  width: 100%;
+  min-height: 80px;
+  object-fit: contain;
+  filter: grayscale(1) contrast(1.5) brightness(1.15) sepia(1) hue-rotate(78deg) saturate(4.5);
+  mix-blend-mode: screen;
+  animation: flickerIn 600ms linear both;
+}
+
+.name {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: baseline;
+  gap: 8px;
+  margin: 0;
+  font-size: clamp(20px, 5cqh, 34px);
+  font-weight: 400;
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+}
+
+.name small {
+  font-size: 0.55em;
+  opacity: 0.7;
+}
+
+.table {
+  display: grid;
+  gap: 2px;
+  margin: 0;
+}
+
+.table > div {
+  display: flex;
+  justify-content: space-between;
+  gap: 12px;
+  padding: 3px 10px;
+  font-size: 15px;
+  text-transform: uppercase;
+  background: color-mix(in srgb, var(--accent) 10%, transparent);
+}
+
+.table dt {
+  opacity: 0.75;
+}
+
+.table dd {
+  margin: 0;
+  text-align: right;
+}
+
+.actions {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 10px;
+}
+
+.action {
+  padding: 4px 14px;
+  font-size: 17px;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  color: var(--accent);
+  border: 2px solid var(--accent);
+}
+
+.action:hover:not(:disabled) {
+  color: var(--ground, #031208);
+  text-shadow: none;
+  background: var(--accent);
+}
+
+.action:disabled {
+  cursor: default;
+  opacity: 0.6;
+}
+
+/* A tube warming: a flash, a stutter, steady. */
+@keyframes flickerIn {
+  0% {
+    opacity: 0;
+  }
+
+  20% {
+    opacity: 0.9;
+  }
+
+  35% {
+    opacity: 0.3;
+  }
+
+  100% {
+    opacity: 1;
+  }
+}
+
+/* ---- layouts (Look → Layout) ---- */
+/* List: the cursor list alone, full width; the picked entry's actions stay under it. */
+[data-layout="list"] .split {
+  grid-template-columns: minmax(0, 1fr);
+  grid-template-rows: minmax(0, 1fr) auto;
+}
+
+[data-layout="list"] :is(.art, .table) {
+  display: none;
+}
+
+[data-layout="list"] .detail {
+  flex-direction: row;
+  flex-wrap: wrap;
+  align-items: center;
+  justify-content: space-between;
+}
+
+:global(:root[data-motion="reduced"]) .art {
+  animation: none;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  :global(:root:not([data-motion="full"])) .art {
+    animation: none;
+  }
+}

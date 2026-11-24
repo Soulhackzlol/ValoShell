@@ -1,0 +1,99 @@
+name: Community looks
+
+# A pull request that adds a look is checked (shape, size, no web links); once merged to main,
+# the look is screenshotted for its gallery card (community/thumbs/) and community/index.json is
+# rebuilt so the app's gallery lists it. Run by hand to remake every picture (after the app's
+# look changes).
+on:
+  pull_request:
+    paths: ["community/**"]
+  push:
+    branches: [main]
+    paths: ["community/looks/**", "community/build_index.py"]
+  workflow_dispatch:
+
+concurrency:
+  group: community-${{ github.ref }}
+  cancel-in-progress: false
+
+permissions:
+  contents: read
+
+jobs:
+  check:
+    if: github.event_name == 'pull_request'
+    name: Check shared looks
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7
+        with:
+          persist-credentials: false
+      # The checker from the target branch, so a pull request cannot loosen its own check.
+      # Only before main has a checker at all does the pull request's copy run.
+      - name: Take the checker from the target branch
+        env:
+          BASE_REF: ${{ github.base_ref }}
+        run: |
+          git fetch --depth=1 origin "$BASE_REF"
+          if ! git show FETCH_HEAD:community/build_index.py > community/_base_check.py; then
+            echo "The target branch has no checker yet; using this pull request's copy."
+            cp community/build_index.py community/_base_check.py
+          fi
+      - run: python3 community/_base_check.py --check
+      # Pictures are made from the merged look; one sent from a fork could show anything.
+      - name: Refuse pictures from forks
+        if: github.event.pull_request.head.repo.full_name != github.repository
+        run: |
+          if [ -n "$(git diff --name-only FETCH_HEAD HEAD -- community/thumbs)" ]; then
+            echo "Please leave community/thumbs out; the picture is made after the merge."
+            exit 1
+          fi
+      - run: python3 -m unittest discover -s community -p "test_*.py"
+
+  index:
+    if: github.event_name != 'pull_request'
+    name: Screenshot new looks and rebuild the gallery index
+    runs-on: ubuntu-latest
+    permissions:
+      contents: write
+    steps:
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7
+      - uses: actions/setup-node@949feb2413d6458794dcd2491c4babbbce0c15c1 # v7
+        with:
+          node-version: 22
+          cache: npm
+      - run: npm ci
+      # Looks changed by this push get a new picture; looks without one always get one.
+      - name: List the looks to screenshot
+        id: looks
+        env:
+          BEFORE: ${{ github.event.before }}
+          IS_MANUAL: ${{ github.event_name == 'workflow_dispatch' }}
+        run: |
+          if [ "$IS_MANUAL" = "true" ]; then
+            ids=$(ls community/looks | sed -n 's/\.json$//p' | tr '\n' ' ')
+          elif git fetch --depth=1 origin "$BEFORE" 2>/dev/null; then
+            ids=$(git diff --name-only FETCH_HEAD HEAD -- community/looks \
+              | sed -n 's#^community/looks/\([a-z0-9-]*\)\.json$#\1#p' | tr '\n' ' ')
+          fi
+          echo "ids=${ids:-}" >> "$GITHUB_OUTPUT"
+      - name: Start the app's preview
+        run: |
+          npm run ui:dev -- --port 1420 --strictPort > /tmp/vite.log 2>&1 &
+          for attempt in $(seq 60); do curl -sf http://localhost:1420/ > /dev/null && exit 0; sleep 1; done
+          cat /tmp/vite.log
+          exit 1
+      - name: Screenshot the looks
+        env:
+          IDS: ${{ steps.looks.outputs.ids }}
+        # IDS is a space-separated list of file names the checker allowed ([a-z0-9-]).
+        run: node ui/scripts/look-thumbs.mjs community $IDS
+      - run: python3 community/build_index.py
+      - name: Commit the pictures and index when they changed
+        run: |
+          git add community/index.json community/thumbs
+          if git diff --cached --quiet; then exit 0; fi
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git commit -m "Community: screenshot new looks and rebuild the index"
+          git push

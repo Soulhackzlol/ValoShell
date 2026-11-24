@@ -1,0 +1,487 @@
+{
+  "community": {
+    "name": "Scouting Report",
+    "author": "ValoShell",
+    "description": "Frosted glass in teal: agent cards, player cards in the lobby, a result card after the match."
+  },
+  "version": 1,
+  "theme": {
+    "skin": "glass",
+    "preset": "custom",
+    "accent": "#3fd0c9",
+    "accent2": "#ff9fa8",
+    "ground": "#08090d",
+    "text": "#f5f5f7",
+    "backdrop": {
+      "kind": "game",
+      "url": "",
+      "agentUuid": "",
+      "mapId": "Ascent",
+      "gameVideo": "",
+      "shader": "flow",
+      "isAscii": false,
+      "asciiSize": 12,
+      "blur": 14,
+      "dim": 0.3,
+      "offsetX": 0,
+      "offsetY": 0,
+      "zoom": 1,
+      "rotate": 0,
+      "motion": "drift",
+      "motionSpeed": 0.5,
+      "hue": 0,
+      "saturation": 1,
+      "figureX": 0,
+      "figureY": 0,
+      "figureScale": 1
+    },
+    "isGrainy": false,
+    "vignette": 0.45,
+    "parallax": 14,
+    "cut": 0,
+    "displayFont": "inter",
+    "sound": {
+      "pack": "auto",
+      "volume": 1,
+      "isHoverOn": true,
+      "useFiles": true
+    },
+    "transition": {
+      "kind": "auto",
+      "speed": 1
+    },
+    "fx": {
+      "isIntroOn": true,
+      "isCursorOn": true,
+      "isClickFxOn": true
+    },
+    "language": "auto",
+    "palette": {
+      "glass-ring": "#3fd0c9",
+      "glass-online": "#3fd0c9"
+    },
+    "play": "#3fd0c9"
+  },
+  "stages": {
+    "home": [
+      {
+        "id": "glass-hello-default",
+        "kind": "glass-hello",
+        "rect": {
+          "x": 0.03,
+          "y": 0.03,
+          "w": 0.5,
+          "h": 0.12
+        },
+        "z": 1,
+        "isHidden": false,
+        "isLocked": false,
+        "style": {
+          "opacity": 1,
+          "radius": 0,
+          "surface": "none",
+          "isGlowing": false,
+          "scale": 1,
+          "density": "comfortable",
+          "accent": ""
+        },
+        "props": {}
+      },
+      {
+        "id": "glass-rank-default",
+        "kind": "glass-rank",
+        "rect": {
+          "x": 0.535,
+          "y": 0.04,
+          "w": 0.215,
+          "h": 0.1
+        },
+        "z": 6,
+        "isHidden": false,
+        "isLocked": false,
+        "style": {
+          "opacity": 1,
+          "radius": 0,
+          "surface": "none",
+          "isGlowing": false,
+          "scale": 1,
+          "density": "comfortable",
+          "accent": ""
+        },
+        "props": {}
+      },
+      {
+        "id": "glass-party-default",
+        "kind": "glass-party",
+        "rect": {
+          "x": 0.03,
+          "y": 0.18,
+          "w": 0.72,
+          "h": 0.58
+        },
+        "z": 2,
+        "isHidden": false,
+        "isLocked": false,
+        "style": {
+          "opacity": 1,
+          "radius": 0,
+          "surface": "none",
+          "isGlowing": false,
+          "scale": 1,
+          "density": "comfortable",
+          "accent": ""
+        },
+        "props": {}
+      },
+      {
+        "id": "glass-play-default",
+        "kind": "glass-play",
+        "rect": {
+          "x": 0.17,
+          "y": 0.79,
+          "w": 0.44,
+          "h": 0.18
+        },
+        "z": 3,
+        "isHidden": false,
+        "isLocked": false,
+        "style": {
+          "opacity": 1,
+          "radius": 0,
+          "surface": "none",
+          "isGlowing": false,
+          "scale": 1,
+          "density": "comfortable",
+          "accent": ""
+        },
+        "props": {}
+      },
+      {
+        "id": "glass-friends-default",
+        "kind": "glass-friends",
+        "rect": {
+          "x": 0.775,
+          "y": 0.03,
+          "w": 0.205,
+          "h": 0.94
+        },
+        "z": 4,
+        "isHidden": false,
+        "isLocked": false,
+        "style": {
+          "opacity": 1,
+          "radius": 0,
+          "surface": "none",
+          "isGlowing": false,
+          "scale": 1,
+          "density": "comfortable",
+          "accent": ""
+        },
+        "props": {}
+      }
+    ],
+    "play": [
+      {
+        "id": "queue-picker-default",
+        "kind": "queue-picker",
+        "rect": {
+          "x": 0.03,
+          "y": 0.03,
+          "w": 0.72,
+          "h": 0.72
+        },
+        "z": 1,
+        "isHidden": false,
+        "isLocked": false,
+        "style": {
+          "opacity": 1,
+          "radius": 0,
+          "surface": "none",
+          "isGlowing": false,
+          "scale": 1,
+          "density": "comfortable",
+          "accent": ""
+        },
+        "props": {}
+      },
+      {
+        "id": "glass-play-default",
+        "kind": "glass-play",
+        "rect": {
+          "x": 0.17,
+          "y": 0.79,
+          "w": 0.44,
+          "h": 0.18
+        },
+        "z": 2,
+        "isHidden": false,
+        "isLocked": false,
+        "style": {
+          "opacity": 1,
+          "radius": 0,
+          "surface": "none",
+          "isGlowing": false,
+          "scale": 1,
+          "density": "comfortable",
+          "accent": ""
+        },
+        "props": {}
+      },
+      {
+        "id": "glass-friends-default",
+        "kind": "glass-friends",
+        "rect": {
+          "x": 0.775,
+          "y": 0.03,
+          "w": 0.205,
+          "h": 0.94
+        },
+        "z": 3,
+        "isHidden": false,
+        "isLocked": false,
+        "style": {
+          "opacity": 1,
+          "radius": 0,
+          "surface": "none",
+          "isGlowing": false,
+          "scale": 1,
+          "density": "comfortable",
+          "accent": ""
+        },
+        "props": {}
+      }
+    ],
+    "career": [
+      {
+        "id": "glass-hello-default",
+        "kind": "glass-hello",
+        "rect": {
+          "x": 0.03,
+          "y": 0.03,
+          "w": 0.6,
+          "h": 0.12
+        },
+        "z": 1,
+        "isHidden": false,
+        "isLocked": false,
+        "style": {
+          "opacity": 1,
+          "radius": 0,
+          "surface": "none",
+          "isGlowing": false,
+          "scale": 1,
+          "density": "comfortable",
+          "accent": ""
+        },
+        "props": {}
+      },
+      {
+        "id": "service-record-default",
+        "kind": "service-record",
+        "rect": {
+          "x": 0.03,
+          "y": 0.18,
+          "w": 0.94,
+          "h": 0.78
+        },
+        "z": 2,
+        "isHidden": false,
+        "isLocked": false,
+        "style": {
+          "opacity": 1,
+          "radius": 0,
+          "surface": "none",
+          "isGlowing": false,
+          "scale": 1,
+          "density": "comfortable",
+          "accent": ""
+        },
+        "props": {}
+      }
+    ],
+    "store": [
+      {
+        "id": "store-front-default",
+        "kind": "store-front",
+        "rect": {
+          "x": 0.03,
+          "y": 0.04,
+          "w": 0.94,
+          "h": 0.92
+        },
+        "z": 1,
+        "isHidden": false,
+        "isLocked": false,
+        "style": {
+          "opacity": 1,
+          "radius": 0,
+          "surface": "none",
+          "isGlowing": false,
+          "scale": 1,
+          "density": "comfortable",
+          "accent": ""
+        },
+        "props": {
+          "layout": "auto"
+        }
+      }
+    ],
+    "agent-select": [
+      {
+        "id": "pregame-header-default",
+        "kind": "pregame-header",
+        "rect": {
+          "x": 0.3,
+          "y": 0.02,
+          "w": 0.4,
+          "h": 0.15
+        },
+        "z": 1,
+        "isHidden": false,
+        "isLocked": false,
+        "style": {
+          "opacity": 1,
+          "radius": 0,
+          "surface": "none",
+          "isGlowing": false,
+          "scale": 1,
+          "density": "comfortable",
+          "accent": ""
+        },
+        "props": {}
+      },
+      {
+        "id": "ally-roster-default",
+        "kind": "ally-roster",
+        "rect": {
+          "x": 0.02,
+          "y": 0.04,
+          "w": 0.21,
+          "h": 0.84
+        },
+        "z": 2,
+        "isHidden": false,
+        "isLocked": false,
+        "style": {
+          "opacity": 1,
+          "radius": 0,
+          "surface": "none",
+          "isGlowing": false,
+          "scale": 1,
+          "density": "comfortable",
+          "accent": ""
+        },
+        "props": {
+          "layout": "compact"
+        }
+      },
+      {
+        "id": "agent-picker-default",
+        "kind": "agent-picker",
+        "rect": {
+          "x": 0.26,
+          "y": 0.2,
+          "w": 0.48,
+          "h": 0.76
+        },
+        "z": 3,
+        "isHidden": false,
+        "isLocked": false,
+        "style": {
+          "opacity": 1,
+          "radius": 0,
+          "surface": "none",
+          "isGlowing": false,
+          "scale": 1,
+          "density": "comfortable",
+          "accent": ""
+        },
+        "props": {
+          "layout": "cards"
+        }
+      }
+    ],
+    "live": [
+      {
+        "id": "lobby-default",
+        "kind": "lobby",
+        "rect": {
+          "x": 0.03,
+          "y": 0.03,
+          "w": 0.94,
+          "h": 0.8
+        },
+        "z": 1,
+        "isHidden": false,
+        "isLocked": false,
+        "style": {
+          "opacity": 1,
+          "radius": 0,
+          "surface": "none",
+          "isGlowing": false,
+          "scale": 1,
+          "density": "comfortable",
+          "accent": ""
+        },
+        "props": {
+          "layout": "cards"
+        }
+      },
+      {
+        "id": "match-score-default",
+        "kind": "match-score",
+        "rect": {
+          "x": 0.42,
+          "y": 0.86,
+          "w": 0.16,
+          "h": 0.1
+        },
+        "z": 2,
+        "isHidden": false,
+        "isLocked": false,
+        "style": {
+          "opacity": 1,
+          "radius": 0,
+          "surface": "none",
+          "isGlowing": false,
+          "scale": 1,
+          "density": "comfortable",
+          "accent": ""
+        },
+        "props": {
+          "isCompact": false
+        }
+      }
+    ],
+    "post-match": [
+      {
+        "id": "post-match-default",
+        "kind": "post-match",
+        "rect": {
+          "x": 0.03,
+          "y": 0.03,
+          "w": 0.94,
+          "h": 0.94
+        },
+        "z": 1,
+        "isHidden": false,
+        "isLocked": false,
+        "style": {
+          "opacity": 1,
+          "radius": 0,
+          "surface": "none",
+          "isGlowing": false,
+          "scale": 1,
+          "density": "comfortable",
+          "accent": ""
+        },
+        "props": {
+          "layout": "card"
+        }
+      }
+    ]
+  },
+  "layouts": {
+    "glass": 1
+  }
+}

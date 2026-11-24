@@ -12,6 +12,7 @@ import { RpCoin, VpCoin } from "~/pieces/styled/valIcons";
 import { friendActivity, friends, isElsewhere } from "~/state/friends";
 import { party, partyActions } from "~/state/party";
 import { connection, game, ownRiotId } from "~/state/session";
+import { sensitiveTitle } from "~/state/settings";
 import { wallet } from "~/state/wallet";
 import { doc, isEditing, setEditMode } from "~/studio/store";
 import { tabLabel } from "~/studio/skins";
@@ -45,7 +46,7 @@ function LeagueBar() {
     return "Play";
   };
   return (
-    <header class={styles.bar} data-part="nav" data-tauri-drag-region>
+    <header class={styles.bar} data-part="nav">
       <button
         class={styles.crest}
         data-part="play"
@@ -151,7 +152,7 @@ function LeagueSocial() {
   };
   return (
     <aside class={styles.social}>
-      <div class={styles.windowRow} data-tauri-drag-region>
+      <div class={styles.windowRow}>
         <button class={styles.windowButton} title="Settings (Esc)" onClick={openEscMenu}>
           <Settings size={12} />
         </button>
@@ -164,7 +165,7 @@ function LeagueSocial() {
           </button>
         </Show>
       </div>
-      <div class={styles.profile} data-tauri-drag-region>
+      <div class={styles.profile}>
         <span class={styles.icon}>
           <Art src={self()?.card_small ?? null} fallback={<span class={styles.iconEmpty} />} />
           <Show when={self()?.account_level}>{(level) => <b class={`${styles.level} num`}>{level()}</b>}</Show>
@@ -234,7 +235,7 @@ function FriendRow(props: { friend: FriendView }) {
       <Show when={canInvite()}>
         <button
           class={styles.invite}
-          title={`Invite ${props.friend.game_name}`}
+          title={sensitiveTitle(`Invite ${props.friend.game_name}`)}
           onClick={() => {
             playCue("confirm");
             void partyActions.invite(`${props.friend.game_name}#${props.friend.tag_line}`);

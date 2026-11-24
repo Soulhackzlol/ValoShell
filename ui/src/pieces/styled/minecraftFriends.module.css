@@ -1,0 +1,74 @@
+/* Minecraft friends: the Play Multiplayer screen over minecraft.module.css's Select World parts.
+   Dirt bands above and below a darker dirt list, as Java drew the screen before the panorama,
+   64px heads as server icons, and the green ping bars (a red x for offline). */
+
+.screen {
+  --mc-font: "Pixelify Sans Variable", "Silkscreen", monospace;
+  --mc-dirt: var(--minecraft-dirt, #6b4a2f);
+  gap: 0;
+  font-family: var(--mc-font);
+  /* The dirt block in 16px pixels: two speckle layers over the earth colour. */
+  background:
+    repeating-conic-gradient(rgb(0 0 0 / 0.22) 0 25%, transparent 0 50%) 0 0 / 16px 16px,
+    repeating-conic-gradient(rgb(255 255 255 / 0.06) 0 25%, transparent 0 50%) 8px 8px / 24px 24px,
+    var(--mc-dirt);
+  image-rendering: pixelated;
+}
+
+.screen > h2 {
+  padding: 10px 0;
+}
+
+.head {
+  flex: none;
+  width: 64px;
+  height: 64px;
+  object-fit: cover;
+  object-position: center top;
+  image-rendering: pixelated;
+}
+
+.right {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-end;
+  gap: 4px;
+  margin-left: auto;
+  align-self: flex-start;
+}
+
+.players {
+  font-size: 14px;
+  color: var(--minecraft-muted, #a0a0a0);
+}
+
+.signal {
+  display: flex;
+  align-items: flex-end;
+  gap: 1px;
+  height: 14px;
+}
+
+.signal i {
+  width: 3px;
+  background: #3f3f3f;
+}
+
+.signal i[data-on] {
+  background: #55ff55;
+}
+
+.signal[data-level="1"] i[data-on] {
+  background: #ffff55;
+}
+
+.cross {
+  font-size: 15px;
+  line-height: 14px;
+  color: #ff5555;
+}
+
+.buttons {
+  grid-template-columns: repeat(3, 1fr);
+  padding: 12px 8px;
+}

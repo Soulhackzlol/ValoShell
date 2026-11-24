@@ -1,0 +1,456 @@
+/* Night City screens: the merc database (Agents) and the job board (Gigs). Same language as the
+   style's panels: salmon-red hairlines and labels, cyan for what is picked, squared tech type,
+   rows that boot in one after another, a hologram that flickers and is scanned. */
+
+.db,
+.board {
+  --nc-red: var(--nightcity-red, #ff5e57);
+  --nc-cyan: var(--nightcity-cyan, #5ef6ff);
+  --nc-line: color-mix(in srgb, var(--nc-red) 50%, transparent);
+  --nc-faint: color-mix(in srgb, var(--nc-red) 20%, transparent);
+  --nc-text: var(--nightcity-text, #f2e9e4);
+  container-type: size;
+  display: grid;
+  /* One row the height of the piece, so lists scroll instead of stretching it. */
+  grid-template-rows: minmax(0, 1fr);
+  gap: 2.4cqw;
+  width: 100%;
+  height: 100%;
+  font-family: "Rajdhani", var(--font-display);
+  color: var(--nc-text);
+}
+
+.db {
+  grid-template-columns: minmax(240px, 27%) minmax(0, 1fr) minmax(280px, 34%);
+}
+
+.board {
+  grid-template-columns: minmax(260px, 34%) minmax(0, 1fr);
+}
+
+/* ---- shared parts ---- */
+
+.list,
+.dossier,
+.contract {
+  position: relative;
+  display: flex;
+  flex-direction: column;
+  gap: 1.4cqh;
+  min-height: 0;
+  padding: 2.6cqh 1.6cqw;
+  background:
+    radial-gradient(circle, var(--nc-faint) 1px, transparent 1.5px) 0 0 / 14px 14px,
+    color-mix(in srgb, var(--nightcity-panel, #0e0b10) 90%, transparent);
+  border: 1px solid var(--nc-line);
+  clip-path: polygon(0 0, calc(100% - 18px) 0, 100% 18px, 100% 100%, 18px 100%, 0 calc(100% - 18px));
+}
+
+.head {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+  padding-bottom: 1cqh;
+  background: repeating-linear-gradient(to right, var(--nc-line) 0 10px, transparent 10px 14px) bottom / 100% 1px no-repeat;
+}
+
+.code {
+  font-family: var(--font-mono);
+  font-size: 11px;
+  letter-spacing: 0.18em;
+  color: color-mix(in srgb, var(--nc-red) 75%, transparent);
+}
+
+.title,
+.name {
+  margin: 0;
+  font-weight: 700;
+  line-height: 1;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  color: var(--nc-red);
+  text-shadow: 0 0 18px color-mix(in srgb, var(--nc-red) 45%, transparent);
+}
+
+.title {
+  font-size: clamp(22px, 5cqh, 40px);
+}
+
+.name {
+  font-size: clamp(30px, 8cqh, 72px);
+}
+
+.rows {
+  display: grid;
+  align-content: start;
+  gap: 4px;
+  flex: 1;
+  min-height: 0;
+  margin: 0;
+  padding: 0;
+  overflow: hidden auto;
+  list-style: none;
+  scrollbar-width: thin;
+  scrollbar-color: var(--nc-line) transparent;
+}
+
+.status {
+  padding: 0 8px;
+  font-size: 12px;
+  font-weight: 700;
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
+  color: var(--nc-cyan);
+  border: 1px solid currentColor;
+}
+
+.status[data-locked] {
+  color: color-mix(in srgb, var(--nc-red) 70%, transparent);
+}
+
+.facts {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 1cqw;
+  margin: 0;
+}
+
+.facts div {
+  padding: 6px 10px;
+  border-left: 2px solid var(--nc-red);
+  background: linear-gradient(90deg, color-mix(in srgb, var(--nc-red) 12%, transparent), transparent);
+}
+
+.facts dt {
+  font-family: var(--font-mono);
+  font-size: 10px;
+  letter-spacing: 0.16em;
+  text-transform: uppercase;
+  color: color-mix(in srgb, var(--nc-red) 75%, transparent);
+}
+
+.facts dd {
+  margin: 0;
+  font-size: 20px;
+  font-weight: 700;
+  text-transform: uppercase;
+  color: var(--nc-cyan);
+}
+
+.facts dd[data-locked] {
+  color: var(--nc-red);
+}
+
+/* A cyan line sweeping down a picture, as a scanner reads it. The band is a pseudo-element moved
+   with transform (no blend mode) so the endless sweep never repaints the picture under it. */
+.scan {
+  position: absolute;
+  inset: 0;
+  overflow: hidden;
+  pointer-events: none;
+}
+
+.scan::before {
+  content: "";
+  position: absolute;
+  inset: 0;
+  background: linear-gradient(
+    to bottom,
+    transparent 41%,
+    color-mix(in srgb, var(--nc-cyan) 30%, transparent) 50%,
+    transparent 59%
+  );
+  animation: sweep calc(3.2s * var(--motion-scale, 1)) linear infinite;
+}
+
+/* ---- merc database ---- */
+
+.roles {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 4px;
+}
+
+.role {
+  padding: 2px 8px;
+  font-size: 12px;
+  font-weight: 700;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  color: color-mix(in srgb, var(--nc-red) 80%, transparent);
+  border: 1px solid var(--nc-faint);
+  transition: color 120ms ease, border-color 120ms ease, background 120ms ease;
+}
+
+.role:hover {
+  color: var(--nc-cyan);
+  border-color: var(--nc-cyan);
+}
+
+.role[data-active] {
+  color: #0a0a0d;
+  background: var(--nc-cyan);
+  border-color: var(--nc-cyan);
+}
+
+.merc,
+.gig {
+  display: grid;
+  align-items: center;
+  gap: 10px;
+  width: 100%;
+  padding: 4px 10px;
+  text-align: left;
+  background: linear-gradient(90deg, color-mix(in srgb, var(--nc-red) 10%, transparent), transparent 70%);
+  border-left: 2px solid var(--nc-faint);
+  animation: bootIn 320ms steps(4, end) backwards;
+  animation-delay: calc((120ms + var(--i, 0) * 28ms) * var(--motion-scale, 1));
+  transition: background 120ms ease, border-color 120ms ease, color 120ms ease;
+}
+
+.merc {
+  grid-template-columns: auto 30px minmax(0, 1fr) auto;
+}
+
+.merc:hover,
+.gig:hover {
+  border-left-color: var(--nc-cyan);
+}
+
+.merc[data-picked],
+.gig[data-picked] {
+  color: var(--nc-cyan);
+  background: linear-gradient(90deg, color-mix(in srgb, var(--nc-cyan) 18%, transparent), transparent 80%);
+  border-left-color: var(--nc-cyan);
+}
+
+.mercIcon {
+  width: 30px;
+  height: 30px;
+  object-fit: cover;
+  filter: grayscale(0.4) contrast(1.1);
+}
+
+.merc[data-picked] .mercIcon {
+  filter: none;
+}
+
+.mercName,
+.gigName {
+  overflow: hidden;
+  font-size: 17px;
+  font-weight: 700;
+  letter-spacing: 0.04em;
+  text-transform: uppercase;
+  white-space: nowrap;
+  text-overflow: ellipsis;
+}
+
+.owned {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  font-size: 13px;
+  font-weight: 700;
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+  color: color-mix(in srgb, var(--nc-red) 80%, transparent);
+}
+
+.owned i {
+  width: 12px;
+  height: 12px;
+  border: 1px solid var(--nc-red);
+}
+
+.owned i[data-on] {
+  background: var(--nc-cyan);
+  border-color: var(--nc-cyan);
+}
+
+.dossier {
+  gap: 1.6cqh;
+}
+
+.ware {
+  display: grid;
+  gap: 4px;
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+
+.slot {
+  display: grid;
+  grid-template-columns: 30px 28px minmax(0, 1fr);
+  align-items: center;
+  gap: 10px;
+  width: 100%;
+  padding: 5px 8px;
+  text-align: left;
+  font-size: 16px;
+  font-weight: 700;
+  letter-spacing: 0.04em;
+  text-transform: uppercase;
+  border: 1px solid var(--nc-faint);
+  transition: border-color 120ms ease, color 120ms ease, background 120ms ease;
+}
+
+.slot kbd {
+  display: grid;
+  place-items: center;
+  height: 24px;
+  font-family: var(--font-mono);
+  font-size: 12px;
+  color: var(--nc-cyan);
+  border: 1px solid color-mix(in srgb, var(--nc-cyan) 60%, transparent);
+}
+
+.slot:hover {
+  border-color: var(--nc-cyan);
+}
+
+.slot[data-open] {
+  color: var(--nc-cyan);
+  background: color-mix(in srgb, var(--nc-cyan) 12%, transparent);
+  border-color: var(--nc-cyan);
+}
+
+.slot[data-ult] {
+  border-color: color-mix(in srgb, var(--nightcity-yellow, #fcee0a) 50%, transparent);
+}
+
+.wareIcon {
+  width: 28px;
+  height: 28px;
+  object-fit: contain;
+}
+
+.readout {
+  flex: 1;
+  min-height: 0;
+  overflow: hidden auto;
+  padding-top: 1cqh;
+  border-top: 1px dashed var(--nc-line);
+}
+
+.readout b {
+  font-size: 18px;
+  text-transform: uppercase;
+  color: var(--nc-cyan);
+}
+
+.readout p {
+  margin: 4px 0 0;
+  font-family: var(--font-text);
+  font-size: 14px;
+  line-height: 1.5;
+  color: color-mix(in srgb, var(--nc-text) 85%, transparent);
+}
+
+/* ---- job board ---- */
+
+.gig {
+  grid-template-columns: auto minmax(0, 1fr) auto;
+  min-height: 46px;
+}
+
+.gigName {
+  font-size: 20px;
+}
+
+.contract {
+  gap: 1.8cqh;
+}
+
+.contractArt {
+  position: relative;
+  flex: 1;
+  min-height: 120px;
+  overflow: hidden;
+  clip-path: polygon(0 0, calc(100% - 16px) 0, 100% 16px, 100% 100%, 0 100%);
+}
+
+/* The mode's art in the style's duotone: black to red, lit cyan by the scan. */
+.contractImage {
+  display: block;
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  filter: grayscale(1) contrast(1.2) brightness(0.8) sepia(1) hue-rotate(-30deg) saturate(2.6);
+  animation: holoIn 520ms steps(5, end) backwards;
+}
+
+.brief {
+  margin: 0;
+  font-family: var(--font-text);
+  font-size: 15px;
+  color: color-mix(in srgb, var(--nc-text) 85%, transparent);
+}
+
+.accept {
+  align-self: start;
+  padding: 10px 26px;
+  font-size: 18px;
+  font-weight: 700;
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
+  color: #0a0a0d;
+  background: var(--nc-cyan);
+  clip-path: polygon(0 0, calc(100% - 12px) 0, 100% 12px, 100% 100%, 12px 100%, 0 calc(100% - 12px));
+  transition: filter 120ms ease;
+}
+
+.accept:hover:not(:disabled) {
+  filter: brightness(1.15);
+}
+
+.accept:disabled {
+  cursor: default;
+  color: var(--nc-cyan);
+  background: color-mix(in srgb, var(--nc-cyan) 14%, transparent);
+}
+
+@keyframes bootIn {
+  from {
+    opacity: 0;
+    clip-path: inset(0 100% 0 0);
+  }
+}
+
+/* From just above the picture to well below it, so the band rests unseen between passes. */
+@keyframes sweep {
+  from {
+    transform: translateY(-60%);
+  }
+
+  to {
+    transform: translateY(200%);
+  }
+}
+
+@keyframes holoIn {
+  from {
+    opacity: 0;
+    clip-path: inset(0 0 100% 0);
+  }
+}
+
+/* Narrow screens: the hologram goes first, list and dossier keep the room. */
+@container (max-width: 1000px) {
+  .db {
+    grid-template-columns: minmax(220px, 38%) minmax(0, 1fr);
+  }
+}
+
+:global(:root[data-motion="reduced"]) :is(.merc, .gig, .contractImage),
+:global(:root[data-motion="reduced"]) .scan::before {
+  animation: none;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  :global(:root:not([data-motion="full"])) :is(.merc, .gig, .contractImage),
+  :global(:root:not([data-motion="full"])) .scan::before {
+    animation: none;
+  }
+}

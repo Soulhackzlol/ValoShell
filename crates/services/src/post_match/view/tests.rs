@@ -155,3 +155,18 @@ fn a_match_without_the_player_gives_no_view() {
 
     assert!(post_match_view(&detail, &inputs).is_none());
 }
+
+#[test]
+fn players_queued_together_share_a_stack() {
+    let view = view();
+
+    let (me, duo, solo) = (
+        line(&view, "me"),
+        line(&view, "duo"),
+        line(&view, "stranger"),
+    );
+
+    assert_eq!((me.stack_size, duo.stack_size, solo.stack_size), (2, 2, 1));
+    assert_eq!(me.stack_group, duo.stack_group);
+    assert_eq!(solo.stack_group, None);
+}

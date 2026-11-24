@@ -1,0 +1,72 @@
+/* Accessibility layer over every style: high contrast and colour-vision palettes. Loaded last
+   so it wins over the styles. Styles also redefine tokens on inner parts (a light inventory
+   board inside a dark menu), so the rules set tokens on every element and derive them from the
+   nearest --text-1: each part keeps its own ink, just stronger. */
+
+/* ---- high contrast: secondary text and borders move towards the main ink ---- */
+:root[data-contrast="high"],
+:root[data-contrast="high"] * {
+  --text-2: color-mix(in srgb, var(--text-1) 92%, transparent);
+  --text-3: color-mix(in srgb, var(--text-1) 78%, transparent);
+  --text-disabled: color-mix(in srgb, var(--text-1) 55%, transparent);
+  --border-subtle: color-mix(in srgb, var(--text-1) 26%, transparent);
+  --border-default: color-mix(in srgb, var(--text-1) 38%, transparent);
+  --border-strong: color-mix(in srgb, var(--text-1) 60%, transparent);
+  /* Every piece's outline (studio/stage.module.css), which styles otherwise leave faint. */
+  --piece-hairline: var(--border-default);
+}
+
+/* ---- colour vision: Okabe-Ito based pairs, lightened for dark menus ----
+   Styles paint results with their own colours as fallbacks of the result tokens
+   (`var(--win, <their green>)`, also --loss, --side-ally, --side-enemy). Those tokens exist
+   only here, so a style keeps its look until a colour-vision mode is on. */
+:root[data-vision="red_green"],
+:root[data-vision="red_green"] *,
+:root[data-vision="blue_yellow"],
+:root[data-vision="blue_yellow"] * {
+  --win: var(--positive);
+  --loss: var(--negative);
+  --side-ally: var(--ally);
+  --side-enemy: var(--enemy);
+}
+
+/* Deuteranopia / protanopia: win and loss leave green-against-red. Ally blue and enemy orange
+   already read apart, so they stay. Loss is a deep vermillion and warning a light yellow, so
+   the two also differ in lightness, which is what these eyes rely on. */
+:root[data-vision="red_green"],
+:root[data-vision="red_green"] * {
+  --positive: #56b4e9;
+  --positive-soft: rgb(86 180 233 / 0.14);
+  --negative: #ff6a2b;
+  --negative-soft: rgb(255 106 43 / 0.14);
+  --warning: #f0e442;
+  --warning-soft: rgb(240 228 66 / 0.14);
+}
+
+/* Tritanopia: blue-against-green and yellow-against-violet blur, so every pair becomes
+   cyan against pink-red. */
+:root[data-vision="blue_yellow"],
+:root[data-vision="blue_yellow"] * {
+  --positive: #3fd0c9;
+  --positive-soft: rgb(63 208 201 / 0.14);
+  --negative: #ff5c8a;
+  --negative-soft: rgb(255 92 138 / 0.14);
+  --ally: #3fd0c9;
+  --ally-soft: rgb(63 208 201 / 0.14);
+  --enemy: #ff5c8a;
+  --enemy-soft: rgb(255 92 138 / 0.14);
+}
+
+/* ---- less transparency: the scene behind frosted panels steps back ----
+   Glass-like panels blur whatever moves behind them. When the system asks for less
+   transparency, or high contrast is on, the scene is dimmed so text on those panels keeps
+   its contrast; the panels themselves keep their look. */
+@media (prefers-reduced-transparency: reduce) {
+  :root:not([data-skin="pipboy"]) [data-part="backdrop"] {
+    filter: brightness(0.4) saturate(0.6);
+  }
+}
+
+:root[data-contrast="high"]:not([data-skin="pipboy"]) [data-part="backdrop"] {
+  filter: brightness(0.45) saturate(0.7);
+}

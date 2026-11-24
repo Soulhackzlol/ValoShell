@@ -3,7 +3,11 @@
 /**
  * One thing on sale.
  */
-export type StoreItem = { id: string, name: string, image: string | null, 
+export type StoreItem = { id: string, 
+/**
+ * The skin a skin-level offer sells (the wishlist matches on it); `None` for other items.
+ */
+skin_id: string | null, name: string, image: string | null, 
 /**
  * Price in its currency (VP for skins, KC for accessories).
  */

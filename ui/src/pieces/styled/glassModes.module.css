@@ -1,0 +1,240 @@
+/* Glass modes: a frosted detail view. One big rounded card with the mode's art under a dark
+   fade, beside an inset grouped list (tinted icon tiles, hairline separators inset past the
+   tile, a checkmark in the accent). The hero cross-fades when the mode changes; nothing else
+   moves. */
+
+.modes {
+  --g-fill: var(--glass-fill, #181a20);
+  --g-text: var(--glass-text, #f5f5f7);
+  --g-bright: var(--glass-bright, #ffffff);
+  --g-line: var(--glass-line, #ffffff);
+  --g-soft: color-mix(in srgb, var(--g-text) 58%, transparent);
+  container-type: size;
+  display: grid;
+  grid-template-columns: minmax(0, 1.25fr) minmax(280px, 1fr);
+  grid-template-rows: minmax(0, 1fr);
+  gap: 16px;
+  width: 100%;
+  height: 100%;
+  font-family: "Inter Variable", "Segoe UI", sans-serif;
+  color: var(--g-text);
+}
+
+/* ---- the picked mode ---- */
+.hero {
+  position: relative;
+  min-height: 0;
+  overflow: hidden;
+  border-radius: 28px;
+  background: color-mix(in srgb, var(--g-fill) 60%, transparent);
+  box-shadow:
+    inset 0 0 0 0.5px color-mix(in srgb, var(--g-line) 22%, transparent),
+    0 24px 60px rgb(0 0 0 / 0.4);
+  animation: crossfade 360ms var(--ease-settle) both;
+}
+
+.empty {
+  display: grid;
+  place-items: center;
+  font-size: 15px;
+  color: var(--g-soft);
+}
+
+.heroArt {
+  position: absolute;
+  inset: 0;
+  display: block;
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+}
+
+.heroText {
+  position: absolute;
+  inset: auto 0 0;
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+  gap: 8px;
+  padding: 80px 28px 26px;
+  background: linear-gradient(to top, rgb(0 0 0 / 0.78), rgb(0 0 0 / 0.35) 60%, transparent);
+}
+
+.heroGlyph {
+  width: 34px;
+  height: 34px;
+  object-fit: contain;
+}
+
+.heroText h2 {
+  font-size: clamp(30px, 7cqh, 52px);
+  font-weight: 700;
+  letter-spacing: -0.03em;
+  line-height: 1;
+  color: var(--g-bright);
+}
+
+.heroText p {
+  max-width: 40ch;
+  font-size: 16px;
+  line-height: 1.45;
+  color: color-mix(in srgb, var(--g-bright) 82%, transparent);
+}
+
+.chip {
+  margin-top: 4px;
+  padding: 5px 12px;
+  font-size: 13px;
+  font-weight: 600;
+  color: var(--g-bright);
+  background: color-mix(in srgb, var(--g-line) 16%, transparent);
+  backdrop-filter: blur(20px) saturate(180%);
+  border-radius: 999px;
+}
+
+/* ---- the list ---- */
+.list {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+  min-height: 0;
+  padding: 18px 12px 12px;
+  background: color-mix(in srgb, var(--g-fill) 52%, transparent);
+  backdrop-filter: blur(28px) saturate(180%);
+  border-radius: 22px;
+  box-shadow:
+    inset 0 1px 0 color-mix(in srgb, var(--g-line) 18%, transparent),
+    inset 0 0 0 0.5px color-mix(in srgb, var(--g-line) 12%, transparent),
+    0 18px 50px rgb(0 0 0 / 0.32);
+}
+
+.listHead {
+  display: flex;
+  align-items: baseline;
+  justify-content: space-between;
+  padding: 0 8px;
+}
+
+.listHead h3 {
+  font-size: 17px;
+  font-weight: 650;
+  letter-spacing: -0.01em;
+  color: var(--g-bright);
+}
+
+.listHead span {
+  font-size: 13px;
+  color: var(--g-soft);
+}
+
+.rows {
+  flex: 1;
+  min-height: 0;
+  margin: 0;
+  padding: 0;
+  overflow: hidden auto;
+  list-style: none;
+  scrollbar-width: thin;
+}
+
+.rows li + li {
+  position: relative;
+}
+
+/* Hairline separators inset past the icon tile, as grouped lists draw them. */
+.rows li + li::before {
+  content: "";
+  position: absolute;
+  top: 0;
+  left: 62px;
+  right: 8px;
+  height: 0.5px;
+  background: color-mix(in srgb, var(--g-line) 12%, transparent);
+}
+
+.row {
+  display: grid;
+  grid-template-columns: 38px minmax(0, 1fr) 20px;
+  align-items: center;
+  gap: 14px;
+  width: 100%;
+  padding: 9px 10px;
+  text-align: left;
+  border-radius: 12px;
+  transition: background 160ms ease;
+}
+
+.row:not(:disabled):hover {
+  background: color-mix(in srgb, var(--g-line) 6%, transparent);
+}
+
+.row:not(:disabled):active {
+  background: color-mix(in srgb, var(--g-line) 10%, transparent);
+}
+
+.tile {
+  display: grid;
+  place-items: center;
+  width: 38px;
+  height: 38px;
+  border-radius: 10px;
+  background: color-mix(in srgb, var(--g-line) 12%, transparent);
+}
+
+.row[data-on] .tile {
+  background: var(--accent);
+}
+
+.glyph {
+  width: 22px;
+  height: 22px;
+  object-fit: contain;
+}
+
+.rowText {
+  display: flex;
+  flex-direction: column;
+  min-width: 0;
+  line-height: 1.3;
+}
+
+.rowText b {
+  font-size: 15px;
+  font-weight: 600;
+  color: var(--g-bright);
+}
+
+.rowText small {
+  overflow: hidden;
+  font-size: 12.5px;
+  white-space: nowrap;
+  text-overflow: ellipsis;
+  color: var(--g-soft);
+}
+
+/* Modes without a glyph (Unrated, Deathmatch, Custom) show their initial instead. */
+.initial {
+  font-size: 17px;
+  font-weight: 700;
+  color: var(--g-bright);
+}
+
+.check {
+  color: var(--accent);
+}
+
+@keyframes crossfade {
+  from {
+    opacity: 0;
+  }
+}
+
+@container (max-width: 700px) {
+  .modes {
+    grid-template-columns: minmax(0, 1fr);
+  }
+
+  .hero {
+    display: none;
+  }
+}

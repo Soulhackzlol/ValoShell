@@ -1,0 +1,231 @@
+/* VALORANT 2022 social panel: friends split into Online and Offline folders. The colour
+   tokens come from valnow.module.css (composed into `.social`) so every piece shares them. */
+
+.social {
+  composes: social from "./valnow.module.css";
+  container-type: inline-size;
+  display: flex;
+  flex-direction: column;
+  width: 100%;
+  height: 100%;
+  min-height: 0;
+  background: var(--v22-navy-strong);
+  box-shadow: inset 1px 0 0 var(--v22-line);
+}
+
+.socialHead {
+  display: flex;
+  align-items: baseline;
+  justify-content: space-between;
+  gap: 10px;
+  white-space: nowrap;
+  padding: 14px 16px 12px;
+  border-bottom: 2px solid var(--v22-red);
+}
+
+.socialHead h2 {
+  font-family: var(--font-display);
+  font-stretch: 75%;
+  font-weight: 700;
+  text-transform: uppercase;
+  margin: 0;
+  font-size: 26px;
+  letter-spacing: 1px;
+}
+
+.socialHead span {
+  font-size: 12px;
+  letter-spacing: 1.5px;
+  text-transform: uppercase;
+  color: var(--v22-teal);
+}
+
+.groups {
+  flex: 1;
+  min-height: 0;
+  overflow: hidden auto;
+}
+
+.groupHead {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  width: 100%;
+  padding: 10px 14px 6px;
+  border: 0;
+  font-size: 12px;
+  font-weight: 700;
+  letter-spacing: 2px;
+  text-transform: uppercase;
+  color: rgb(236 232 225 / 0.6);
+  background: none;
+}
+
+.groupHead b {
+  font-weight: 600;
+  color: rgb(236 232 225 / 0.4);
+}
+
+.chevron {
+  transform: rotate(-90deg);
+  transition: transform 160ms ease;
+}
+
+.group[data-open] .chevron {
+  transform: none;
+}
+
+.friendList {
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+
+.empty {
+  padding: 6px 16px 10px;
+  font-size: 12px;
+  color: rgb(236 232 225 / 0.4);
+}
+
+.friend {
+  --status: var(--v22-teal);
+  position: relative;
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  padding: 6px 12px 6px 14px;
+  animation: fade 300ms ease-out both;
+  animation-delay: calc(var(--i) * 25ms);
+}
+
+.friend:hover {
+  background: rgb(236 232 225 / 0.06);
+}
+
+.friendArt {
+  display: grid;
+  place-items: center;
+  flex: none;
+  width: 36px;
+  height: 36px;
+  object-fit: cover;
+  font-weight: 700;
+  color: rgb(236 232 225 / 0.6);
+  background: rgb(236 232 225 / 0.08);
+  box-shadow: inset 3px 0 0 var(--status);
+}
+
+.friend[data-status="queueing"],
+.friend[data-status="agent_select"],
+.friend[data-status="in_match"] {
+  --status: #6fb5ff;
+}
+
+.friend[data-status="away"] {
+  --status: #f3d36b;
+}
+
+.friend[data-status="online"] {
+  --status: #9aa4ad;
+}
+
+.friend[data-status="offline"] {
+  --status: transparent;
+  opacity: 0.55;
+}
+
+.friendText {
+  display: flex;
+  flex: 1;
+  flex-direction: column;
+  min-width: 0;
+}
+
+.friendText b {
+  overflow: hidden;
+  font-size: 14px;
+  font-weight: 600;
+  white-space: nowrap;
+  text-overflow: ellipsis;
+}
+
+.activity {
+  overflow: hidden;
+  font-size: 11px;
+  white-space: nowrap;
+  text-overflow: ellipsis;
+  color: var(--status);
+}
+
+.friend[data-status="offline"] .activity {
+  color: rgb(236 232 225 / 0.5);
+}
+
+/* Floats over the row's right edge on hover instead of holding 28px of every row, which in a
+   narrow column cut names down to one letter. */
+.friendInvite {
+  position: absolute;
+  top: 50%;
+  right: 10px;
+  translate: 0 -50%;
+  display: grid;
+  place-items: center;
+  width: 28px;
+  height: 28px;
+  border: 0;
+  color: var(--v22-bone);
+  background: rgb(236 232 225 / 0.08);
+  opacity: 0;
+  transition: opacity 160ms ease, background-color 160ms ease;
+}
+
+.friend:hover .friendInvite,
+.friendInvite:focus-visible,
+.friendInvite:disabled {
+  opacity: 1;
+}
+
+.friendInvite:not(:disabled):hover {
+  background: var(--v22-red);
+}
+
+.friendInvite:disabled {
+  color: var(--v22-teal);
+}
+
+/* Compact: names only, smaller faces, for a narrow column. */
+[data-layout="compact"] .activity {
+  display: none;
+}
+
+[data-layout="compact"] .friend {
+  padding-block: 3px;
+}
+
+[data-layout="compact"] .friendArt {
+  width: 26px;
+  height: 26px;
+}
+
+@keyframes fade {
+  from {
+    opacity: 0;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .friend {
+    animation: none;
+  }
+}
+
+/* A narrow column: the group header already counts who is online, so the title keeps the room. */
+@container (max-width: 200px) {
+  .socialHead > span {
+    display: none;
+  }
+
+  .socialHead h2 {
+    font-size: 22px;
+  }
+}

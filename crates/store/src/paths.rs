@@ -39,6 +39,11 @@ impl DataPaths {
         self.root.join("themes")
     }
 
+    /// Saved loadout presets.
+    pub fn loadouts_dir(&self) -> PathBuf {
+        self.root.join("loadouts")
+    }
+
     /// Downloaded assets. Safe to delete; rebuilt on demand.
     pub fn cache_dir(&self) -> PathBuf {
         self.root.join("cache")
@@ -59,6 +64,7 @@ impl DataPaths {
         for dir in [
             self.layouts_dir(),
             self.themes_dir(),
+            self.loadouts_dir(),
             self.cache_dir(),
             self.logs_dir(),
             self.sounds_dir(),

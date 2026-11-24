@@ -32,6 +32,19 @@
   box-shadow: none;
 }
 
+/* A beating dot while the match is live. */
+.live[data-live]::before {
+  content: "";
+  display: inline-block;
+  width: 6px;
+  height: 6px;
+  margin-right: 6px;
+  vertical-align: 1px;
+  border-radius: 50%;
+  background: currentColor;
+  animation: beat 1.4s ease-in-out infinite;
+}
+
 .title {
   font-family: var(--font-display);
   font-stretch: calc(115% * var(--stretch, 1));
@@ -53,7 +66,7 @@
   display: grid;
   grid-template-columns: repeat(auto-fit, minmax(340px, 1fr));
   gap: var(--space-4);
-  overflow: auto;
+  overflow: hidden auto;
 }
 
 .team {
@@ -128,7 +141,8 @@
   padding: 3px 8px 3px 3px;
   background: rgb(255 255 255 / 0.035);
   box-shadow: inset 3px 0 0 var(--stack);
-  animation: rowIn 380ms var(--ease-decelerate) both;
+  animation: rowIn 380ms var(--ease-decelerate) backwards;
+  animation-delay: calc(var(--stagger, 0) * 40ms * var(--motion-scale));
 }
 
 .row[data-self] {
@@ -208,6 +222,15 @@
   color: var(--text-3);
 }
 
+.rank[data-loading] .rankName {
+  animation: beat 1.2s ease-in-out infinite;
+}
+
+/* Each rank badge pops in as its rank arrives (the icon shows only once loaded). */
+.rank img {
+  animation: rankIn 460ms cubic-bezier(0.34, 1.56, 0.64, 1) backwards;
+}
+
 .rankName {
   white-space: nowrap;
   overflow: hidden;
@@ -248,6 +271,135 @@
   color: var(--text-3);
 }
 
+/* ---- layouts ----
+   The frame sets data-layout; Table (the first option) is the look above. */
+
+/* Versus: the teams face each other, the enemy side mirrored, VS between them. */
+[data-layout="versus"] .teams {
+  grid-template-columns: minmax(0, 1fr) auto minmax(0, 1fr);
+  /* Rows as tall as the teams, so VS centres on them rather than on the whole piece. */
+  align-content: start;
+}
+
+[data-layout="versus"] .teams::before {
+  content: "VS";
+  grid-row: 1;
+  grid-column: 2;
+  align-self: center;
+  font-family: var(--font-display);
+  font-size: 30px;
+  font-weight: 900;
+  font-style: italic;
+  color: var(--text-3);
+  animation: vsIn 520ms cubic-bezier(0.34, 1.56, 0.64, 1) backwards;
+  animation-delay: calc(200ms * var(--motion-scale));
+}
+
+[data-layout="versus"] .team[data-side="ally"] {
+  grid-row: 1;
+  grid-column: 1;
+}
+
+[data-layout="versus"] .team[data-side="enemy"] {
+  grid-row: 1;
+  grid-column: 3;
+}
+
+/* Mirrored by direction, so the grid columns flip while the text inside reads normally. */
+[data-layout="versus"] .team[data-side="enemy"] :is(.row, .columns) {
+  direction: rtl;
+}
+
+[data-layout="versus"] .team[data-side="enemy"] :is(.row, .columns) > * {
+  direction: ltr;
+}
+
+[data-layout="versus"] .team[data-side="enemy"] .teamHead {
+  flex-direction: row-reverse;
+}
+
+[data-layout="versus"] .team[data-side="enemy"] .who {
+  align-items: flex-end;
+}
+
+[data-layout="versus"] .team[data-side="enemy"] :is(.name, .meta, .rank) {
+  flex-direction: row-reverse;
+}
+
+[data-layout="versus"] .team[data-side="enemy"] .stat {
+  align-items: flex-start;
+}
+
+[data-layout="versus"] .team[data-side="enemy"] .row {
+  box-shadow: inset -3px 0 0 var(--stack);
+  animation-name: rowInRight;
+}
+
+/* Cards: a loading-screen card per player: agent, name, rank; peak and win rate left out. */
+[data-layout="cards"] .teams {
+  grid-template-columns: 1fr;
+}
+
+[data-layout="cards"] .columns {
+  display: none;
+}
+
+[data-layout="cards"] .rows {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(96px, 1fr));
+  gap: var(--space-2);
+}
+
+[data-layout="cards"] .row {
+  grid-template-columns: minmax(0, 1fr);
+  justify-items: center;
+  align-content: start;
+  gap: 6px;
+  padding: var(--space-3) 6px;
+  text-align: center;
+  background: linear-gradient(to bottom, color-mix(in oklch, var(--ally) 16%, transparent), rgb(255 255 255 / 0.03));
+  box-shadow: inset 0 3px 0 var(--stack);
+}
+
+[data-layout="cards"] .team[data-side="enemy"] .row {
+  background: linear-gradient(to bottom, color-mix(in oklch, var(--enemy) 16%, transparent), rgb(255 255 255 / 0.03));
+}
+
+[data-layout="cards"] .row[data-self] {
+  box-shadow:
+    inset 0 3px 0 var(--stack),
+    inset 0 0 0 1px var(--accent);
+}
+
+[data-layout="cards"] .row > :nth-child(n + 4) {
+  display: none;
+}
+
+[data-layout="cards"] .agent {
+  width: min(64px, 100%);
+}
+
+[data-layout="cards"] .who {
+  align-items: center;
+  max-width: 100%;
+}
+
+[data-layout="cards"] .name {
+  flex-direction: column;
+  gap: 4px;
+  max-width: 100%;
+}
+
+[data-layout="cards"] .rank {
+  flex-direction: column;
+  gap: 2px;
+}
+
+[data-layout="cards"] .rank img {
+  width: 36px;
+  height: 36px;
+}
+
 @keyframes rowIn {
   from {
     opacity: 0;
@@ -255,7 +407,30 @@
   }
 }
 
-@keyframes glow {
+@keyframes rowInRight {
+  from {
+    opacity: 0;
+    transform: translateX(10px);
+  }
+}
+
+@keyframes rankIn {
+  from {
+    opacity: 0;
+    scale: 0.3;
+    rotate: -20deg;
+  }
+}
+
+@keyframes beat {
   50% {
+    opacity: 0.35;
+  }
+}
+
+@keyframes vsIn {
+  from {
+    opacity: 0;
+    scale: 2.2;
   }
 }

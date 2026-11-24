@@ -104,7 +104,7 @@ fn category_rank(category: &str) -> usize {
 }
 
 /// The picture of a skin in one chroma: the chroma render, else the skin's own icon.
-fn skin_image(skin: &Skin, chroma_id: &str) -> Option<String> {
+pub(super) fn skin_image(skin: &Skin, chroma_id: &str) -> Option<String> {
     let chroma = skin
         .chromas
         .iter()
@@ -173,7 +173,7 @@ pub fn collection_view(index: &AssetIndex, loadout: &PlayerLoadout) -> Collectio
 }
 
 /// A skin is owned when its first level is (default skins are always owned).
-fn is_skin_owned(skin: &Skin, weapon: &Weapon, owned: &Owned) -> bool {
+pub(super) fn is_skin_owned(skin: &Skin, weapon: &Weapon, owned: &Owned) -> bool {
     let is_default = weapon
         .default_skin_uuid
         .as_deref()
@@ -386,9 +386,13 @@ mod tests {
 
         let view = collection_view(&index, &loadout);
 
-        assert_eq!(view.weapons.len(), 1);
-        assert_eq!(view.weapons[0].category, "Rifle");
-        assert_eq!(view.weapons[0].skin_name, "Reaver Vandal");
-        assert_eq!(view.weapons[0].chroma_id, "chroma-1");
+        let vandal = view
+            .weapons
+            .iter()
+            .find(|weapon| weapon.weapon_name == "Vandal")
+            .unwrap();
+        assert_eq!(vandal.category, "Rifle");
+        assert_eq!(vandal.skin_name, "Reaver Vandal");
+        assert_eq!(vandal.chroma_id, "chroma-1");
     }
 }

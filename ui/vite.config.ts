@@ -27,5 +27,7 @@ export default defineConfig({
       },
     },
   },
-  test: { environment: "node", include: ["src/**/*.test.ts"] },
+  // `css: true` so `?raw` stylesheet imports give their text (palettes.test.ts checks every
+  // style colour role is painted by its style's stylesheet).
+  test: { css: true, environment: "node", include: ["src/**/*.test.ts"] },
 });

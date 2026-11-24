@@ -5,18 +5,21 @@
   right: 0;
   bottom: 0;
   z-index: 26;
-  width: 60px;
+  width: 380px;
   display: flex;
   flex-direction: column;
   font-family: var(--font-din);
-  color: #ece8e1;
+  color: var(--current-ink, #ece8e1);
   background: rgb(14 20 26 / 0.86);
-  box-shadow: inset 1px 0 0 rgb(255 255 255 / 0.05);
-  transition: width 220ms cubic-bezier(0.22, 1, 0.36, 1);
+  box-shadow: inset 1px 0 0 color-mix(in srgb, var(--current-line, #ffffff) 5%, transparent);
+  /* Closed, only its first 60 px show: it slides in rather than growing, so nothing relays out
+     mid-motion. The page hides what is past the window's edge. */
+  transform: translateX(320px);
+  transition: transform 220ms cubic-bezier(0.22, 1, 0.36, 1);
 }
 
 .panel[data-open] {
-  width: 380px;
+  transform: none;
   background: rgb(20 22 25 / 0.97);
   box-shadow: -18px 0 40px rgb(0 0 0 / 0.45);
 }
@@ -33,17 +36,17 @@
   position: relative;
   display: grid;
   place-items: center;
-  color: #ece8e1;
+  color: var(--current-ink, #ece8e1);
   background: rgb(20 28 35 / 0.9);
 }
 
 .tab[data-active] {
   background: linear-gradient(to bottom, rgb(18 80 76 / 0.95), rgb(14 58 56 / 0.95));
-  box-shadow: inset 0 -3px 0 #2ee6c5;
+  box-shadow: inset 0 -3px 0 var(--current-teal, #2ee6c5);
 }
 
 .tab:hover:not([data-active]) {
-  background: rgb(255 255 255 / 0.08);
+  background: color-mix(in srgb, var(--current-line, #ffffff) 8%, transparent);
 }
 
 .tabBadge {
@@ -64,9 +67,9 @@
   height: 46px;
   margin: 8px 8px 4px;
   padding: 0 18px;
-  color: #8b9299;
+  color: var(--current-muted, #8b9299);
   background: rgb(8 12 16 / 0.7);
-  box-shadow: inset 0 0 0 1px rgb(255 255 255 / 0.12);
+  box-shadow: inset 0 0 0 1px color-mix(in srgb, var(--current-line, #ffffff) 12%, transparent);
 }
 
 .search input {
@@ -77,12 +80,12 @@
   font: inherit;
   font-size: 15px;
   letter-spacing: 0.5px;
-  color: #ece8e1;
+  color: var(--current-ink, #ece8e1);
   user-select: text;
 }
 
 .search input::placeholder {
-  color: #8b9299;
+  color: var(--current-muted, #8b9299);
 }
 
 .search input:focus {
@@ -98,7 +101,7 @@
   padding: 4px 0 8px;
   overflow-y: auto;
   scrollbar-width: thin;
-  scrollbar-color: rgb(255 255 255 / 0.25) transparent;
+  scrollbar-color: color-mix(in srgb, var(--current-line, #ffffff) 25%, transparent) transparent;
 }
 
 .row {
@@ -127,7 +130,7 @@
 }
 
 .row[data-group="offline"] .name {
-  color: #ece8e1;
+  color: var(--current-ink, #ece8e1);
 }
 
 .row[data-self] .name {
@@ -169,7 +172,7 @@
 }
 
 .status[data-tone="offline"] {
-  color: #9aa1a8;
+  color: var(--current-muted, #9aa1a8);
 }
 
 .rowIcons {
@@ -190,7 +193,7 @@
   place-items: center;
   width: 24px;
   height: 22px;
-  color: #ece8e1;
+  color: var(--current-ink, #ece8e1);
   opacity: 0;
   transition: opacity 120ms ease;
 }
@@ -205,6 +208,11 @@
 
 .rowButton:disabled {
   opacity: 0.4;
+}
+
+/* The client shows its chat bubble on every row, not only on hover. */
+.chatButton {
+  opacity: 1;
 }
 
 .partyNote {
@@ -228,7 +236,7 @@
   margin-top: 8px;
   padding: 0 14px 0 14px;
   font: inherit;
-  color: #a6a9ad;
+  color: var(--current-muted, #a6a9ad);
   background: rgb(59 62 67 / 0.95);
   text-align: left;
 }
@@ -241,7 +249,7 @@
   display: grid;
   place-items: center;
   width: 30px;
-  color: #a6a9ad;
+  color: var(--current-muted, #a6a9ad);
 }
 
 .groupTitle {
@@ -257,7 +265,7 @@
   height: 0;
   border-left: 7px solid transparent;
   border-right: 7px solid transparent;
-  border-top: 10px solid #a6a9ad;
+  border-top: 10px solid var(--current-muted, #a6a9ad);
   transform: rotate(90deg);
   transition: transform 160ms ease;
 }
@@ -312,8 +320,8 @@
   width: 13px;
   height: 13px;
   border-radius: 50%;
-  border: 2px solid #3dd6a5;
-  background: radial-gradient(circle, #3dd6a5 0 2px, #10231f 2.5px);
+  border: 2px solid var(--current-teal, #3dd6a5);
+  background: radial-gradient(circle, var(--current-teal, #3dd6a5) 0 2px, #10231f 2.5px);
   box-shadow: 0 0 0 1px rgb(0 0 0 / 0.6);
 }
 
@@ -329,7 +337,7 @@
   position: absolute;
   left: 4.5px;
   top: 3.5px;
-  border-left: 5px solid #ffffff;
+  border-left: 5px solid var(--current-bright, #ffffff);
   border-top: 3px solid transparent;
   border-bottom: 3px solid transparent;
 }
@@ -346,8 +354,8 @@
   top: 3px;
   width: 3px;
   height: 4px;
-  border-left: 1.5px solid #ffffff;
-  border-bottom: 1.5px solid #ffffff;
+  border-left: 1.5px solid var(--current-bright, #ffffff);
+  border-bottom: 1.5px solid var(--current-bright, #ffffff);
 }
 
 .dot[data-tone="offline"] {
@@ -357,6 +365,7 @@
 /* ---- closed: the strip ---- */
 .strip {
   flex: 1;
+  width: 60px;
   min-height: 0;
   display: flex;
   flex-direction: column;
@@ -369,9 +378,9 @@
   display: grid;
   place-items: center;
   height: 92px;
-  color: #ece8e1;
+  color: var(--current-ink, #ece8e1);
   background: rgb(26 33 40 / 0.95);
-  box-shadow: inset 0 -1px 0 rgb(255 255 255 / 0.06);
+  box-shadow: inset 0 -1px 0 color-mix(in srgb, var(--current-line, #ffffff) 6%, transparent);
 }
 
 .stripAdd .tabBadge {
@@ -414,7 +423,7 @@
   flex: none;
   margin-top: -4px;
   font-size: 10px;
-  color: #9aa1a8;
+  color: var(--current-muted, #9aa1a8);
 }
 
 .stripMarker {

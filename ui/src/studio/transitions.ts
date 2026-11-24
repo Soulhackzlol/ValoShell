@@ -53,9 +53,15 @@ export function settleChange(): void {
   change?.();
 }
 
+/** A view transition draws the moving pieces in a layer above the whole page, dialogs
+ *  included; with one open (the welcome tour's style step) the change lands at once instead. */
+function isDialogOpen(): boolean {
+  return document.querySelector('[aria-modal="true"]') !== null;
+}
+
 export function animateChange(change: () => void, flavor: Flavor = "morph"): void {
   settleChange();
-  if (typeof document.startViewTransition !== "function" || isMotionReduced()) {
+  if (typeof document.startViewTransition !== "function" || isMotionReduced() || isDialogOpen()) {
     change();
     return;
   }

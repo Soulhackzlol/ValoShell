@@ -1,8 +1,10 @@
 //! Real windows for the match flow: the menu (a Tauri window) and the game window, found by
 //! its process image name so other Unreal games can never be mistaken for VALORANT.
 
+use std::sync::atomic::{AtomicBool, Ordering};
+
 use services::match_flow::WindowPort;
-use tauri::{AppHandle, Manager};
+use tauri::{AppHandle, Manager, PhysicalPosition, PhysicalSize};
 
 use crate::MAIN_WINDOW;
 
@@ -20,12 +22,105 @@ impl AppWindows {
     }
 }
 
+/// Styles drawn as a desktop client (League) use a client-sized window; the rest cover the
+/// screen. Set by the UI when the style changes (`set_window_mode`).
+static IS_WINDOWED: AtomicBool = AtomicBool::new(false);
+
+/// The League client's window sizes (logical px), the larger one on screens wide enough.
+const SMALL_CLIENT: (f64, f64) = (1280.0, 720.0);
+const LARGE_CLIENT: (f64, f64) = (1600.0, 900.0);
+const LARGE_FROM_WIDTH: f64 = 1800.0;
+
+/// Switch between fullscreen and the client-sized window, then place the menu again.
+pub fn set_windowed(window: &tauri::WebviewWindow, is_windowed: bool) {
+    IS_WINDOWED.store(is_windowed, Ordering::Relaxed);
+    place_menu(window);
+}
+
+/// Put the menu on the monitor VALORANT runs on, else the main monitor: fullscreen, or (for a
+/// client-styled menu) centred at the client's size. It is never dragged or resized by hand.
+pub fn place_menu(window: &tauri::WebviewWindow) {
+    let monitor = game::center()
+        .and_then(|(x, y)| monitor_at(window, x, y))
+        .or_else(|| window.primary_monitor().ok().flatten());
+    let Some(monitor) = monitor else {
+        tracing::warn!("menu_monitor_not_found");
+        return;
+    };
+    if is_fullscreen_on(window, &monitor) {
+        return;
+    }
+    // Leaving fullscreen first: a fullscreen window can't be moved or sized.
+    let placed = if IS_WINDOWED.load(Ordering::Relaxed) {
+        let (position, size) = client_rect(&monitor);
+        window
+            .set_fullscreen(false)
+            .and_then(|()| window.set_size(size))
+            .and_then(|()| window.set_position(position))
+    } else {
+        window
+            .set_fullscreen(false)
+            .and_then(|()| window.set_position(*monitor.position()))
+            .and_then(|()| window.set_fullscreen(true))
+    };
+    if let Err(error) = placed {
+        tracing::warn!(%error, "place_menu_failed");
+    }
+}
+
+/// Whether the fullscreen menu already covers `monitor`: placing it again would leave and
+/// re-enter fullscreen, a visible flicker every time a match ends.
+fn is_fullscreen_on(window: &tauri::WebviewWindow, monitor: &tauri::Monitor) -> bool {
+    if IS_WINDOWED.load(Ordering::Relaxed) || !window.is_fullscreen().unwrap_or(false) {
+        return false;
+    }
+    let current = window.current_monitor().ok().flatten();
+    current.is_some_and(|current| current.position() == monitor.position())
+}
+
+/// The client-sized window centred on `monitor`, in physical pixels.
+fn client_rect(monitor: &tauri::Monitor) -> (PhysicalPosition<i32>, PhysicalSize<u32>) {
+    let scale = monitor.scale_factor();
+    let screen = monitor.size();
+    let (logical_width, logical_height) = if f64::from(screen.width) / scale >= LARGE_FROM_WIDTH {
+        LARGE_CLIENT
+    } else {
+        SMALL_CLIENT
+    };
+    // Rounded screen pixels; a window never exceeds its monitor.
+    #[allow(clippy::cast_possible_truncation, clippy::cast_sign_loss)]
+    let size = PhysicalSize::new(
+        ((logical_width * scale).round() as u32).min(screen.width),
+        ((logical_height * scale).round() as u32).min(screen.height),
+    );
+    let origin = monitor.position();
+    let offset = |free: u32| i32::try_from(free / 2).unwrap_or(0);
+    let position = PhysicalPosition::new(
+        origin.x + offset(screen.width - size.width),
+        origin.y + offset(screen.height - size.height),
+    );
+    (position, size)
+}
+
+/// The monitor holding a point in physical screen pixels.
+fn monitor_at(window: &tauri::WebviewWindow, x: i32, y: i32) -> Option<tauri::Monitor> {
+    let monitors = window.available_monitors().ok()?;
+    monitors.into_iter().find(|monitor| {
+        let (origin, size) = (monitor.position(), monitor.size());
+        let width = i32::try_from(size.width).unwrap_or(i32::MAX);
+        let height = i32::try_from(size.height).unwrap_or(i32::MAX);
+        (origin.x..origin.x.saturating_add(width)).contains(&x)
+            && (origin.y..origin.y.saturating_add(height)).contains(&y)
+    })
+}
+
 impl WindowPort for AppWindows {
     fn show_menu(&self) {
-        if let Some(window) = self.menu()
-            && let Err(error) = window.show().and_then(|()| window.set_focus())
-        {
-            tracing::warn!(%error, "show_menu_failed");
+        if let Some(window) = self.menu() {
+            place_menu(&window);
+            if let Err(error) = window.show().and_then(|()| window.set_focus()) {
+                tracing::warn!(%error, "show_menu_failed");
+            }
         }
         crate::overlay::set_in_match(&self.app, false);
     }
@@ -56,6 +151,10 @@ mod game {
     }
 
     pub fn minimize() {}
+
+    pub fn center() -> Option<(i32, i32)> {
+        None
+    }
 }
 
 #[cfg(windows)]
@@ -63,14 +162,14 @@ mod game {
     // Win32 calls are FFI and need `unsafe`; each block is a single documented API call.
     #![allow(unsafe_code)]
 
-    use windows::Win32::Foundation::{CloseHandle, HWND, LPARAM};
+    use windows::Win32::Foundation::{CloseHandle, HWND, LPARAM, RECT};
     use windows::Win32::System::Threading::{
         OpenProcess, PROCESS_NAME_WIN32, PROCESS_QUERY_LIMITED_INFORMATION,
         QueryFullProcessImageNameW,
     };
     use windows::Win32::UI::WindowsAndMessaging::{
-        EnumWindows, GetWindowThreadProcessId, IsIconic, IsWindowVisible, SW_MINIMIZE, SW_RESTORE,
-        SetForegroundWindow, ShowWindow,
+        EnumWindows, GetWindowRect, GetWindowThreadProcessId, IsIconic, IsWindowVisible,
+        SW_MINIMIZE, SW_RESTORE, SetForegroundWindow, ShowWindow,
     };
     use windows::core::{BOOL, PWSTR};
 
@@ -96,6 +195,15 @@ mod game {
             // SAFETY: as above.
             let _ = unsafe { ShowWindow(game, SW_MINIMIZE) };
         }
+    }
+
+    /// The centre of the game window in physical screen pixels, while the game is open.
+    pub fn center() -> Option<(i32, i32)> {
+        let game = find_game_window()?;
+        let mut rect = RECT::default();
+        // SAFETY: writes the window's screen rectangle into a local.
+        unsafe { GetWindowRect(game, &raw mut rect) }.ok()?;
+        Some(((rect.left + rect.right) / 2, (rect.top + rect.bottom) / 2))
     }
 
     /// The first visible top-level window owned by the VALORANT game process.

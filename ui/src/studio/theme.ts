@@ -3,7 +3,11 @@
 import { createEffect, createRoot } from "solid-js";
 import { cursorsFor } from "~/menu/cursors";
 import { setSoundOptions } from "~/menu/sound";
+import { paletteVars } from "~/theme/palettes";
+import { ACCENT_HOVER_MIX, ACCENT_PRESSED_MIX, PLAY_TOKENS, hexToRgbTriplet, onColor, playVars } from "./colors";
 import type { DisplayFont, Theme } from "./types";
+
+export { hexToRgbTriplet, onColor };
 import { doc } from "./store";
 
 const DISPLAY_FONTS: Record<DisplayFont, string> = {
@@ -15,27 +19,50 @@ const DISPLAY_FONTS: Record<DisplayFont, string> = {
   pixel: '"Pixelify Sans Variable", monospace',
   robco: '"Share Tech Mono", "JetBrains Mono Variable", monospace',
   beaufort: '"Beaufort for LOL", "Cinzel Variable", Georgia, serif',
+  poster: '"Anton", Impact, "Bahnschrift Condensed", sans-serif',
+  tech: '"Rajdhani", "Bahnschrift SemiCondensed", sans-serif',
 };
 
-/** `#rrggbb` -> `r g b` for `rgb(var(--x) / alpha)` style tokens. */
-export function hexToRgbTriplet(hex: string): string {
-  const match = /^#?([0-9a-f]{6})$/i.exec(hex.trim());
-  const value = match?.[1] ? Number.parseInt(match[1], 16) : 0;
-  return `${(value >> 16) & 255} ${(value >> 8) & 255} ${value & 255}`;
+/** Palette variables set by the last apply, so a reset or style switch removes them again. */
+const appliedPalette = new Set<string>();
+
+/** Set the active style's recoloured roles and clear the ones no longer recoloured. */
+function applyPalette(theme: Theme, style: CSSStyleDeclaration): void {
+  const vars = paletteVars(theme.skin, theme.palette);
+  for (const name of appliedPalette) if (!(name in vars)) style.removeProperty(name);
+  appliedPalette.clear();
+  for (const [name, value] of Object.entries(vars)) {
+    style.setProperty(name, value);
+    appliedPalette.add(name);
+  }
 }
 
-/** Readable text colour on top of `hex` (black on light accents such as Mono). */
-export function onColor(hex: string): string {
-  const [r = 0, g = 0, b = 0] = hexToRgbTriplet(hex).split(" ").map(Number);
-  const luminance = (0.2126 * r + 0.7152 * g + 0.0722 * b) / 255;
-  return luminance > 0.62 ? "#0b0b0e" : "#ffffff";
+/**
+ * The player's Play colour on the root, or the style's own when none is picked. `--play...`
+ * beats the style sheets' `:root[data-skin]` values for buttons that read them; the
+ * `--theme-play...` copies exist only while a colour is picked, so styles with a designed PLAY
+ * button (gradients, textures) write `var(--theme-play, <their design>)` and keep it untouched.
+ * A piece's own accent still wins on that piece.
+ */
+function applyPlay(theme: Theme, style: CSSStyleDeclaration): void {
+  const vars = playVars(theme.play);
+  for (const token of PLAY_TOKENS) {
+    const picked = `--theme-${token.slice(2)}`;
+    if (vars) {
+      style.setProperty(token, vars[token]);
+      style.setProperty(picked, vars[token]);
+    } else {
+      style.removeProperty(token);
+      style.removeProperty(picked);
+    }
+  }
 }
 
 export function applyTheme(theme: Theme, root: HTMLElement = document.documentElement): void {
   const style = root.style;
   style.setProperty("--accent", theme.accent);
-  style.setProperty("--accent-hover", `color-mix(in oklch, ${theme.accent} 86%, white)`);
-  style.setProperty("--accent-pressed", `color-mix(in oklch, ${theme.accent} 84%, black)`);
+  style.setProperty("--accent-hover", `color-mix(in oklch, ${theme.accent} ${ACCENT_HOVER_MIX}%, white)`);
+  style.setProperty("--accent-pressed", `color-mix(in oklch, ${theme.accent} ${ACCENT_PRESSED_MIX}%, black)`);
   style.setProperty("--accent-gradient-end", theme.accent2);
   style.setProperty("--accent-2", theme.accent2);
   style.setProperty("--on-accent", onColor(theme.accent));
@@ -51,6 +78,8 @@ export function applyTheme(theme: Theme, root: HTMLElement = document.documentEl
   style.setProperty("--vignette", String(theme.vignette));
   style.setProperty("--grain", theme.isGrainy ? "0.07" : "0");
   root.dataset["skin"] = theme.skin;
+  applyPalette(theme, style);
+  applyPlay(theme, style);
   const cursors = cursorsFor(theme.skin, theme.accent);
   style.setProperty("--cursor", cursors.base);
   style.setProperty("--cursor-hot", cursors.hot);

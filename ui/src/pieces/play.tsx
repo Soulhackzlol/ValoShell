@@ -5,7 +5,7 @@ import { Copy, DoorOpen, Lock, LockOpen, Ticket, UserPlus } from "lucide-solid";
 import type { PieceProps } from "~/studio/registry";
 import { playCue } from "~/menu/sound";
 import { isPartyBusy, party, partyActions } from "~/state/party";
-import { pushToast } from "~/state/toasts";
+import { copyPartyCode } from "~/state/partyCode";
 import { Art } from "~/ui/Art";
 import { Empty, controls } from "~/ui/controls";
 import { connection, connectionLine } from "~/state/session";
@@ -73,14 +73,6 @@ export function QueuePicker(_props: PieceProps) {
 export function PartyTools(_props: PieceProps) {
   const [riotId, setRiotId] = createSignal("");
   const [code, setCode] = createSignal("");
-  const copyCode = async (value: string) => {
-    try {
-      await navigator.clipboard.writeText(value);
-      pushToast("positive", "Party code copied", value);
-    } catch {
-      pushToast("info", "Party code", value);
-    }
-  };
   return (
     <Show when={party()} fallback={<Empty title="Party tools">Connect to VALORANT to manage your party.</Empty>}>
       {(view) => (
@@ -116,7 +108,7 @@ export function PartyTools(_props: PieceProps) {
               }
             >
               {(current) => (
-                <button class={styles.code} onClick={() => void copyCode(current())} title="Copy">
+                <button class={styles.code} onClick={() => void copyPartyCode(current())} title="Copy">
                   <span class="num" data-sensitive>
                     {current()}
                   </span>
@@ -139,6 +131,8 @@ export function PartyTools(_props: PieceProps) {
                 placeholder="Code"
                 value={code()}
                 spellcheck={false}
+                autocomplete="off"
+                data-secret
                 onInput={(event) => setCode(event.currentTarget.value.toUpperCase())}
               />
               <button class={`${controls.button} ${controls.small}`} type="submit" disabled={!code().trim() || isPartyBusy()}>

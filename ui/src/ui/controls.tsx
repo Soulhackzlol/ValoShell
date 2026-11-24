@@ -36,9 +36,19 @@ export interface Option<T extends string> {
   label: string;
 }
 
-export function Segmented<T extends string>(props: { value: T; options: readonly Option<T>[]; onChange: (value: T) => void }) {
+/** A pick of one option; `columns` wraps many options into a grid instead of one row. */
+export function Segmented<T extends string>(props: {
+  value: T;
+  options: readonly Option<T>[];
+  onChange: (value: T) => void;
+  columns?: number;
+}) {
   return (
-    <div class={styles.segmented} role="radiogroup">
+    <div
+      class={styles.segmented}
+      role="radiogroup"
+      style={props.columns ? { display: "grid", "grid-template-columns": `repeat(${props.columns}, minmax(0, 1fr))` } : undefined}
+    >
       <For each={props.options}>
         {(option) => (
           <button
@@ -46,6 +56,7 @@ export function Segmented<T extends string>(props: { value: T; options: readonly
             role="radio"
             aria-checked={props.value === option.value}
             class={styles.segment}
+            title={option.label}
             data-active={props.value === option.value ? "" : undefined}
             onClick={() => {
               playCue("tab");
@@ -82,6 +93,8 @@ export function Range(props: {
   step: number;
   format?: (value: number) => string;
   onInput: (value: number) => void;
+  /** Once the value is settled (drag released, keys let go). */
+  onCommit?: (value: number) => void;
 }) {
   const fill = () => `${((props.value - props.min) / (props.max - props.min || 1)) * 100}%`;
   return (
@@ -95,19 +108,28 @@ export function Range(props: {
         value={props.value}
         style={{ "--fill": fill() }}
         onInput={(event) => props.onInput(Number(event.currentTarget.value))}
+        onChange={(event) => props.onCommit?.(Number(event.currentTarget.value))}
       />
     </Field>
   );
 }
 
-export function ColorField(props: { label: string; value: string; onInput: (value: string) => void }) {
+/** A colour pick; an empty value means "not set" (the style's own colour is used), shown as a
+ *  dimmed swatch and the placeholder rather than a made-up colour. */
+export function ColorField(props: { label: string; value: string; placeholder?: string; onInput: (value: string) => void }) {
   return (
     <Field label={props.label} value={props.value.toUpperCase()}>
       <span class={styles.color}>
-        <input type="color" value={props.value} onInput={(event) => props.onInput(event.currentTarget.value)} />
+        <input
+          type="color"
+          value={props.value || "#ffffff"}
+          data-unset={props.value ? undefined : ""}
+          onInput={(event) => props.onInput(event.currentTarget.value)}
+        />
         <input
           class={styles.input}
           value={props.value}
+          placeholder={props.placeholder ?? ""}
           spellcheck={false}
           onChange={(event) => {
             const value = event.currentTarget.value.trim();

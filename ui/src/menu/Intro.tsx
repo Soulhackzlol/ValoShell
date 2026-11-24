@@ -6,6 +6,7 @@ import { For, Match, Show, Switch, createEffect, createSignal, on, onCleanup, on
 import { playCue } from "~/menu/sound";
 import { doc } from "~/studio/store";
 import { isMotionReduced } from "~/studio/spring";
+import { setIntroPlaying } from "~/ui/modal";
 import { ValLogo } from "~/pieces/styled/valIcons";
 import styles from "./Intro.module.css";
 
@@ -146,6 +147,9 @@ function SkinIntro(props: { skin: string }) {
 
 export function Intro() {
   const [phase, setPhase] = createSignal<"off" | "on" | "out">("off");
+  // Dialogs leave keys alone while the intro takes them (ui/modal.ts).
+  createEffect(() => setIntroPlaying(phase() === "on"));
+  onCleanup(() => setIntroPlaying(false));
   const [key, setKey] = createSignal(0);
   let holdTimer = 0;
   let fadeTimer = 0;

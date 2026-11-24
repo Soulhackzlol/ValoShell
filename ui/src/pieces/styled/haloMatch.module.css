@@ -1,0 +1,137 @@
+/* Halo 3: frosted blue panels with a bright top edge, light-blue caps, the highlight bar.
+   Layout comes from matchBase.module.css (screenBase / resultsBase for the other screens);
+   these rules are this style's material. */
+
+.pick {
+  composes: pick from "./matchBase.module.css";
+}
+
+.head {
+  composes: head from "./matchBase.module.css";
+}
+
+.hero {
+  composes: hero from "./matchBase.module.css";
+}
+
+.heroArt {
+  composes: heroArt from "./matchBase.module.css";
+}
+
+.heroName {
+  composes: heroName from "./matchBase.module.css";
+}
+
+.heroRole {
+  composes: heroRole from "./matchBase.module.css";
+}
+
+.roster {
+  composes: roster from "./matchBase.module.css";
+}
+
+.group {
+  composes: group from "./matchBase.module.css";
+}
+
+.groupName {
+  composes: groupName from "./matchBase.module.css";
+}
+
+.tile {
+  composes: tile from "./matchBase.module.css";
+}
+
+.tileArt {
+  composes: tileArt from "./matchBase.module.css";
+}
+
+.bar {
+  composes: bar from "./matchBase.module.css";
+}
+
+.dodge {
+  composes: dodge from "./matchBase.module.css";
+}
+
+.timer {
+  composes: timer from "./matchBase.module.css";
+}
+
+.lock {
+  composes: lock from "./matchBase.module.css";
+}
+
+.empty {
+  composes: empty from "./matchBase.module.css";
+}
+
+.lobby {
+  composes: lobby from "./matchBase.module.css";
+}
+
+.teams {
+  composes: teams from "./matchBase.module.css";
+}
+
+.team {
+  composes: team from "./matchBase.module.css";
+}
+
+.teamHead {
+  composes: teamHead from "./matchBase.module.css";
+}
+
+.lines {
+  composes: lines from "./matchBase.module.css";
+}
+
+.line {
+  composes: line from "./matchBase.module.css";
+}
+
+.lineAgent {
+  composes: lineAgent from "./matchBase.module.css";
+}
+
+.lineName {
+  composes: lineName from "./matchBase.module.css";
+}
+
+.stack {
+  composes: stack from "./matchBase.module.css";
+}
+
+.lineRank {
+  composes: lineRank from "./matchBase.module.css";
+}
+
+.rankIcon {
+  composes: rankIcon from "./matchBase.module.css";
+}
+
+/* ---- material ---- */
+.pick, .lobby { color: var(--halo-frost, #c7ecff); background: color-mix(in srgb, var(--halo-glass, #0e345c) 60%, transparent); box-shadow: inset 0 1px 0 color-mix(in srgb, var(--halo-accent, #6fd4ff) 70%, transparent); }
+.head, .heroName, .teamHead { font-family: var(--font-display); text-transform: uppercase; }
+.head { font-size: 20px; color: #ffffff; }
+.head > span, .heroRole, .groupName, .teamHead > span { font-size: 12px; letter-spacing: 0.12em; text-transform: uppercase; color: var(--halo-accent, #6fd4ff); }
+.hero { background: rgb(0 0 0 / 0.3); box-shadow: inset 0 0 0 1px color-mix(in srgb, var(--halo-accent, #6fd4ff) 45%, transparent); }
+.heroName { font-size: clamp(24px, 8cqh, 46px); color: #ffffff; }
+.tile { border: 0; background: rgb(0 0 0 / 0.35); box-shadow: inset 0 0 0 1px color-mix(in srgb, var(--halo-accent, #6fd4ff) 35%, transparent); }
+.tile[data-own] { box-shadow: inset 0 0 0 2px var(--halo-accent, #6fd4ff); }
+.dodge { border: 0; padding: 8px 14px; font-family: var(--font-display); text-transform: uppercase; color: var(--halo-frost, #c7ecff); background: none; }
+.timer { font-family: var(--font-display); font-size: 28px; color: #ffffff; }
+.lock { height: 44px; border: 0; font-family: var(--font-display); font-size: 20px; text-transform: uppercase; color: #ffffff; background: linear-gradient(to right, color-mix(in srgb, var(--halo-accent, #6fd4ff) 50%, transparent), color-mix(in srgb, var(--halo-accent, #6fd4ff) 10%, transparent)); box-shadow: inset 3px 0 0 var(--halo-accent, #6fd4ff); }
+.lock[data-locked] { opacity: 0.6; }
+.teamHead { font-size: 16px; }
+.line { background: rgb(0 0 0 / 0.25); box-shadow: inset 3px 0 0 var(--stack); }
+.line[data-self] { background: color-mix(in srgb, var(--halo-accent, #6fd4ff) 22%, transparent); }
+
+/* ---- News, Progress and Chat (styledScreens.tsx) ---- */
+.meter { --meter-fill: var(--halo-accent, #6fd4ff); --meter-track: rgb(0 0 0 / 0.35); }
+.field { color: var(--halo-frost, #c7ecff); background: color-mix(in srgb, var(--halo-glass, #0e345c) 70%, transparent); box-shadow: inset 3px 0 0 var(--halo-accent, #6fd4ff); font-size: 13px; text-transform: uppercase; }
+
+/* ---- Results (styledResults.tsx) ---- */
+.resultTitle { font-family: var(--font-display); font-weight: 300; text-transform: uppercase; letter-spacing: 0.08em; text-shadow: 0 0 18px color-mix(in srgb, var(--halo-accent, #6fd4ff) 70%, transparent); }
+.lobby[data-result="defeat"] .resultTitle { color: #ff8a7a; text-shadow: none; }
+.mvp { --mvp-fill: var(--halo-accent, #6fd4ff); --mvp-text: #04162a; }

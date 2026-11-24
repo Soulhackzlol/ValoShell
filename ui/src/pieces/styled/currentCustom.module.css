@@ -9,7 +9,7 @@
   width: 100%;
   height: 100%;
   font-family: var(--font-din);
-  color: #ece8e1;
+  color: var(--current-ink, #ece8e1);
 }
 
 .columns {
@@ -19,7 +19,7 @@
 }
 
 .column {
-  --team: 236 232 225;
+  --team: var(--current-line, #ece8e1);
   flex: 1 1 0;
   min-width: 0;
   display: flex;
@@ -28,11 +28,11 @@
 }
 
 .column[data-team="attackers"] {
-  --team: 255 70 85;
+  --team: var(--current-red, #ff4655);
 }
 
 .column[data-team="defenders"] {
-  --team: 34 255 197;
+  --team: var(--current-teal, #22ffc5);
 }
 
 .header {
@@ -43,7 +43,7 @@
   font-size: 13.5px;
   letter-spacing: 0.3px;
   text-transform: uppercase;
-  background: rgb(var(--team) / 0.4);
+  background: color-mix(in srgb, var(--team) 40%, transparent);
 }
 
 .row {
@@ -53,20 +53,20 @@
   padding: 0;
   border: 0;
   font: inherit;
-  color: #ece8e1;
-  background: rgb(var(--team) / 0.2);
+  color: var(--current-ink, #ece8e1);
+  background: color-mix(in srgb, var(--team) 20%, transparent);
   transition: background 140ms ease;
 }
 
 button.row:hover:not(:disabled) {
-  background: rgb(var(--team) / 0.3);
+  background: color-mix(in srgb, var(--team) 30%, transparent);
 }
 
 .member {
   display: flex;
   align-items: center;
   height: 74px;
-  background: rgb(var(--team) / 0.2);
+  background: color-mix(in srgb, var(--team) 20%, transparent);
 }
 
 .avatar {
@@ -97,14 +97,14 @@ button.row:hover:not(:disabled) {
 
 /* Your own name is the client's gold. */
 .member[data-self] .name {
-  color: #f0cb74;
+  color: var(--current-gold, #f0cb74);
 }
 
 .state {
   font-size: 13px;
   line-height: 1.1;
   text-transform: uppercase;
-  color: rgb(236 232 225 / 0.6);
+  color: color-mix(in srgb, var(--current-ink, #ece8e1) 60%, transparent);
 }
 
 .state[data-ready] {
@@ -115,7 +115,7 @@ button.row:hover:not(:disabled) {
   flex: none;
   margin-right: 18px;
   font-size: 11px;
-  color: #ece8e1;
+  color: var(--current-ink, #ece8e1);
 }
 
 .mute {
@@ -124,8 +124,8 @@ button.row:hover:not(:disabled) {
   place-items: center;
   align-self: stretch;
   width: 36px;
-  color: #ece8e1;
-  background: rgb(var(--team) / 0.2);
+  color: var(--current-ink, #ece8e1);
+  background: color-mix(in srgb, var(--team) 20%, transparent);
 }
 
 .actions {
@@ -143,7 +143,7 @@ button.row:hover:not(:disabled) {
   font-size: 14px;
   letter-spacing: 0.4px;
   text-transform: uppercase;
-  color: #ece8e1;
+  color: var(--current-ink, #ece8e1);
   background: rgb(41 49 56);
   border: 1px solid rgb(84 90 94);
   transition: background 140ms ease;

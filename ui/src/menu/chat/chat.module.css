@@ -1,0 +1,508 @@
+/* Chat dock: lives in MenuShell's bottom-left stack; the panel opens above the chip.
+   Everything is drawn from theme tokens, so each style recolours it, and skins reach every
+   part through its data-part hook. The panel is a size container: when it is dragged narrow
+   the rail folds to avatars instead of squeezing the conversation. */
+.dock {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+  gap: 8px;
+}
+
+.chip {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  padding: 8px 14px;
+  font-size: var(--text-caption);
+  font-weight: 600;
+  color: var(--text-2);
+  background: var(--panel);
+  box-shadow: inset 0 0 0 1px var(--border-default), 0 12px 30px rgb(0 0 0 / 0.45);
+}
+
+.chip:hover,
+.chip[aria-expanded="true"] {
+  color: var(--text-1);
+}
+
+/* Folded to its icon so it never covers a piece in the corner; the word slides out when it is
+   pointed at, focused or open. */
+.chip {
+  gap: 0;
+  transition: gap 260ms var(--ease-decelerate), color var(--dur-fast) var(--ease-standard);
+}
+
+.chip > span {
+  max-width: 0;
+  overflow: hidden;
+  opacity: 0;
+  white-space: nowrap;
+  transition: max-width 320ms var(--ease-decelerate), opacity 200ms var(--ease-standard);
+}
+
+.chip:is(:hover, :focus-visible, [aria-expanded="true"]) {
+  gap: 8px;
+}
+
+.chip:is(:hover, :focus-visible, [aria-expanded="true"]) > span {
+  max-width: 80px;
+  opacity: 1;
+}
+
+.chip > .badge {
+  margin-left: 6px;
+}
+
+.chip[data-unread] {
+  box-shadow: inset 0 0 0 1px var(--accent), 0 12px 30px rgb(0 0 0 / 0.45);
+}
+
+.badge {
+  min-width: 18px;
+  padding: 0 5px;
+  border-radius: 9px;
+  text-align: center;
+  font-size: 11px;
+  line-height: 18px;
+  color: var(--on-accent);
+  background: var(--accent);
+}
+
+/* ---- panel ---- */
+
+.panel {
+  position: relative;
+  container: chat / inline-size;
+  display: grid;
+  grid-template-columns: auto minmax(0, 1fr);
+  /* The saved size never leaves the window, even after the window shrinks. */
+  max-width: calc(100vw - 48px);
+  max-height: calc(100vh - 96px);
+  background: var(--surface-overlay);
+  box-shadow: inset 0 0 0 1px var(--border-default), 0 18px 44px rgb(0 0 0 / 0.55);
+  animation: rise 220ms var(--ease-decelerate) both;
+}
+
+/* Two hairlines in the top-right corner, like a window's resize corner. */
+.grip {
+  position: absolute;
+  top: 0;
+  right: 0;
+  z-index: 1;
+  width: 16px;
+  height: 16px;
+  cursor: nesw-resize;
+  touch-action: none;
+  opacity: 0.6;
+  background: linear-gradient(
+    225deg,
+    transparent 0 38%,
+    var(--border-strong) 38% 46%,
+    transparent 46% 60%,
+    var(--border-strong) 60% 68%,
+    transparent 68%
+  );
+}
+
+.grip:hover,
+.grip:focus-visible {
+  opacity: 1;
+}
+
+/* ---- rail ---- */
+
+.rail {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+  width: var(--chat-rail-width, 184px);
+  min-height: 0;
+  padding: 6px;
+  overflow: hidden auto;
+  border-right: 1px solid var(--border-subtle);
+  background: color-mix(in srgb, var(--text-1) 3%, transparent);
+}
+
+.threads {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+
+.railHeading {
+  margin: 10px 6px 4px;
+  font-size: 10.5px;
+  font-weight: 700;
+  letter-spacing: 1px;
+  text-transform: uppercase;
+  color: var(--text-3);
+}
+
+.thread {
+  position: relative;
+  display: grid;
+  grid-template-columns: auto minmax(0, 1fr) auto;
+  align-items: center;
+  gap: 8px;
+  width: 100%;
+  padding: 6px;
+  text-align: left;
+  color: var(--text-2);
+  border-radius: var(--chat-radius, 4px);
+}
+
+.thread:hover {
+  color: var(--text-1);
+  background: color-mix(in srgb, var(--text-1) 7%, transparent);
+}
+
+.thread[aria-current="true"] {
+  color: var(--text-1);
+  background: color-mix(in srgb, var(--accent) 16%, transparent);
+  box-shadow: inset 2px 0 0 var(--accent);
+}
+
+/* Card art (or an initial), ringed in the friend's status colour like the friends list dot. */
+.avatar {
+  display: grid;
+  flex: none;
+  place-items: center;
+  width: 30px;
+  height: 30px;
+  overflow: hidden;
+  border-radius: 50%;
+  font-size: 13px;
+  font-weight: 700;
+  color: var(--text-2);
+  background: color-mix(in srgb, var(--text-1) 10%, transparent);
+}
+
+.avatar img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+}
+
+.avatar[data-status="menus"] {
+  box-shadow: 0 0 0 2px var(--positive);
+}
+
+.avatar[data-status="queueing"] {
+  box-shadow: 0 0 0 2px var(--warning);
+}
+
+.avatar[data-status="agent_select"],
+.avatar[data-status="in_match"] {
+  box-shadow: 0 0 0 2px var(--info);
+}
+
+.avatar[data-status="offline"] {
+  opacity: 0.55;
+}
+
+.threadText {
+  display: flex;
+  flex-direction: column;
+  min-width: 0;
+}
+
+.threadName,
+.preview {
+  overflow: hidden;
+  white-space: nowrap;
+  text-overflow: ellipsis;
+}
+
+.threadName {
+  font-size: 13px;
+  font-weight: 600;
+}
+
+.threadName small,
+.paneTitle small {
+  margin-left: 2px;
+  font-weight: 500;
+  color: var(--text-3);
+}
+
+.preview {
+  font-size: 11.5px;
+  color: var(--text-3);
+}
+
+.newMessage {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 6px;
+  margin-top: auto;
+  padding: 8px;
+  font-size: var(--text-caption);
+  font-weight: 600;
+  color: var(--text-2);
+  border-radius: var(--chat-radius, 4px);
+  box-shadow: inset 0 0 0 1px var(--border-default);
+}
+
+.newMessage:hover,
+.newMessage[aria-pressed="true"] {
+  color: var(--text-1);
+  box-shadow: inset 0 0 0 1px var(--accent);
+}
+
+/* ---- conversation and picker ---- */
+
+.pane {
+  display: grid;
+  grid-template-rows: auto minmax(0, 1fr) auto;
+  min-width: 0;
+  min-height: 0;
+}
+
+.pane[data-part="chat-picker"] {
+  grid-template-rows: auto auto minmax(0, 1fr);
+}
+
+.paneHead {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 8px;
+  /* Room on the right for the resize grip. */
+  padding: 8px 22px 8px 12px;
+  border-bottom: 1px solid var(--border-subtle);
+}
+
+.paneTitle {
+  display: flex;
+  flex-direction: column;
+  min-width: 0;
+}
+
+.paneTitle b {
+  overflow: hidden;
+  white-space: nowrap;
+  text-overflow: ellipsis;
+  font-size: 14px;
+  color: var(--text-1);
+}
+
+.paneStatus {
+  font-size: 11.5px;
+  color: var(--text-3);
+}
+
+.paneStatus[data-status="menus"] {
+  color: var(--positive);
+}
+
+.paneStatus[data-status="queueing"] {
+  color: var(--warning);
+}
+
+.paneStatus[data-status="agent_select"],
+.paneStatus[data-status="in_match"] {
+  color: var(--info);
+}
+
+.close {
+  display: grid;
+  flex: none;
+  place-items: center;
+  width: 24px;
+  height: 24px;
+  color: var(--text-3);
+}
+
+.close:hover {
+  color: var(--text-1);
+  background: color-mix(in srgb, var(--text-1) 8%, transparent);
+}
+
+/* The scrolling log; the list inside it keeps its list semantics. */
+.log {
+  min-height: 0;
+  overflow: hidden auto;
+}
+
+.lines {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+  min-height: 100%;
+  margin: 0;
+  padding: 10px 12px;
+  list-style: none;
+  overflow-wrap: anywhere;
+}
+
+.line[data-start]:not(:first-child) {
+  margin-top: 8px;
+}
+
+.lineHead {
+  display: flex;
+  align-items: baseline;
+  gap: 8px;
+}
+
+.lineHead b {
+  font-size: 12.5px;
+  color: var(--info);
+}
+
+.line[data-self] .lineHead b {
+  color: var(--accent);
+}
+
+.lineHead time {
+  font-size: 10.5px;
+  font-variant-numeric: tabular-nums;
+  color: var(--text-3);
+}
+
+.body {
+  margin: 0;
+  font-size: 13px;
+  line-height: 1.4;
+  color: var(--text-1);
+}
+
+.line[data-system] .body {
+  font-style: italic;
+  color: var(--text-3);
+}
+
+.empty {
+  margin: auto 0;
+  padding: 12px 4px;
+  text-align: center;
+  font-size: 13px;
+  color: var(--text-3);
+}
+
+.compose {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) auto auto;
+  align-items: center;
+  gap: 6px;
+  padding: 8px;
+  border-top: 1px solid var(--border-subtle);
+}
+
+.counter {
+  font-size: 11px;
+  font-variant-numeric: tabular-nums;
+  color: var(--text-3);
+}
+
+.send {
+  display: grid;
+  place-items: center;
+  width: 36px;
+  height: 100%;
+  color: var(--text-2);
+  background: color-mix(in srgb, var(--text-1) 6%, transparent);
+}
+
+.send:hover:not(:disabled) {
+  color: var(--on-accent);
+  background: var(--accent);
+}
+
+.send:disabled {
+  opacity: 0.45;
+  cursor: default;
+}
+
+.search {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  margin: 8px 10px;
+  padding: 7px 10px;
+  color: var(--text-3);
+  box-shadow: inset 0 0 0 1px var(--border-default);
+}
+
+.search:focus-within {
+  box-shadow: inset 0 0 0 1px var(--accent);
+}
+
+.search input {
+  flex: 1;
+  min-width: 0;
+  font: inherit;
+  font-size: 13px;
+  color: var(--text-1);
+  background: none;
+  border: 0;
+  outline: none;
+}
+
+.picks {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+  min-height: 0;
+  margin: 0;
+  padding: 0 6px 6px;
+  overflow: hidden auto;
+  list-style: none;
+}
+
+/* Read by screen readers, not shown. */
+.hidden {
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  overflow: hidden;
+  clip-path: inset(50%);
+}
+
+/* ---- narrow panel: the rail folds to avatars, names stay for screen readers ---- */
+@container chat (max-width: 440px) {
+  .rail {
+    width: 54px;
+  }
+
+  .thread {
+    grid-template-columns: auto;
+    justify-items: center;
+    padding: 6px 0;
+  }
+
+  .rail .threadText,
+  .newMessage span {
+    position: absolute;
+    width: 1px;
+    height: 1px;
+    overflow: hidden;
+    clip-path: inset(50%);
+  }
+
+  .rail .badge {
+    position: absolute;
+    top: 0;
+    right: 2px;
+  }
+
+  .railHeading {
+    height: 1px;
+    margin: 6px 4px;
+    overflow: hidden;
+    font-size: 0;
+    background: var(--border-subtle);
+  }
+}
+
+@keyframes rise {
+  from {
+    opacity: 0;
+    transform: translateY(10px);
+  }
+}

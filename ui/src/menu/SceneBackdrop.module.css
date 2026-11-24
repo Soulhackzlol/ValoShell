@@ -296,3 +296,60 @@
     translate: 60px 0;
   }
 }
+
+/* The map's or agent's name, huge and outlined behind the figure (it moves between the art
+   and the figure, so the agent stands in front of their own name). */
+.nameMark {
+  inset: 0;
+  display: grid;
+  place-items: center;
+  overflow: hidden;
+  pointer-events: none;
+  transform: translate(calc(var(--parallax-x) * -0.85), calc(var(--parallax-y) * -0.85));
+  transition: transform 600ms var(--ease-decelerate);
+}
+
+.nameMark span {
+  font-family: var(--font-display);
+  font-size: clamp(120px, 22vw, 420px);
+  font-weight: 800;
+  line-height: 0.8;
+  letter-spacing: -0.02em;
+  text-transform: uppercase;
+  white-space: nowrap;
+  /* A faint fill under a solid outline reads on dark art and bright art alike. */
+  color: color-mix(in oklch, var(--accent) 14%, transparent);
+  -webkit-text-stroke: 2px var(--accent);
+  opacity: 0.5;
+  animation: nameIn 1400ms var(--ease-decelerate) both;
+}
+
+/* Agent figure looks. Silhouette: a dark cut-out rimmed in the accent. */
+.portrait[data-look="silhouette"] {
+  filter: brightness(0) drop-shadow(0 0 1px var(--accent)) drop-shadow(0 0 22px color-mix(in srgb, var(--accent) 55%, transparent));
+}
+
+/* Colours: the figure's shape filled with the agent's own gradient. */
+.portrait[data-look="colours"] {
+  background-image: linear-gradient(170deg, var(--agent-light), var(--agent-deep));
+  mask-image: var(--portrait);
+  mask-size: contain;
+  mask-repeat: no-repeat;
+  mask-position: right bottom;
+}
+
+/* Glow: the figure as is, haloed in the agent's colour. */
+.portrait[data-look="glow"] {
+  filter: drop-shadow(0 0 28px color-mix(in srgb, var(--agent-light) 70%, transparent));
+}
+
+.portrait[data-mirrored] {
+  scale: -1 1;
+}
+
+@keyframes nameIn {
+  from {
+    opacity: 0;
+    letter-spacing: 0.2em;
+  }
+}

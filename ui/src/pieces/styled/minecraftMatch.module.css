@@ -1,0 +1,141 @@
+/* Minecraft: pixel type with its drop shadow, grey bevelled panels, sunken slots.
+   Layout comes from matchBase.module.css (screenBase / resultsBase for the other screens);
+   these rules are this style's material. */
+
+.pick {
+  composes: pick from "./matchBase.module.css";
+}
+
+.head {
+  composes: head from "./matchBase.module.css";
+}
+
+.hero {
+  composes: hero from "./matchBase.module.css";
+}
+
+.heroArt {
+  composes: heroArt from "./matchBase.module.css";
+}
+
+.heroName {
+  composes: heroName from "./matchBase.module.css";
+}
+
+.heroRole {
+  composes: heroRole from "./matchBase.module.css";
+}
+
+.roster {
+  composes: roster from "./matchBase.module.css";
+}
+
+.group {
+  composes: group from "./matchBase.module.css";
+}
+
+.groupName {
+  composes: groupName from "./matchBase.module.css";
+}
+
+.tile {
+  composes: tile from "./matchBase.module.css";
+}
+
+.tileArt {
+  composes: tileArt from "./matchBase.module.css";
+}
+
+.bar {
+  composes: bar from "./matchBase.module.css";
+}
+
+.dodge {
+  composes: dodge from "./matchBase.module.css";
+}
+
+.timer {
+  composes: timer from "./matchBase.module.css";
+}
+
+.lock {
+  composes: lock from "./matchBase.module.css";
+}
+
+.empty {
+  composes: empty from "./matchBase.module.css";
+}
+
+.lobby {
+  composes: lobby from "./matchBase.module.css";
+}
+
+.teams {
+  composes: teams from "./matchBase.module.css";
+}
+
+.team {
+  composes: team from "./matchBase.module.css";
+}
+
+.teamHead {
+  composes: teamHead from "./matchBase.module.css";
+}
+
+.lines {
+  composes: lines from "./matchBase.module.css";
+}
+
+.line {
+  composes: line from "./matchBase.module.css";
+}
+
+.lineAgent {
+  composes: lineAgent from "./matchBase.module.css";
+}
+
+.lineName {
+  composes: lineName from "./matchBase.module.css";
+}
+
+.stack {
+  composes: stack from "./matchBase.module.css";
+}
+
+.lineRank {
+  composes: lineRank from "./matchBase.module.css";
+}
+
+.rankIcon {
+  composes: rankIcon from "./matchBase.module.css";
+}
+
+/* ---- material ---- */
+.pick, .lobby { font-family: "Pixelify Sans Variable", "Silkscreen", monospace; color: #404040; background: var(--minecraft-panel, #c6c6c6); box-shadow: 0 0 0 2px #000000, inset 3px 3px 0 #ffffff, inset -3px -3px 0 #555555; }
+.head { font-size: 16px; }
+.hero { background: var(--minecraft-slot, #8b8b8b); box-shadow: inset 2px 2px 0 #373737, inset -2px -2px 0 #ffffff; }
+.heroArt { image-rendering: pixelated; }
+.heroName { font-size: clamp(20px, 7cqh, 34px); color: #ffffff; text-shadow: 2px 2px 0 #3f3f3f; }
+.heroRole { color: #ffff55; text-shadow: 2px 2px 0 #3f3f15; }
+.groupName, .teamHead > span, .head > span { color: #606060; }
+.tile { border: 0; background: var(--minecraft-slot, #8b8b8b); box-shadow: inset 2px 2px 0 #373737, inset -2px -2px 0 #ffffff; }
+.tile:hover:not(:disabled) { background: #a0a0a0; }
+.tile[data-own] { box-shadow: 0 0 0 2px #ffffff, inset 2px 2px 0 #373737; }
+.dodge, .lock { height: 36px; padding: 0 14px; border: 0; font: inherit; color: #ffffff; text-shadow: 2px 2px 0 #3f3f3f; background: #6f6f6f; box-shadow: 0 0 0 2px #000000, inset 2px 2px 0 #a5a5a5, inset -2px -4px 0 #4c4c4c; }
+.lock:hover:not(:disabled), .dodge:hover:not(:disabled) { color: #ffffa0; background: #7b86bd; }
+.lock[data-locked] { color: #a0a0a0; background: #2f2f2f; box-shadow: 0 0 0 2px #000000; }
+.timer { font-size: 22px; }
+.line { background: var(--minecraft-slot, #8b8b8b); box-shadow: inset 3px 0 0 var(--stack); color: #ffffff; text-shadow: 2px 2px 0 #3f3f3f; }
+.line[data-self] { background: #7b86bd; }
+
+/* ---- News, Progress and Chat (styledScreens.tsx) ---- */
+.meter { --meter-fill: #80ff20; --meter-track: #3f3f3f; }
+.field { color: #ffffff; background: rgb(0 0 0 / 0.6); font-family: "Pixelify Sans Variable", "Silkscreen", monospace; font-size: 13px; }
+
+/* ---- Results (styledResults.tsx) ---- */
+.resultTitle { font-family: "Pixelify Sans Variable", "Silkscreen", monospace; color: #ffffff; text-shadow: 4px 4px 0 #3f3f3f; }
+/* The death screen: everything washes red behind "You Died!". */
+.lobby[data-result="defeat"] { background: linear-gradient(rgb(170 20 20 / 0.82), rgb(80 0 0 / 0.9)); }
+.lobby[data-result="defeat"] .resultTitle { text-shadow: 4px 4px 0 #3f0000; }
+.lobby[data-result="victory"] .resultTitle { color: #ffff55; }
+.mvp { --mvp-fill: #55ff55; --mvp-text: #1a1a1a; }

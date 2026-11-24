@@ -1,0 +1,378 @@
+/* VALORANT Beta Agents page: the beta's off-white sheet and navy type with thin 1 px line
+   frames, red only for what is picked, tall condensed caps and small mono codes. */
+.sheet {
+  --paper: var(--beta-paper, #ece8e1);
+  --navy: var(--beta-navy, #0f1923);
+  --red: var(--beta-red, #ff4655);
+  --line: color-mix(in srgb, var(--navy) 28%, transparent);
+  --grey: color-mix(in srgb, var(--navy) 9%, var(--paper));
+  container-type: size;
+  position: relative;
+  display: grid;
+  grid-template-columns: minmax(220px, 26%) minmax(0, 1fr) minmax(240px, 28%);
+  gap: 18px;
+  width: 100%;
+  height: 100%;
+  padding: 20px 22px;
+  overflow: hidden;
+  font-family: var(--font-din);
+  color: var(--navy);
+  background: var(--paper);
+}
+
+/* Registration marks in two corners, as on the beta's other slabs (beta.module.css). */
+.mark {
+  position: absolute;
+  width: 10px;
+  height: 10px;
+  pointer-events: none;
+}
+
+.mark::before,
+.mark::after {
+  content: "";
+  position: absolute;
+  background: var(--navy);
+}
+
+.mark::before {
+  inset: 4px 0 auto 0;
+  height: 1px;
+}
+
+.mark::after {
+  inset: 0 auto 0 4px;
+  width: 1px;
+}
+
+.mark[data-corner="tl"] {
+  top: 6px;
+  left: 6px;
+}
+
+.mark[data-corner="br"] {
+  right: 6px;
+  bottom: 6px;
+}
+
+.code {
+  font-family: var(--font-mono);
+  font-size: 10px;
+  letter-spacing: 1px;
+  text-transform: uppercase;
+  opacity: 0.6;
+}
+
+/* ---- roster ---------------------------------------------------------------------------- */
+
+.roster {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+  min-height: 0;
+}
+
+.head {
+  display: flex;
+  align-items: baseline;
+  justify-content: space-between;
+  padding-bottom: 6px;
+  border-bottom: 1px solid var(--navy);
+}
+
+.head h2 {
+  margin: 0;
+  font-family: "Oswald Variable", var(--font-display);
+  font-size: 30px;
+  font-weight: 600;
+  letter-spacing: 3px;
+  text-transform: uppercase;
+}
+
+.roles {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 2px 14px;
+}
+
+.role {
+  padding: 2px 0;
+  font-family: "Oswald Variable", var(--font-display);
+  font-size: 13px;
+  font-weight: 500;
+  letter-spacing: 1.4px;
+  text-transform: uppercase;
+  color: color-mix(in srgb, var(--navy) 55%, transparent);
+}
+
+.role:hover {
+  color: var(--navy);
+}
+
+.role[data-active] {
+  color: var(--navy);
+  box-shadow: inset 0 -2px 0 var(--red);
+}
+
+.grid {
+  flex: 1;
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(58px, 1fr));
+  grid-auto-rows: max-content;
+  gap: 6px;
+  min-height: 0;
+  margin: 0;
+  padding: 0 4px 0 0;
+  overflow-y: auto;
+  list-style: none;
+  scrollbar-width: thin;
+  scrollbar-color: var(--navy) transparent;
+}
+
+.cell {
+  position: relative;
+  display: block;
+  width: 100%;
+  aspect-ratio: 1;
+  padding: 3px;
+  background: var(--grey);
+  box-shadow: inset 0 0 0 1px var(--line);
+  transition: box-shadow var(--dur-fast) var(--ease-standard);
+}
+
+.cell:hover {
+  box-shadow: inset 0 0 0 1px var(--navy);
+}
+
+/* Picked: a red frame with the beta's cut corner. */
+.cell[data-active] {
+  box-shadow: inset 0 0 0 2px var(--red);
+}
+
+.cell[data-active]::after {
+  content: "";
+  position: absolute;
+  top: 0;
+  right: 0;
+  border: 5px solid var(--red);
+  border-color: var(--red) var(--red) transparent transparent;
+}
+
+.cellIcon {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+}
+
+.cell[data-unowned] .cellIcon {
+  filter: grayscale(1) opacity(0.45);
+}
+
+.owned {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  padding-top: 8px;
+  font-size: 11px;
+  font-weight: 600;
+  letter-spacing: 1px;
+  text-transform: uppercase;
+  color: var(--navy);
+  border-top: 1px solid var(--line);
+}
+
+/* A square check, line-framed like the rest; red once on. */
+.owned i {
+  width: 12px;
+  height: 12px;
+  box-shadow: inset 0 0 0 1px var(--navy);
+}
+
+.owned i[data-on] {
+  background: var(--red);
+  box-shadow: inset 0 0 0 2px var(--paper), 0 0 0 1px var(--navy);
+}
+
+/* ---- portrait plate -------------------------------------------------------------------- */
+
+.plate {
+  position: relative;
+  min-width: 0;
+  overflow: hidden;
+  background: var(--grey);
+  box-shadow: inset 0 0 0 1px var(--line);
+}
+
+/* The name in outline behind the agent, the beta's flat stand-in for the client's big type. */
+.ghost {
+  position: absolute;
+  inset: 8% 0 auto;
+  font-family: "Oswald Variable", var(--font-display);
+  font-size: clamp(64px, 26cqh, 280px);
+  font-weight: 700;
+  line-height: 0.9;
+  text-align: center;
+  text-transform: uppercase;
+  white-space: nowrap;
+  color: transparent;
+  -webkit-text-stroke: 1px color-mix(in srgb, var(--navy) 30%, transparent);
+  pointer-events: none;
+}
+
+.portrait {
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+  object-fit: contain;
+  object-position: 50% 0;
+  pointer-events: none;
+}
+
+.plateCode {
+  position: absolute;
+  left: 10px;
+  bottom: 8px;
+  font-family: var(--font-mono);
+  font-size: 10px;
+  letter-spacing: 1px;
+  opacity: 0.6;
+}
+
+/* ---- agent file ------------------------------------------------------------------------ */
+
+.file {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+  min-height: 0;
+  padding: 14px 16px;
+  overflow-y: auto;
+  border-top: 3px solid var(--red);
+  box-shadow: inset 0 0 0 1px var(--line);
+  scrollbar-width: thin;
+}
+
+.name {
+  margin: 0;
+  font-family: "Oswald Variable", var(--font-display);
+  font-size: clamp(32px, 8cqh, 60px);
+  font-weight: 600;
+  line-height: 1;
+  letter-spacing: 2px;
+  text-transform: uppercase;
+}
+
+.facts {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 8px;
+  padding: 6px 0;
+  font-size: 12px;
+  font-weight: 600;
+  letter-spacing: 1.4px;
+  text-transform: uppercase;
+  border-block: 1px solid var(--line);
+}
+
+.mastery {
+  padding: 1px 8px;
+  box-shadow: inset 0 0 0 1px var(--navy);
+}
+
+.mastery b {
+  color: var(--red);
+}
+
+.keys {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 6px;
+}
+
+.key {
+  display: grid;
+  justify-items: center;
+  align-content: center;
+  gap: 3px;
+  width: 52px;
+  height: 58px;
+  font-size: 11px;
+  font-weight: 700;
+  text-transform: uppercase;
+  color: var(--navy);
+  box-shadow: inset 0 0 0 1px var(--line);
+  transition: background var(--dur-fast) var(--ease-standard);
+}
+
+.key:hover {
+  background: var(--grey);
+}
+
+.key[data-active] {
+  color: var(--paper);
+  background: var(--navy);
+  box-shadow: inset 0 -3px 0 var(--red);
+}
+
+.key small {
+  font-family: var(--font-mono);
+  font-size: 9px;
+  opacity: 0.7;
+}
+
+/* Ability icons are white; the beta's dark ink draws them on the paper. */
+.keyIcon {
+  width: 26px;
+  height: 26px;
+  object-fit: contain;
+  filter: brightness(0) saturate(0);
+  opacity: 0.85;
+}
+
+.key[data-active] .keyIcon {
+  filter: none;
+  opacity: 1;
+}
+
+.text {
+  font-size: 13px;
+  line-height: 1.5;
+}
+
+.text p,
+.text h4 {
+  margin: 0 0 8px;
+}
+
+.text h4 {
+  font-family: "Oswald Variable", var(--font-display);
+  font-size: 16px;
+  font-weight: 600;
+  letter-spacing: 1.4px;
+  text-transform: uppercase;
+}
+
+/* The role in a line, set apart by a red rule as the beta set off its notes. */
+.blurb {
+  padding-left: 10px;
+  box-shadow: inset 2px 0 0 var(--red);
+  opacity: 0.8;
+}
+
+/* Too narrow for three columns: the file goes under the plate. */
+@container (width < 760px) {
+  .sheet {
+    grid-template-columns: minmax(200px, 40%) minmax(0, 1fr);
+    grid-template-rows: minmax(0, 1fr) auto;
+  }
+
+  .roster {
+    grid-row: span 2;
+  }
+
+  .file {
+    max-height: 48cqh;
+  }
+}

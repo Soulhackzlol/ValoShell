@@ -1,0 +1,318 @@
+/* Phantom: Persona 5's red, black and white. Words are cut-outs on black paper leaning by hand;
+   the one under the pointer turns white with a red slash torn out behind it. Every entrance
+   slams in from the side and overshoots, scaled by --motion-scale like the rest of the menu.
+   Roles: --phantom-red (slashes, stamps), --phantom-ink (paper black), --phantom-paper (white). */
+
+/* ---- main menu ---- */
+
+.menu {
+  container-type: size;
+  display: grid;
+  height: 100%;
+  align-content: center;
+  justify-items: end;
+  gap: 1.2cqh;
+  padding-right: 2cqw;
+}
+
+.word {
+  position: relative;
+  padding: 0.4cqh 2.4cqw 0.6cqh;
+  font: inherit;
+  font-family: var(--font-display);
+  font-size: clamp(30px, 11cqh, 120px);
+  line-height: 0.92;
+  text-transform: uppercase;
+  color: var(--phantom-paper, #ffffff);
+  background: var(--phantom-ink, #0b0b0b);
+  border: 0;
+  clip-path: polygon(3% 0, 100% 7%, 97% 100%, 0 90%);
+  cursor: pointer;
+  transition:
+    color 120ms var(--ease-standard),
+    background 120ms var(--ease-standard),
+    scale 220ms var(--ease-spring, cubic-bezier(0.34, 1.56, 0.64, 1));
+  animation: slamIn 520ms cubic-bezier(0.2, 1.4, 0.4, 1) backwards;
+  animation-delay: calc(var(--i, 0) * 70ms * var(--motion-scale, 1));
+}
+
+.wordText {
+  position: relative;
+  z-index: 1;
+  text-shadow: 0.06em 0.06em 0 var(--phantom-red, #e5191c);
+}
+
+/* The red slash, torn diagonally behind the word, hidden until the word is picked. */
+.word::before {
+  content: "";
+  position: absolute;
+  inset: -10% -6%;
+  background: var(--phantom-red, #e5191c);
+  clip-path: polygon(0 62%, 18% 30%, 40% 48%, 70% 4%, 100% 26%, 86% 70%, 58% 58%, 30% 100%);
+  scale: 0 1;
+  transform-origin: left center;
+  transition: scale 200ms cubic-bezier(0.2, 1.4, 0.4, 1);
+}
+
+.word:hover:not(:disabled),
+.word:focus-visible {
+  color: var(--phantom-ink, #0b0b0b);
+  background: var(--phantom-paper, #ffffff);
+  scale: 1.08;
+  outline: none;
+}
+
+.word:hover:not(:disabled) .wordText,
+.word:focus-visible .wordText {
+  text-shadow: none;
+}
+
+.word:hover:not(:disabled)::before,
+.word:focus-visible::before {
+  scale: 1 1;
+}
+
+/* PLAY: the biggest word, always on the red. */
+.word[data-hot] {
+  font-size: clamp(40px, 17cqh, 180px);
+  color: var(--on-play, #ffffff);
+  background: var(--play, var(--phantom-red, #e5191c));
+}
+
+.word[data-hot] .wordText {
+  text-shadow: 0.06em 0.06em 0 var(--phantom-ink, #0b0b0b);
+}
+
+.menu[data-searching] .word[data-hot] {
+  animation: throb 900ms ease-in-out infinite alternate;
+}
+
+.word:disabled {
+  opacity: 0.45;
+  cursor: default;
+}
+
+/* ---- ransom-note letters ---- */
+
+.ransom {
+  display: inline-block;
+  max-width: 100%;
+}
+
+/* A scrap is about 0.9em wide with its padding, gap and tilt, so a word of --longest letters
+   needs that many times 0.9em; the size steps down until the longest word fits the room. */
+.ransomFit {
+  display: inline-flex;
+  flex-wrap: wrap;
+  gap: 0.12em 0.32em;
+  font-size: min(1em, calc(var(--ransom-room, 100cqi) / (var(--longest, 1) * 0.9)));
+}
+
+.ransomWord {
+  display: inline-flex;
+  gap: 0.06em;
+  white-space: nowrap;
+}
+
+.scrap {
+  display: inline-block;
+  padding: 0.02em 0.1em;
+  font-family: var(--font-display);
+  line-height: 1;
+}
+
+.scrap[data-shade="0"] {
+  color: var(--phantom-paper, #ffffff);
+  background: var(--phantom-ink, #0b0b0b);
+}
+
+.scrap[data-shade="1"] {
+  color: var(--phantom-ink, #0b0b0b);
+  background: var(--phantom-paper, #ffffff);
+}
+
+.scrap[data-shade="2"] {
+  color: var(--phantom-paper, #ffffff);
+  background: var(--phantom-red, #e5191c);
+}
+
+/* ---- calling card ---- */
+
+.card {
+  container-type: size;
+  display: grid;
+  grid-template-rows: auto minmax(0, 1fr) auto;
+  gap: 2.4cqh;
+  height: 100%;
+  padding: 5cqh 6cqw;
+  color: var(--phantom-ink, #0b0b0b);
+  background:
+    radial-gradient(circle at 30% 20%, rgb(255 255 255 / 0.16) 0 1.5px, transparent 2px) 0 0 / 10px 10px,
+    var(--phantom-red, #e5191c);
+  clip-path: polygon(0 3%, 96% 0, 100% 95%, 4% 100%);
+  rotate: -3deg;
+  box-shadow: 14px 14px 0 var(--phantom-ink, #0b0b0b);
+  animation: cardIn 640ms cubic-bezier(0.2, 1.3, 0.4, 1) backwards;
+}
+
+.cardHead {
+  display: grid;
+  gap: 1.2cqh;
+}
+
+.cardTag {
+  justify-self: start;
+  padding: 2px 10px;
+  font-family: var(--font-display);
+  font-size: clamp(12px, 3.4cqh, 26px);
+  text-transform: uppercase;
+  color: var(--phantom-paper, #ffffff);
+  background: var(--phantom-ink, #0b0b0b);
+  rotate: -2deg;
+}
+
+.cardTitle {
+  font-size: clamp(22px, 8.5cqh, 72px);
+}
+
+.members {
+  display: grid;
+  align-content: start;
+  gap: 1.4cqh;
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+
+.member {
+  display: grid;
+  grid-template-columns: auto minmax(0, 1fr) auto;
+  align-items: center;
+  gap: 2.4cqw;
+  min-height: 7.5cqh;
+  padding: 0.6cqh 3cqw;
+  font-family: var(--font-display);
+  font-size: clamp(14px, 4.6cqh, 34px);
+  text-transform: uppercase;
+  color: var(--phantom-paper, #ffffff);
+  background: var(--phantom-ink, #0b0b0b);
+  clip-path: polygon(0 0, 100% 8%, 98% 100%, 1% 92%);
+  animation: slamIn 480ms cubic-bezier(0.2, 1.4, 0.4, 1) backwards;
+  animation-delay: calc((180ms + var(--i, 0) * 60ms) * var(--motion-scale, 1));
+}
+
+.member:nth-child(even) {
+  rotate: 1deg;
+}
+
+.member[data-empty] {
+  grid-template-columns: 1fr;
+  background: transparent;
+  outline: 3px dashed var(--phantom-ink, #0b0b0b);
+  outline-offset: -3px;
+}
+
+.rank {
+  width: 5.5cqh;
+  height: 5.5cqh;
+  object-fit: contain;
+}
+
+.memberName {
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.stamp {
+  padding: 0 8px;
+  font-size: 0.55em;
+  color: var(--phantom-ink, #0b0b0b);
+  background: var(--phantom-paper, #ffffff);
+  rotate: 4deg;
+}
+
+.stamp[data-ready] {
+  color: var(--phantom-paper, #ffffff);
+  background: var(--phantom-red, #e5191c);
+}
+
+.invite {
+  padding: 0;
+  font: inherit;
+  text-transform: uppercase;
+  color: var(--phantom-ink, #0b0b0b);
+  background: none;
+  border: 0;
+  cursor: pointer;
+}
+
+.invite:hover {
+  color: var(--phantom-paper, #ffffff);
+}
+
+.cardFoot {
+  display: flex;
+  align-items: baseline;
+  justify-content: space-between;
+  font-family: var(--font-display);
+  font-size: clamp(14px, 4.4cqh, 32px);
+  text-transform: uppercase;
+}
+
+.signature {
+  font-style: italic;
+  rotate: -3deg;
+}
+
+@keyframes slamIn {
+  from {
+    opacity: 0;
+    translate: 40% 0;
+    rotate: -12deg;
+  }
+}
+
+@keyframes cardIn {
+  from {
+    opacity: 0;
+    translate: -30% 6%;
+    rotate: -18deg;
+  }
+}
+
+@keyframes throb {
+  to {
+    scale: 1.05;
+  }
+}
+
+/* ---- layouts (Look → Layout) ---- */
+/* Menu, Centred: the words stacked down the middle. */
+[data-layout="centred"] .menu {
+  justify-items: center;
+  padding-right: 0;
+}
+
+/* Menu, Left: the words hung from the left edge. */
+[data-layout="left"] .menu {
+  justify-items: start;
+  padding-right: 0;
+  padding-left: 2cqw;
+}
+
+/* Calling card, Straight: square to the screen, no drop shadow. */
+[data-layout="straight"] .card {
+  rotate: 0deg;
+  box-shadow: none;
+}
+
+/* Calling card, Loud: thrown down harder, with a bigger title. */
+[data-layout="loud"] .card {
+  rotate: -6deg;
+  box-shadow: 18px 18px 0 var(--phantom-ink, #0b0b0b);
+}
+
+[data-layout="loud"] .cardTitle {
+  font-size: clamp(26px, 11cqh, 96px);
+}

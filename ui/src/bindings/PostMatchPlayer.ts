@@ -3,4 +3,12 @@
 /**
  * One scoreboard line. Names stay empty for players who hid theirs.
  */
-export type PostMatchPlayer = { puuid: string, game_name: string, tag_line: string, is_self: boolean, is_ally: boolean, is_incognito: boolean, team_id: string, agent_name: string | null, agent_icon: string | null, kills: number, deaths: number, assists: number, score: number, acs: number, };
+export type PostMatchPlayer = { puuid: string, game_name: string, tag_line: string, is_self: boolean, is_ally: boolean, is_incognito: boolean, team_id: string, agent_name: string | null, agent_icon: string | null, kills: number, deaths: number, assists: number, score: number, acs: number, 
+/**
+ * Players queued together: 1 solo, 2 a duo, 3 a trio...
+ */
+stack_size: number, 
+/**
+ * Same number for members of the same stack (for colour), `None` when solo.
+ */
+stack_group: number | null, };

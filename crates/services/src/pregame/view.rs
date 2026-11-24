@@ -1,6 +1,6 @@
 //! Agent-select view model: the pregame match joined with agent art, names and ranks.
 
-use std::collections::HashMap;
+use std::collections::{HashMap, HashSet};
 
 use domain::ids::Puuid;
 use domain::static_data::map_by_map_id_path;
@@ -9,7 +9,7 @@ use serde::Serialize;
 use ts_rs::TS;
 
 use crate::assets::{AssetIndex, image_url};
-use crate::names::RiotName;
+use crate::names::{RiotName, shown_name};
 use crate::party::{RankBadge, rank_badge};
 
 /// One ally in agent select.
@@ -57,6 +57,8 @@ pub struct PregameContext<'a> {
     pub index: &'a AssetIndex,
     pub own: &'a Puuid,
     pub names: &'a HashMap<Puuid, RiotName>,
+    /// Who sees the names of players hiding theirs (see `shown_name`).
+    pub party: &'a HashSet<Puuid>,
     pub now_ms: f64,
 }
 
@@ -67,8 +69,8 @@ fn player_view(player: &PregamePlayer, context: &PregameContext<'_>) -> Option<P
         .as_ref()
         .filter(|id| !id.is_empty())
         .and_then(|id| context.index.agent(id.as_str()));
-    let name = context.names.get(&puuid).cloned().unwrap_or_default();
     let identity = &player.player_identity;
+    let name = shown_name(context.names, &puuid, identity.incognito, context.party);
     Some(PregamePlayerView {
         is_self: &puuid == context.own,
         puuid: puuid.to_string(),
@@ -162,9 +164,42 @@ mod tests {
             index: &index,
             own: &own,
             names: &names,
+            party: &HashSet::new(),
             now_ms: 1000.0,
         };
         pregame_view(&pregame, &context)
+    }
+
+    #[test]
+    fn a_hidden_ally_is_not_named_from_the_cache() {
+        let mut pregame: PregameMatch = serde_json::from_str(FIXTURE).unwrap();
+        let ally = pregame
+            .ally_team
+            .as_mut()
+            .unwrap()
+            .players
+            .first_mut()
+            .unwrap();
+        ally.player_identity.incognito = true;
+        let puuid = ally.subject.clone().unwrap();
+        let names = HashMap::from([(puuid.clone(), crate::names::split_riot_id("Ace#1"))]);
+        let index = AssetIndex::bundled();
+        let own = Puuid::new("someone-else");
+        let context = PregameContext {
+            index: &index,
+            own: &own,
+            names: &names,
+            party: &HashSet::new(),
+            now_ms: 1000.0,
+        };
+
+        let view = pregame_view(&pregame, &context);
+
+        let shown = view
+            .allies
+            .iter()
+            .find(|player| player.puuid == puuid.to_string());
+        assert_eq!(shown.map(|player| player.game_name.as_str()), Some(""));
     }
 
     #[test]

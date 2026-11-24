@@ -5,6 +5,7 @@ import type { Catalog } from "~/bindings/Catalog";
 import type { MapCard } from "~/bindings/MapCard";
 import { call } from "~/ipc/commands";
 import { onAppEvent } from "~/ipc/events";
+import { HEX_COLOR } from "~/studio/colors";
 
 const [catalog, setCatalog] = createSignal<Catalog>({ agents: [], maps: [] });
 
@@ -31,6 +32,11 @@ export function agentByUuid(uuid: string | null | undefined): AgentCard | undefi
 
 export function agentByUpperName(name: string | null | undefined): AgentCard | undefined {
   return name ? agentsByUpperName().get(name.toUpperCase()) : undefined;
+}
+
+/** The agent's own colours (light to deep), only the ones that are `#rrggbb` (they reach CSS). */
+export function agentColours(agent: AgentCard): string[] {
+  return agent.colors.filter((color) => HEX_COLOR.test(color));
 }
 
 /** Maps in the known map list, competitive pool first, then Team Deathmatch. */

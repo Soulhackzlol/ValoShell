@@ -245,3 +245,10 @@
   height: 100%;
   background: var(--accent);
 }
+
+/* ---- STAT layouts (Look → Layout). Figure: the agent fills the middle. ---- */
+/* Compact: a smaller figure, more room for the readouts under it. */
+[data-layout="compact"] .stat {
+  grid-template-rows: auto minmax(0, 0.6fr) auto auto;
+  align-content: center;
+}

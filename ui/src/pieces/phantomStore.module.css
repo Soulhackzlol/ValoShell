@@ -1,0 +1,184 @@
+/* Phantom store: Persona 5's paper. Black cut-out strips on a slant, the one under the pointer
+   red with white type, the item in a jagged white frame, a ransom-note title. */
+
+.shop {
+  --ph-red: var(--phantom-red, #e5191c);
+  --ph-ink: var(--phantom-ink, #0b0b0b);
+  --ph-paper: var(--phantom-paper, #ffffff);
+  container-type: size;
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) minmax(0, 1.05fr);
+  grid-template-rows: auto minmax(0, 1fr);
+  grid-template-areas:
+    "head detail"
+    "list detail";
+  gap: 18px 40px;
+  width: 100%;
+  height: 100%;
+  font-family: var(--font-display);
+  font-variant-numeric: tabular-nums;
+  color: var(--ph-paper);
+}
+
+.head {
+  grid-area: head;
+  display: flex;
+  align-items: center;
+  gap: 18px;
+}
+
+.title {
+  font-size: clamp(36px, 8cqh, 64px);
+}
+
+.clock {
+  padding: 2px 12px;
+  font-size: 18px;
+  background: var(--ph-red);
+  rotate: -2deg;
+}
+
+/* ---- the stock ---- */
+.list {
+  grid-area: list;
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  min-height: 0;
+  margin: 0;
+  padding: 4px 18px 12px 4px;
+  overflow: hidden auto;
+  list-style: none;
+  scrollbar-width: thin;
+}
+
+.strip {
+  display: flex;
+  align-items: baseline;
+  justify-content: space-between;
+  gap: 16px;
+  padding: 6px 18px;
+  background: var(--ph-ink);
+  box-shadow: 4px 4px 0 color-mix(in srgb, var(--ph-paper) 85%, transparent);
+  skew: -10deg 0deg;
+  cursor: default;
+  outline: none;
+  transition:
+    background 100ms ease,
+    translate 160ms var(--ease-settle);
+}
+
+.strip:nth-child(even) {
+  margin-left: 14px;
+}
+
+.strip[data-on] {
+  background: var(--ph-red);
+  box-shadow: 6px 6px 0 var(--ph-ink);
+  translate: 10px 0;
+}
+
+.stripName {
+  overflow: hidden;
+  font-size: 22px;
+  white-space: nowrap;
+  text-overflow: ellipsis;
+  text-transform: uppercase;
+}
+
+.stripPrice {
+  flex: none;
+  font-size: 20px;
+}
+
+.stripPrice small {
+  margin-left: 4px;
+  font-size: 13px;
+}
+
+/* ---- the item ---- */
+.detail {
+  grid-area: detail;
+  display: grid;
+  grid-template-rows: minmax(0, 1fr) auto;
+  gap: 18px;
+  min-height: 0;
+}
+
+/* A jagged white frame on black. The cut is a clip-path, which would also cut a box-shadow,
+   so the red slab behind it is a drop-shadow on the wrapper instead. */
+.frameShadow {
+  display: grid;
+  min-height: 0;
+  filter: drop-shadow(12px 12px 0 var(--ph-red));
+  rotate: 1.5deg;
+  animation: slap 260ms var(--ease-settle) both;
+}
+
+.frame {
+  display: grid;
+  place-items: center;
+  min-height: 0;
+  padding: 7% 9%;
+  background:
+    linear-gradient(var(--ph-ink), var(--ph-ink)) padding-box,
+    var(--ph-paper) border-box;
+  border: 7px solid transparent;
+  clip-path: polygon(3% 0, 100% 4%, 97% 100%, 0 95%);
+}
+
+.art {
+  width: 100%;
+  height: 100%;
+  object-fit: contain;
+  filter: drop-shadow(6px 6px 0 var(--ph-red));
+}
+
+.card {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+  gap: 4px;
+}
+
+.shelf {
+  padding: 0 10px;
+  font-size: 16px;
+  text-transform: uppercase;
+  color: var(--ph-ink);
+  background: var(--ph-paper);
+  rotate: -2deg;
+}
+
+.name {
+  font-size: clamp(26px, 5cqh, 40px);
+  font-weight: 400;
+  line-height: 1.05;
+  text-transform: uppercase;
+}
+
+.meta {
+  font-family: var(--font-text);
+  font-size: 14px;
+  color: color-mix(in srgb, var(--ph-paper) 75%, transparent);
+}
+
+@keyframes slap {
+  from {
+    opacity: 0;
+    translate: 24px 0;
+  }
+}
+
+@container (max-width: 760px) {
+  .shop {
+    grid-template-columns: minmax(0, 1fr);
+    grid-template-areas:
+      "head"
+      "list";
+  }
+
+  .detail {
+    display: none;
+  }
+}

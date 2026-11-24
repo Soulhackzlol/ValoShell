@@ -7,9 +7,11 @@ import type { StoreItem } from "~/bindings/StoreItem";
 import type { PieceProps } from "~/studio/registry";
 import { NavVp } from "~/menu/navGlyphs";
 import { playCue } from "~/menu/sound";
+import { Heart } from "lucide-solid";
 import { catalog } from "~/state/catalog";
 import { pushToast } from "~/state/toasts";
 import { storeView } from "~/state/views";
+import { isWished, toggleWish } from "~/state/wishlist";
 import { Art } from "~/ui/Art";
 import { colorVars } from "./current";
 import { ValCanvas } from "./valCanvas";
@@ -80,10 +82,6 @@ export function ValStore(props: PieceProps) {
   const elapsed = () => (now() - (view()?.observed_at_ms ?? now())) / 1000;
   const bundle = () => view()?.bundles[index()] ?? view()?.bundles[0];
   const progress = () => Math.min(1, (now() - started()) / ROTATE_MS);
-  const buy = () => {
-    playCue("confirm");
-    pushToast("info", valLang() === "es" ? "Compra en el juego" : "Buy in the game", valLang() === "es" ? "ValoShell no hace compras." : "ValoShell does not make purchases.");
-  };
   const categories = createMemo(() => {
     const agents = catalog().agents;
     const daily = view()?.daily ?? [];
@@ -130,17 +128,13 @@ export function ValStore(props: PieceProps) {
               </Index>
             </div>
           </Show>
-          <button class={styles.priceButton} onMouseEnter={() => playCue("hover")} onClick={buy}>
+          {/* The client's price box, as a label: ValoShell never buys, so it isn't a button. */}
+          <span class={styles.priceButton} title={valLang() === "es" ? "Se compra en el juego" : "Bought in the game"}>
             <span>
               <NavVp />
               {bundle()?.discounted_price ?? bundle()?.price ?? 0}
             </span>
-          </button>
-          <button class={styles.giftButton} title={valLang() === "es" ? "Regalar" : "Gift"} onMouseEnter={() => playCue("hover")} onClick={buy}>
-            <span>
-              <GiftGlyph />
-            </span>
-          </button>
+          </span>
         </section>
         <header class={styles.dailyHead}>
           <i class={styles.tick} />
@@ -152,7 +146,7 @@ export function ValStore(props: PieceProps) {
           <i class={styles.tick} />
         </header>
         <div class={styles.daily}>
-          <For each={view()?.daily ?? []}>{(item) => <DailyTile item={item} onBuy={buy} />}</For>
+          <For each={view()?.daily ?? []}>{(item) => <DailyTile item={item} />}</For>
         </div>
         <nav class={styles.categories}>
           <For each={categories()}>
@@ -177,10 +171,43 @@ export function ValStore(props: PieceProps) {
   );
 }
 
-function DailyTile(props: { item: StoreItem; onBuy: () => void }) {
+/** "On your wishlist": the store rotates daily, so a wished skin is announced when it's back. */
+function wish(item: StoreItem): void {
+  if (!item.skin_id) return;
+  const isAdding = !isWished(item.skin_id);
+  toggleWish(item.skin_id);
+  playCue(isAdding ? "confirm" : "back");
+  if (!isAdding) return;
+  const isSpanish = valLang() === "es";
+  pushToast(
+    "positive",
+    isSpanish ? "En tu lista de deseos" : "On your wishlist",
+    isSpanish ? `Te avisaremos cuando ${item.name} vuelva a tu tienda.` : `You'll hear when ${item.name} is in your store again.`,
+  );
+}
+
+/** A daily offer: a click puts the skin on the wishlist (or takes it off); buying is in VALORANT. */
+function DailyTile(props: { item: StoreItem }) {
   const tint = () => EDITION_TINTS[props.item.edition ?? ""] ?? ["rgb(40 52 66)", "rgb(26 34 44)"];
+  const isOn = () => (props.item.skin_id ? isWished(props.item.skin_id) : false);
+  const label = () => {
+    const isSpanish = valLang() === "es";
+    if (isOn()) return isSpanish ? "En tu lista de deseos (quitar)" : "On your wishlist (click to remove)";
+    return isSpanish ? "Añadir a la lista de deseos" : "Add to wishlist";
+  };
   return (
-    <button class={styles.tile} style={{ "--tint": tint()[0], "--tint-bar": tint()[1] }} onMouseEnter={() => playCue("hover")} onClick={() => props.onBuy()}>
+    <button
+      class={styles.tile}
+      style={{ "--tint": tint()[0], "--tint-bar": tint()[1] }}
+      disabled={!props.item.skin_id}
+      aria-pressed={isOn()}
+      title={label()}
+      onMouseEnter={() => playCue("hover")}
+      onClick={() => wish(props.item)}
+    >
+      <Show when={isOn()}>
+        <Heart class={styles.tileWish ?? ""} size={16} fill="currentColor" aria-hidden="true" />
+      </Show>
       <Art src={editionIcon(props.item.edition)} class={styles.tileMark} fallback={<span />} />
       <Art src={props.item.image} class={styles.tileArt} fallback={<span />} />
       <span class={styles.tileBar}>
@@ -191,17 +218,5 @@ function DailyTile(props: { item: StoreItem; onBuy: () => void }) {
         </span>
       </span>
     </button>
-  );
-}
-
-/** The client's gift glyph: a box seen from a corner with its bow on top, for the button
-    beside the price. */
-function GiftGlyph() {
-  return (
-    <svg width="28" height="28" viewBox="0 0 28 28" aria-hidden="true">
-      <path d="M3.5 9.5 L14 6 L24.5 9.5 V20.5 L14 25.5 L3.5 20.5 Z" fill="#1a2028" />
-      <path d="M6 11.3 L12.8 13.8 V22.4 L6 19.2 Z M15.2 13.8 L22 11.3 V19.2 L15.2 22.4 Z" fill="#ece8e3" />
-      <path d="M14 7.5 L9 3 L7.5 6.5 Z M14 7.5 L19 3 L20.5 6.5 Z M14 7.5 L11 11.5 H17 Z" fill="#1a2028" />
-    </svg>
   );
 }

@@ -1,9 +1,11 @@
-// Fortnite-style pieces, after the Battle Royale lobby: the party row (banner slots with the
-// name plate and level star, big "+" slots to invite), the mode card with the big yellow
-// PLAY in the bottom-right, and the item shop where each skin's card takes the colour of its
-// VALORANT edition (Select, Deluxe, Premium, Exclusive, Ultra), read from its price.
+// Fortnite-style pieces, after the Battle Royale lobby: the party row (players standing in the
+// scene with a name plate and level badge, big "+" slots to invite), the mode card with its art
+// and the big yellow PLAY in the bottom-right, and the item shop where each skin's card takes
+// the colour of its VALORANT edition (Select, Deluxe, Premium, Exclusive, Ultra), read from its
+// price.
 import { For, Index, Show, createSignal, onCleanup, onMount } from "solid-js";
 import { useNavigate } from "@solidjs/router";
+import { Plus } from "lucide-solid";
 import type { MemberView } from "~/bindings/MemberView";
 import type { StoreItem } from "~/bindings/StoreItem";
 import type { PieceProps } from "~/studio/registry";
@@ -39,7 +41,9 @@ export function FnParty(_props: PieceProps) {
                     setDrawerOpen(true);
                   }}
                 >
-                  <span class={styles.plus}>+</span>
+                  <span class={styles.plus}>
+                    <Plus size={28} strokeWidth={3.2} />
+                  </span>
                   <span class={styles.inviteText}>{index === 2 ? "Offline" : "Invite"}</span>
                 </button>
               }
@@ -72,7 +76,7 @@ function Banner(props: { member: MemberView }) {
           <span class="num">{props.member.account_level ?? "–"}</span>
         </span>
         <span class={styles.plateText}>
-          <b>{props.member.game_name}</b>
+          <b data-sensitive>{props.member.game_name}</b>
           <small>{props.member.rank.tier >= 3 ? props.member.rank.name : "Unranked"}</small>
         </span>
       </div>
@@ -100,6 +104,7 @@ export function FnPlay(_props: PieceProps) {
   return (
     <section class={styles.play} data-searching={play.searchClock() !== null ? "" : undefined}>
       <button class={styles.modeCard} disabled={!play.isOwner()} onMouseEnter={() => playCue("hover")} onClick={cycleQueue}>
+        <Art src={play.current()?.art ?? null} class={styles.modeArt} fallback={null} />
         <span class={styles.modeEyebrow}>Change</span>
         <span class={styles.modeName}>{play.current()?.label ?? "Offline"}</span>
         <span class={styles.modeMeta}>

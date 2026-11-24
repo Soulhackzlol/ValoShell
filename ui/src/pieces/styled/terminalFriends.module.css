@@ -1,0 +1,37 @@
+/* Terminal friends: each friend one output line (terminalScreens.module.css draws the console);
+   the actions are bracketed words on the line, offline friends dimmed like a stopped process. */
+
+.friend {
+  display: flex;
+  align-items: baseline;
+}
+
+.friend[data-status="offline"],
+.friend[data-status="away"] {
+  opacity: 0.6;
+}
+
+.activity {
+  flex: 1;
+  min-width: 0;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.act {
+  flex: none;
+  margin-left: 1ch;
+  padding: 0 2px;
+  font: inherit;
+  color: var(--accent);
+}
+
+.act:hover:not(:disabled) {
+  color: #000000;
+  background: var(--accent);
+}
+
+.act:disabled {
+  cursor: default;
+  opacity: 0.7;
+}

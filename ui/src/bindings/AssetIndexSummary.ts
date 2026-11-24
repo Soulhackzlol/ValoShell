@@ -3,4 +3,4 @@
 /**
  * Row counts per category (debug view and the `Assets` event).
  */
-export type AssetIndexSummary = { agents: number, maps: number, weapons: number, skins: number, skin_levels: number, chromas: number, buddies: number, sprays: number, player_cards: number, player_titles: number, level_borders: number, flex: number, tiers: number, currencies: number, contracts: number, seasons: number, queues: number, bundles: number, };
+export type AssetIndexSummary = { agents: number, maps: number, weapons: number, skins: number, skin_levels: number, chromas: number, buddies: number, sprays: number, player_cards: number, player_titles: number, level_borders: number, flex: number, tiers: number, currencies: number, contracts: number, missions: number, seasons: number, queues: number, bundles: number, };

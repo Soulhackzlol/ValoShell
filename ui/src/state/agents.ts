@@ -2,6 +2,7 @@
 // asks for a fresh copy. Until the first answer every agent counts as owned, so nothing is
 // greyed out by mistake while offline.
 import { createMemo, createRoot, createSignal } from "solid-js";
+import type { AgentMastery } from "~/bindings/AgentMastery";
 import type { AgentProgress } from "~/bindings/AgentProgress";
 import { call } from "~/ipc/commands";
 import { onAppEvent } from "~/ipc/events";
@@ -10,7 +11,7 @@ const [progress, setProgress] = createSignal<AgentProgress | null>(null);
 
 /** Re-read ownership and mastery; `isForced` skips the backend's short reuse window. */
 export function refreshAgentProgress(isForced = false): void {
-  void call("get_agent_progress", { isForced }).then(setProgress, () => undefined);
+  void call("get_agent_progress", { isForced }).then(setProgress, (error) => console.warn("agent_progress_failed", error));
 }
 
 refreshAgentProgress();
@@ -34,4 +35,18 @@ export function isAgentOwned(uuid: string): boolean {
 export function masteryOf(uuid: string): { lifetime: number; act: number } {
   const row = mastery().get(uuid.toLowerCase());
   return { lifetime: row?.lifetime_level ?? 0, act: row?.act_level ?? 0 };
+}
+
+/** The most mastered agents, as the client's Career page lists them: highest lifetime level
+ *  first, mastery points breaking ties; agents never levelled are left out. */
+export function rankMastery(rows: readonly AgentMastery[], count: number): AgentMastery[] {
+  return rows
+    .filter((row) => row.lifetime_level > 0)
+    .sort((a, b) => b.lifetime_level - a.lifetime_level || b.points - a.points)
+    .slice(0, count);
+}
+
+/** The player's top mastered agents (empty until the first answer). */
+export function topMastery(count: number): AgentMastery[] {
+  return rankMastery(progress()?.mastery ?? [], count);
 }

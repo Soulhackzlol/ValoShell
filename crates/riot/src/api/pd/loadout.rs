@@ -29,7 +29,7 @@ pub fn put_player_loadout(puuid: &Puuid, loadout: &PlayerLoadout) -> RiotResult<
     body.subject = None;
     body.version = None;
     let body = serde_json::to_value(&body).map_err(|error| RiotError::Decode {
-        endpoint: path.clone(),
+        endpoint: crate::http::redacted_path(&path),
         reason: error.to_string(),
     })?;
     Ok(Request::put(Host::Pd, path).json(body))

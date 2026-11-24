@@ -1,0 +1,421 @@
+/* Phantom screens: the party roster (Agents) and mission select (Play). Persona 5's language:
+   red, black and white only, everything leaning, cut-out paper with hard offset shadows, red
+   halftone, words that slam in from the side and overshoot. */
+
+.roster,
+.missions {
+  --ph-red: var(--phantom-red, #e5191c);
+  --ph-ink: var(--phantom-ink, #0b0b0b);
+  --ph-paper: var(--phantom-paper, #ffffff);
+  --ph-slam: cubic-bezier(0.2, 1.4, 0.4, 1);
+  container-type: size;
+  display: grid;
+  width: 100%;
+  height: 100%;
+  font-family: var(--font-display);
+  text-transform: uppercase;
+}
+
+.tag {
+  justify-self: start;
+  align-self: start;
+  padding: 2px 10px;
+  font-size: 15px;
+  color: var(--ph-paper);
+  background: var(--ph-ink);
+  rotate: -3deg;
+}
+
+.ransom {
+  font-size: clamp(34px, 8cqh, 76px);
+}
+
+.note {
+  margin: 0;
+  font-family: var(--font-text);
+  font-size: 14px;
+  line-height: 1.45;
+  text-transform: none;
+  color: var(--ph-paper);
+}
+
+/* ---- roster ---- */
+
+.roster {
+  grid-template-columns: minmax(0, 1fr) minmax(240px, 30%);
+  gap: 2cqw;
+}
+
+/* Red halftone behind the cut-out, slashed on the diagonal. */
+.spotlight {
+  position: relative;
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) minmax(260px, 42%);
+  min-height: 0;
+  background:
+    radial-gradient(circle at 30% 20%, rgb(0 0 0 / 0.22) 0 1.6px, transparent 2px) 0 0 / 9px 9px,
+    var(--ph-red);
+  clip-path: polygon(0 4%, 100% 0, 96% 100%, 3% 96%);
+}
+
+.cutout {
+  grid-row: 1 / 3;
+  align-self: end;
+  width: 100%;
+  height: 100%;
+  min-height: 0;
+  object-fit: contain;
+  object-position: center bottom;
+  scale: 1.2;
+  transform-origin: 50% 100%;
+  filter: drop-shadow(10px 10px 0 var(--ph-ink));
+  animation: slamIn 560ms var(--ph-slam) backwards;
+}
+
+.nameplate {
+  position: absolute;
+  left: 4%;
+  bottom: 7%;
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+  rotate: -4deg;
+}
+
+.sheet {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+  margin: 8% 6% 8% 0;
+  padding: 18px 18px 22px;
+  color: var(--ph-paper);
+  background: var(--ph-ink);
+  clip-path: polygon(3% 0, 100% 3%, 97% 100%, 0 96%);
+  rotate: 2deg;
+  animation: slamIn 520ms var(--ph-slam) 80ms backwards;
+}
+
+.sheetTitle {
+  font-size: 28px;
+  color: var(--ph-red);
+  text-shadow: 3px 3px 0 var(--ph-paper);
+}
+
+.skills {
+  display: grid;
+  gap: 6px;
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+
+.skill {
+  display: grid;
+  grid-template-columns: 30px minmax(0, 1fr) auto;
+  align-items: center;
+  gap: 10px;
+  width: 100%;
+  padding: 4px 10px;
+  font: inherit;
+  font-size: 17px;
+  text-align: left;
+  color: var(--ph-paper);
+  background: rgb(255 255 255 / 0.06);
+  clip-path: polygon(0 0, 100% 6%, 98% 100%, 1% 94%);
+  transition: background 120ms ease, color 120ms ease, scale 200ms var(--ph-slam);
+}
+
+.skill:hover {
+  scale: 1.03;
+}
+
+.skill[data-open] {
+  color: var(--ph-ink);
+  background: var(--ph-paper);
+}
+
+.skill[data-ult] b {
+  color: var(--ph-red);
+}
+
+.skill b {
+  font-weight: 400;
+}
+
+.skillIcon {
+  width: 28px;
+  height: 28px;
+  object-fit: contain;
+}
+
+.skill[data-open] .skillIcon {
+  filter: invert(1);
+}
+
+.side {
+  display: flex;
+  flex-direction: column;
+  gap: 1.4cqh;
+  min-height: 0;
+}
+
+.roles {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 6px;
+}
+
+.role {
+  padding: 2px 10px;
+  font: inherit;
+  font-size: 15px;
+  color: var(--ph-paper);
+  background: var(--ph-ink);
+  rotate: -2deg;
+}
+
+.role:nth-child(even) {
+  rotate: 2deg;
+}
+
+.role[data-on] {
+  color: var(--ph-paper);
+  background: var(--ph-red);
+}
+
+.strips {
+  display: grid;
+  align-content: start;
+  gap: 5px;
+  min-height: 0;
+  padding: 4px 14px 4px 4px;
+  overflow: hidden auto;
+  scrollbar-width: none;
+}
+
+/* A name on a black strip, each one leaning its own way; picked turns it white on red. */
+.strip {
+  display: grid;
+  grid-template-columns: 30px minmax(0, 1fr);
+  align-items: center;
+  gap: 10px;
+  padding: 3px 14px 3px 8px;
+  font: inherit;
+  font-size: 21px;
+  text-align: left;
+  color: var(--ph-paper);
+  background: var(--ph-ink);
+  clip-path: polygon(0 0, 100% 10%, 98% 100%, 2% 90%);
+  rotate: -1deg;
+  animation: slamIn 420ms var(--ph-slam) backwards;
+  animation-delay: calc(var(--i, 0) * 22ms * var(--motion-scale, 1));
+  transition: translate 180ms var(--ph-slam), background 120ms ease;
+}
+
+/* Every strip leans the same way so the gaps stay even (alternating tilts pinched them into
+   pairs); the cut of the ends varies instead, so each strip still looks torn by hand. */
+.strip:nth-child(3n + 2) {
+  clip-path: polygon(1% 6%, 100% 0, 97% 100%, 0 92%);
+}
+
+.strip:nth-child(3n) {
+  clip-path: polygon(0 12%, 99% 2%, 100% 88%, 3% 100%);
+}
+
+.strip:hover {
+  translate: -8px 0;
+}
+
+.strip[data-picked] {
+  background: var(--ph-red);
+  translate: -16px 0;
+  box-shadow: inset 0 0 0 3px var(--ph-paper);
+}
+
+.strip[data-locked] {
+  color: rgb(255 255 255 / 0.45);
+}
+
+.stripIcon {
+  width: 30px;
+  height: 30px;
+  object-fit: cover;
+  filter: grayscale(1) contrast(1.3);
+}
+
+.strip[data-picked] .stripIcon {
+  filter: grayscale(1) contrast(1.4) brightness(1.1);
+}
+
+/* ---- mission select ---- */
+
+.missions {
+  grid-template-columns: minmax(0, 1fr) minmax(320px, 46%);
+  gap: 3cqw;
+  align-items: center;
+}
+
+.words {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+  gap: 1cqh;
+}
+
+.wordsTitle {
+  margin-bottom: 1cqh;
+  padding: 2px 12px;
+  font-size: 22px;
+  color: var(--ph-paper);
+  background: var(--ph-red);
+  rotate: -4deg;
+}
+
+/* A mode as a thrown word: white on black, the picked one red, bigger and further out. */
+.word {
+  padding: 0.05em 0.4em 0.1em;
+  font: inherit;
+  font-size: clamp(26px, 7.4cqh, 64px);
+  line-height: 0.95;
+  color: var(--ph-paper);
+  background: var(--ph-ink);
+  clip-path: polygon(2% 0, 100% 8%, 97% 100%, 0 92%);
+  rotate: calc((var(--i, 0) - 3) * 0.8deg);
+  animation: slamIn 480ms var(--ph-slam) backwards;
+  animation-delay: calc(var(--i, 0) * 60ms * var(--motion-scale, 1));
+  transition: translate 200ms var(--ph-slam), scale 200ms var(--ph-slam), background 120ms ease, color 120ms ease;
+}
+
+.word span {
+  text-shadow: 0.06em 0.06em 0 var(--ph-red);
+}
+
+.word:hover {
+  translate: 14px 0;
+}
+
+.word[data-picked] {
+  color: var(--ph-ink);
+  background: var(--ph-paper);
+  scale: 1.1;
+  translate: 24px 0;
+}
+
+.word[data-picked] span {
+  text-shadow: 0.06em 0.06em 0 var(--ph-red);
+}
+
+/* The calling card: red halftone paper, thrown down at an angle with a black shadow. */
+.card {
+  display: flex;
+  flex-direction: column;
+  max-height: 100%;
+  gap: 1.4cqh;
+  padding: 3cqh 2.4cqw;
+  color: var(--ph-ink);
+  background:
+    radial-gradient(circle at 30% 20%, rgb(255 255 255 / 0.16) 0 1.5px, transparent 2px) 0 0 / 10px 10px,
+    var(--ph-red);
+  clip-path: polygon(0 3%, 96% 0, 100% 95%, 4% 100%);
+  rotate: 3deg;
+  box-shadow: 14px 14px 0 var(--ph-ink);
+  animation: cardIn 600ms var(--ph-slam) backwards;
+}
+
+/* The art takes what room the card has left, so the text and button always fit. */
+.cardArt {
+  flex: 1;
+  min-height: 60px;
+  overflow: hidden;
+  clip-path: polygon(0 0, 100% 4%, 97% 100%, 2% 96%);
+}
+
+/* The mode's art printed in two inks, black on red. */
+.cardImage {
+  display: block;
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  filter: grayscale(1) contrast(1.6) brightness(0.9);
+  mix-blend-mode: multiply;
+}
+
+/* Smaller letters than the roster's: a mode name has to fit the card on one line. */
+.card .ransom {
+  font-size: clamp(22px, 4.6cqh, 44px);
+}
+
+.card .note {
+  color: var(--ph-ink);
+  font-weight: 600;
+}
+
+.send {
+  align-self: flex-start;
+  margin-top: 6px;
+  padding: 6px 18px;
+  font: inherit;
+  font-size: 22px;
+  color: var(--ph-paper);
+  background: var(--ph-ink);
+  clip-path: polygon(0 0, 100% 10%, 97% 100%, 2% 88%);
+  transition: scale 200ms var(--ph-slam);
+}
+
+.send:hover:not(:disabled) {
+  scale: 1.06;
+}
+
+.send:disabled {
+  cursor: default;
+  color: var(--ph-ink);
+  background: var(--ph-paper);
+}
+
+.signature {
+  align-self: flex-end;
+  font-size: 18px;
+  font-style: italic;
+  rotate: -3deg;
+}
+
+@keyframes slamIn {
+  from {
+    opacity: 0;
+    translate: 40% 0;
+    rotate: -10deg;
+  }
+}
+
+@keyframes cardIn {
+  from {
+    opacity: 0;
+    translate: 20% 8%;
+    rotate: 18deg;
+  }
+}
+
+/* Narrow screens: the skills keep the room; the cut-out, which only decorates, goes. */
+@container (max-width: 1000px) {
+  .spotlight {
+    grid-template-columns: minmax(0, 1fr);
+  }
+
+  .cutout {
+    display: none;
+  }
+
+  .sheet {
+    margin: 6% 6% 22%;
+  }
+}
+
+:global(:root[data-motion="reduced"]) :is(.cutout, .sheet, .strip, .word, .card) {
+  animation: none;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  :global(:root:not([data-motion="full"])) :is(.cutout, .sheet, .strip, .word, .card) {
+    animation: none;
+  }
+}

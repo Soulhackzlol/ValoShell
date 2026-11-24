@@ -15,11 +15,10 @@ function onFrame(): (work: () => void) => void {
 }
 
 /**
- * Pointer position as `--mx`/`--my` (0-100 %, for a glare), `--px`/`--py` (-0.5..0.5, for
- * parallax offsets) and a tilt as `--rx`/`--ry` in degrees, all easing back to centre on leave.
- * `tilt` is the largest tilt.
+ * Pointer position as `--mx`/`--my` (0-100 %) for a glare, and `data-hover` while over it. Only
+ * light follows the pointer: surfaces that leaned or drifted after it felt seasick, not glassy.
  */
-export function pointerGlow(element: HTMLElement, tilt = 0): void {
+export function pointerGlow(element: HTMLElement): void {
   const schedule = onFrame();
   const move = (event: PointerEvent) => {
     if (isMotionReduced()) return;
@@ -29,46 +28,12 @@ export function pointerGlow(element: HTMLElement, tilt = 0): void {
       const y = (event.clientY - box.top) / box.height;
       element.style.setProperty("--mx", `${(x * 100).toFixed(1)}%`);
       element.style.setProperty("--my", `${(y * 100).toFixed(1)}%`);
-      element.style.setProperty("--px", (x - 0.5).toFixed(3));
-      element.style.setProperty("--py", (y - 0.5).toFixed(3));
-      element.style.setProperty("--rx", `${((0.5 - y) * tilt).toFixed(2)}deg`);
-      element.style.setProperty("--ry", `${((x - 0.5) * tilt).toFixed(2)}deg`);
       element.dataset["hover"] = "";
     });
   };
   const leave = () =>
     schedule(() => {
-      element.style.setProperty("--rx", "0deg");
-      element.style.setProperty("--ry", "0deg");
-      element.style.setProperty("--px", "0");
-      element.style.setProperty("--py", "0");
       delete element.dataset["hover"];
-    });
-  element.addEventListener("pointermove", move);
-  element.addEventListener("pointerleave", leave);
-  onCleanup(() => {
-    element.removeEventListener("pointermove", move);
-    element.removeEventListener("pointerleave", leave);
-  });
-}
-
-/** Pulls the element a little toward the pointer (`--gx`/`--gy` in px) and lets go on leave. */
-export function magnetic(element: HTMLElement, strength = 0.18): void {
-  const schedule = onFrame();
-  const move = (event: PointerEvent) => {
-    if (isMotionReduced()) return;
-    schedule(() => {
-      const box = element.getBoundingClientRect();
-      const dx = event.clientX - (box.left + box.width / 2);
-      const dy = event.clientY - (box.top + box.height / 2);
-      element.style.setProperty("--gx", `${(dx * strength).toFixed(1)}px`);
-      element.style.setProperty("--gy", `${(dy * strength).toFixed(1)}px`);
-    });
-  };
-  const leave = () =>
-    schedule(() => {
-      element.style.setProperty("--gx", "0px");
-      element.style.setProperty("--gy", "0px");
     });
   element.addEventListener("pointermove", move);
   element.addEventListener("pointerleave", leave);
@@ -83,12 +48,15 @@ export function ripple(element: HTMLElement, className: string): void {
   const press = (event: PointerEvent) => {
     if (isMotionReduced() || event.button !== 0) return;
     const box = element.getBoundingClientRect();
-    const size = Math.hypot(box.width, box.height) * 2;
+    // The box is in screen px; inside a piece drawn at its own Size (CSS zoom) the ring's own
+    // px are scaled again, so they are written in the element's local px.
+    const zoom = element.currentCSSZoom || 1;
+    const size = (Math.hypot(box.width, box.height) * 2) / zoom;
     const ring = document.createElement("span");
     ring.className = className;
     ring.style.width = ring.style.height = `${size}px`;
-    ring.style.left = `${event.clientX - box.left - size / 2}px`;
-    ring.style.top = `${event.clientY - box.top - size / 2}px`;
+    ring.style.left = `${(event.clientX - box.left) / zoom - size / 2}px`;
+    ring.style.top = `${(event.clientY - box.top) / zoom - size / 2}px`;
     element.append(ring);
     ring
       .animate(

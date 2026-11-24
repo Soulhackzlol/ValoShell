@@ -40,6 +40,9 @@ const TEXT = {
   ready: { en: "Ready", es: "Listo" },
   notReady: { en: "Not ready", es: "No listo" },
   partyChat: { en: "Party:", es: "Grupo:" },
+  chatClosed: { en: "Party chat opens with VALORANT", es: "El chat de grupo se abre con VALORANT" },
+  saySomething: { en: "Say something", es: "Escribe algo" },
+  openChat: { en: "Open chat", es: "Abrir chat" },
   searchFriends: { en: "Name#Tag", es: "Nombre#Tag" },
   inVal: { en: "In VAL", es: "En VAL" },
   otherGame: { en: "Other game", es: "Otro juego" },
@@ -51,6 +54,7 @@ const TEXT = {
   agentSelect: { en: "Agent select", es: "Selección de agente" },
   otherPlayers: { en: "other players", es: "otros jugadores" },
   invite: { en: "Invite", es: "Invitar" },
+  message: { en: "Message", es: "Mensaje" },
   featured: { en: "Featured", es: "Destacados" },
   collectionSub: { en: "Collection", es: "Colección" },
   capsule: { en: "Capsule", es: "Cápsula" },
@@ -89,6 +93,11 @@ const TEXT = {
   autobalance: { en: "Autobalance", es: "Autoequilibrio" },
   joinTeam: { en: "Join this team", es: "Unirse a este equipo" },
   settingsInClient: { en: "Change the lobby settings in VALORANT for now.", es: "Por ahora, cambia los ajustes de la sala en VALORANT." },
+  recruitment: { en: "Recruitment", es: "Reclutamiento" },
+  noRecruitment: { en: "No event right now", es: "Ningún evento ahora" },
+  recruit: { en: "Recruit", es: "Recluta a" },
+  agentContracts: { en: "Agent contracts", es: "Contratos de agente" },
+  noContracts: { en: "None started yet", es: "Ninguno empezado" },
 } as const satisfies Record<string, Record<Lang, string>>;
 
 export type TextKey = keyof typeof TEXT;

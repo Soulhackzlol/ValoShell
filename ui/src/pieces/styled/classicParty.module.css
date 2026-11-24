@@ -1,0 +1,122 @@
+/* CS 1.6 party: the scoreboard table inside the shared VGUI window (classic.module.css draws
+   the window, the sunken box and the buttons). The colours come from the window's variables. */
+
+.board {
+  display: flex;
+  flex-direction: column;
+  padding: 0;
+}
+
+.head,
+.row {
+  display: grid;
+  grid-template-columns: minmax(0, 1.5fr) minmax(0, 1fr) minmax(0, 0.6fr) minmax(0, 0.8fr);
+  gap: 8px;
+  align-items: center;
+}
+
+.head {
+  flex: none;
+  padding: 3px 6px;
+  background: var(--olive);
+  box-shadow: inset 1px 1px 0 var(--light), inset -1px -1px 0 var(--dark);
+}
+
+.rows {
+  flex: 1;
+  min-height: 0;
+  overflow: hidden auto;
+}
+
+.row {
+  width: 100%;
+  padding: 3px 6px;
+  font: inherit;
+  text-align: left;
+  color: var(--ink);
+  cursor: default;
+}
+
+.row > span {
+  overflow: hidden;
+  white-space: nowrap;
+  text-overflow: ellipsis;
+}
+
+/* The picture box only shows in the "slots" layout. */
+.row > .picture {
+  display: none;
+}
+
+.row[data-self] .name {
+  font-weight: 700;
+}
+
+.row [data-ready] {
+  color: #c4b550;
+}
+
+.row[data-empty] {
+  color: var(--light);
+}
+
+.row[data-empty]:hover {
+  color: #ffffff;
+}
+
+.row[data-active] {
+  color: #ffffff;
+  background: var(--pick);
+}
+
+.row:focus-visible {
+  outline: 1px dotted var(--ink);
+  outline-offset: -2px;
+}
+
+.portrait {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  /* Drawn like a 2003 render: a bit dark, a bit desaturated (as the agent menu's picture). */
+  filter: saturate(0.6) contrast(1.1) brightness(0.9);
+}
+
+/* ---- "slots": five sunken picture boxes side by side, name and rank under each ---- */
+
+[data-layout="slots"] .head {
+  display: none;
+}
+
+[data-layout="slots"] .board {
+  padding: 4px;
+}
+
+[data-layout="slots"] .rows {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(84px, 1fr));
+  gap: 6px;
+  align-content: start;
+}
+
+[data-layout="slots"] .row {
+  grid-template-columns: minmax(0, 1fr);
+  grid-template-rows: auto;
+  gap: 2px;
+  padding: 4px;
+  text-align: center;
+}
+
+[data-layout="slots"] .row > .picture {
+  display: grid;
+  place-items: center;
+  aspect-ratio: 1;
+  overflow: hidden;
+  background: #000000;
+  box-shadow: inset 1px 1px 0 var(--dark), inset -1px -1px 0 var(--light);
+}
+
+/* Latency is a table column; a picture box has no room for it. */
+[data-layout="slots"] .row > span:nth-child(4) {
+  display: none;
+}

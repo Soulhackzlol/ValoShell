@@ -49,3 +49,138 @@
     backdrop-filter: none;
   }
 }
+
+/* ======================================================================================
+   Style's own: the widget drawn as the menu style's game would draw a box. One block per
+   style; a style without one falls back to the plain panel.
+   ====================================================================================== */
+.surface[data-look="native"] {
+  background: var(--panel);
+  box-shadow: inset 0 0 0 1px var(--border-default);
+}
+
+/* Modern: the panel with a cut corner and a thin accent line along the top. */
+:global(:root[data-skin="modern"]) .surface[data-look="native"] {
+  box-shadow: inset 0 0 0 1px var(--border-default), inset 0 2px 0 var(--accent);
+  clip-path: polygon(0 0, calc(100% - 12px) 0, 100% 12px, 100% 100%, 0 100%);
+}
+
+/* Glass: frosted, deeply rounded, a bright hairline catching the light on top. */
+:global(:root[data-skin="glass"]) .surface[data-look="native"] {
+  background: color-mix(in srgb, var(--glass-fill, #1c1c22) 45%, transparent);
+  backdrop-filter: blur(24px) saturate(180%);
+  border-radius: 20px;
+  box-shadow:
+    inset 0 1px 0 rgb(255 255 255 / 0.22),
+    inset 0 0 0 0.5px rgb(255 255 255 / 0.14),
+    0 12px 32px rgb(0 0 0 / 0.3);
+}
+
+/* VALORANT client: slate glass, a white hairline, the small red tick of the client's cards. */
+:global(:root[data-skin="current"]) .surface[data-look="native"] {
+  background: rgb(15 25 35 / 0.82);
+  box-shadow: inset 0 0 0 1px rgb(255 255 255 / 0.1), inset 3px 0 0 #ff4655;
+}
+
+/* VALORANT Beta: no fill, a hairline box, pale yellow ticks on two corners. */
+:global(:root[data-skin="beta"]) .surface[data-look="native"] {
+  background:
+    linear-gradient(#f5f0c8, #f5f0c8) top left / 14px 2px no-repeat,
+    linear-gradient(#f5f0c8, #f5f0c8) top left / 2px 14px no-repeat,
+    linear-gradient(#f5f0c8, #f5f0c8) bottom right / 14px 2px no-repeat,
+    linear-gradient(#f5f0c8, #f5f0c8) bottom right / 2px 14px no-repeat,
+    rgb(10 12 16 / 0.4);
+  box-shadow: inset 0 0 0 1px rgb(255 255 255 / 0.16);
+}
+
+/* CS:GO Panorama: flat slate, gently rounded, a lighter top edge. */
+:global(:root[data-skin="csgo"]) .surface[data-look="native"] {
+  background: linear-gradient(to bottom, rgb(58 66 74 / 0.95), rgb(38 44 50 / 0.95));
+  border-radius: 3px;
+  box-shadow: inset 0 1px 0 rgb(255 255 255 / 0.12), 0 2px 8px rgb(0 0 0 / 0.35);
+}
+
+/* CS2: near black, lit from below in the accent. */
+:global(:root[data-skin="cs2"]) .surface[data-look="native"] {
+  background: linear-gradient(to top, color-mix(in srgb, var(--accent) 16%, transparent), transparent 55%), #101317;
+  box-shadow: inset 0 -2px 0 var(--accent), inset 0 0 0 1px rgb(255 255 255 / 0.05);
+}
+
+/* CS 1.6: an olive VGUI window, raised bevel, no rounding. */
+:global(:root[data-skin="cs16"]) .surface[data-look="native"] {
+  background: #4c5844;
+  box-shadow: inset 1px 1px 0 #8c9284, inset -1px -1px 0 #292c21;
+}
+
+/* VALORANT (2020): navy with the red bar down the left. */
+:global(:root[data-skin="valnow"]) .surface[data-look="native"] {
+  background: rgb(15 25 35 / 0.88);
+  box-shadow: inset 4px 0 0 #ff4655;
+}
+
+/* Terminal: no fill, a dashed phosphor outline. */
+:global(:root[data-skin="terminal"]) .surface[data-look="native"] {
+  background: rgb(0 0 0 / 0.55);
+  box-shadow: none;
+  outline: 1px dashed color-mix(in srgb, var(--accent) 70%, transparent);
+  outline-offset: -1px;
+}
+
+/* Fortnite: a rounded see-through navy plate with a white hairline. */
+:global(:root[data-skin="fortnite"]) .surface[data-look="native"] {
+  background: color-mix(in srgb, var(--fortnite-navy, #081246) 72%, transparent);
+  backdrop-filter: blur(6px);
+  border-radius: 10px;
+  box-shadow: inset 0 0 0 1px color-mix(in srgb, var(--fortnite-line, #ffffff) 16%, transparent);
+}
+
+/* Minecraft: the dark list box of the title screen, black outline, a lighter inner bevel. */
+:global(:root[data-skin="minecraft"]) .surface[data-look="native"] {
+  background: rgb(0 0 0 / 0.55);
+  box-shadow: 0 0 0 2px #000000, inset 2px 2px 0 rgb(255 255 255 / 0.18), inset -2px -2px 0 rgb(0 0 0 / 0.4);
+}
+
+/* Halo 3: frosted blue with a bright cyan top edge. */
+:global(:root[data-skin="halo"]) .surface[data-look="native"] {
+  background: color-mix(in srgb, var(--halo-glass, #0e345c) 60%, transparent);
+  box-shadow: inset 0 1px 0 rgb(111 212 255 / 0.6), inset 0 0 0 1px rgb(111 212 255 / 0.18);
+}
+
+/* Pip-Boy: phosphor on dark glass, faint scanlines, the text glowing. */
+:global(:root[data-skin="pipboy"]) .surface[data-look="native"] {
+  background:
+    repeating-linear-gradient(to bottom, transparent 0 2px, rgb(0 0 0 / 0.25) 2px 3px),
+    rgb(4 20 8 / 0.7);
+  box-shadow: inset 0 0 0 1px color-mix(in srgb, var(--accent) 55%, transparent), inset 0 0 24px color-mix(in srgb, var(--accent) 12%, transparent);
+  text-shadow: 0 0 8px color-mix(in srgb, var(--accent) 60%, transparent);
+}
+
+/* League: hextech, near-black blue with a gold rim. */
+:global(:root[data-skin="league"]) .surface[data-look="native"] {
+  background: linear-gradient(to bottom, rgb(1 10 19 / 0.92), color-mix(in srgb, var(--league-navy, #0a1428) 92%, transparent));
+  box-shadow:
+    inset 0 0 0 1px var(--league-gold-dark, #785a28),
+    inset 0 0 0 2px rgb(1 10 19 / 0.9),
+    inset 0 0 0 3px color-mix(in srgb, var(--league-gold, #c8aa6e) 25%, transparent);
+}
+
+/* Phantom: black paper cut out by hand, leaning, with a red shadow thrown behind it. */
+:global(:root[data-skin="phantom"]) .surface[data-look="native"] {
+  background: var(--phantom-ink, #0b0b0b);
+  box-shadow: inset 0 0 0 2px var(--phantom-paper, #ffffff);
+  clip-path: polygon(2% 0, 100% 4%, 98% 100%, 0 94%);
+  filter: drop-shadow(6px 6px 0 var(--phantom-red, #e5191c));
+  rotate: -1.5deg;
+}
+
+/* Night City: a red hairline with chamfered corners and bright bracket marks. */
+:global(:root[data-skin="nightcity"]) .surface[data-look="native"] {
+  background:
+    linear-gradient(var(--nightcity-red, #ff5e57), var(--nightcity-red, #ff5e57)) top 4px left 4px / 14px 2px no-repeat,
+    linear-gradient(var(--nightcity-red, #ff5e57), var(--nightcity-red, #ff5e57)) top 4px left 4px / 2px 14px no-repeat,
+    linear-gradient(var(--nightcity-red, #ff5e57), var(--nightcity-red, #ff5e57)) bottom 4px right 4px / 14px 2px no-repeat,
+    linear-gradient(var(--nightcity-red, #ff5e57), var(--nightcity-red, #ff5e57)) bottom 4px right 4px / 2px 14px no-repeat,
+    color-mix(in srgb, var(--nightcity-panel, #0e0b10) 88%, transparent);
+  box-shadow: inset 0 0 0 1px color-mix(in srgb, var(--nightcity-red, #ff5e57) 50%, transparent);
+  clip-path: polygon(0 0, calc(100% - 12px) 0, 100% 12px, 100% 100%, 12px 100%, 0 calc(100% - 12px));
+}

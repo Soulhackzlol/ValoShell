@@ -26,11 +26,11 @@
   min-height: 26px;
   background: transparent;
   box-shadow: none;
-  color: #9fc6ff;
+  color: var(--side-ally, #9fc6ff);
 }
 
 :root[data-skin="cs16"] [data-part="scoreboard-row"][data-side="enemy"] {
-  color: #ff8f7a;
+  color: var(--side-enemy, #ff8f7a);
 }
 
 :root[data-skin="cs16"] [data-part="scoreboard-row"] * {

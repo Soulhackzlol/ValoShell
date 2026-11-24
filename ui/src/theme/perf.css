@@ -1,0 +1,22 @@
+/* ---- performance (state/performance.ts) ----
+   Resting: nobody is looking at the menu (hidden, or another window focused for a while), so
+   every running animation holds still instead of drawing frames for no one. They carry on from
+   where they were when the player comes back. */
+:root[data-resting] *,
+:root[data-resting] *::before,
+:root[data-resting] *::after {
+  animation-play-state: paused !important;
+}
+
+/* Lite effects: frosted blur is the costliest thing the menu draws, so it goes; the scene behind
+   frosted panels steps back instead, as for "less transparency", so their text keeps its
+   contrast. Backdrops are drawn as one still frame (menu/backdrop/). */
+:root[data-effects="lite"] *,
+:root[data-effects="lite"] *::before,
+:root[data-effects="lite"] *::after {
+  backdrop-filter: none !important;
+}
+
+:root[data-effects="lite"]:not([data-skin="pipboy"]) [data-part="backdrop"] {
+  filter: brightness(0.55) saturate(0.75);
+}

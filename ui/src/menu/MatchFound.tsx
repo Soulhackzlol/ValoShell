@@ -1,13 +1,16 @@
 // The match-found moment, drawn the way the chosen style's game draws it: CS:GO's "match is
 // ready" box with ten accept squares, CS2's band with filling bars, a slanted banner for the
-// VALORANT styles, a VGUI dialog for CS 1.6 and typed lines for the terminal.
+// VALORANT styles, a VGUI dialog for CS 1.6, typed lines for the terminal, a ransom-note card
+// for Phantom and a glitching breach readout for Night City.
 // It plays over agent select for a moment and never takes clicks; Modern has none.
 import { Index, Match, Show, Switch, createEffect, createSignal, on, onCleanup } from "solid-js";
 import { playCue } from "./sound";
 import { pregame } from "~/state/pregame";
 import { game } from "~/state/session";
 import { doc } from "~/studio/store";
+import { RansomText } from "~/pieces/styled/phantom";
 import styles from "./MatchFound.module.css";
+import poster from "./MatchFoundPoster.module.css";
 
 const SPLASH_MS = 2600;
 const PLAYERS = 10;
@@ -100,6 +103,24 @@ export function MatchFound() {
             <pre class={styles.term} data-pip="">
               {`* MATCH FOUND *\n\nMODE ..... ${queue().toUpperCase() || "UNKNOWN"}\nLOCATION . ${map().toUpperCase() || "UNKNOWN"}\n\nPREPARING AGENT SELECT`}
             </pre>
+          </Match>
+          <Match when={skin() === "phantom"}>
+            <div class={poster.phantom}>
+              <RansomText text="MATCH FOUND" class={poster.phantomTitle} />
+              <span class={poster.phantomInfo}>{[queue(), map()].filter(Boolean).join(" · ") || "Take your mark"}</span>
+            </div>
+          </Match>
+          <Match when={skin() === "nightcity"}>
+            <div class={poster.nightcity}>
+              <span class={poster.ncCode}>BREACH PROTOCOL // COMPLETE</span>
+              <span class={poster.ncTitle} data-text="Match found">
+                Match found
+              </span>
+              <span class={poster.ncInfo}>{[queue(), map()].filter(Boolean).join(" // ") || "Jacking in"}</span>
+              <span class={poster.ncBar}>
+                <i />
+              </span>
+            </div>
           </Match>
           <Match when={skin() === "terminal"}>
             <pre class={styles.term}>

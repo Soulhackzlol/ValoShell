@@ -1,26 +1,18 @@
-// Friends: who is online and what they are doing, with one-click party invites. Used as a
-// Studio piece and inside the friends drawer.
+// Friends: who is online and what they are doing, with one-click party invites and a button
+// that opens a whisper in the chat dock, plus pending friend requests (friendRequests.tsx).
+// Used as a Studio piece and inside the friends drawer.
 import { For, Show, createMemo, createSignal } from "solid-js";
-import { Search, UserPlus, X } from "lucide-solid";
-import type { FriendStatus } from "~/bindings/FriendStatus";
+import { MessageSquare, Search, UserPlus, X } from "lucide-solid";
 import type { FriendView } from "~/bindings/FriendView";
 import type { PieceProps } from "~/studio/registry";
 import { playCue } from "~/menu/sound";
-import { friends, isDrawerOpen, onlineCount, setDrawerOpen } from "~/state/friends";
+import { openDirectChat } from "~/state/chat";
+import { friendActivity, friends, isDrawerOpen, onlineCount, setDrawerOpen } from "~/state/friends";
 import { party, partyActions } from "~/state/party";
 import { isConnected } from "~/state/session";
 import { Empty } from "~/ui/controls";
+import { AddFriend, FriendRequests } from "./friendRequests";
 import styles from "./friends.module.css";
-
-const STATUS_LABEL: Record<FriendStatus, string> = {
-  menus: "In menus",
-  queueing: "Queueing",
-  agent_select: "Agent select",
-  in_match: "In match",
-  online: "Online",
-  away: "Away",
-  offline: "Offline",
-};
 
 function lastSeen(ms: number | null): string {
   if (ms === null) return "";
@@ -41,22 +33,37 @@ function FriendRow(props: { friend: FriendView }) {
   const invite = async () => {
     if (await partyActions.invite(`${props.friend.game_name}#${props.friend.tag_line}`)) setSent(true);
   };
+  const message = () => {
+    playCue("confirm");
+    // The drawer's scrim would cover the dock.
+    setDrawerOpen(false);
+    openDirectChat(props.friend.puuid);
+  };
   return (
     <li class={styles.friend} data-status={props.friend.status} onMouseEnter={() => playCue("hover")}>
       <span class={styles.dot} />
+      {/* Only the Faces and Rich layouts show it; the list reads as names first. */}
+      <span
+        class={styles.avatar}
+        style={{ "--face": props.friend.card_small ? `url("${props.friend.card_small}")` : "none" }}
+        aria-hidden="true"
+      />
       <span class={styles.text}>
         <span class={styles.name} data-sensitive>
           {props.friend.game_name}
           <span class={styles.tag}>#{props.friend.tag_line}</span>
         </span>
         <span class={styles.detail}>
-          {isInParty() ? "In your party" : STATUS_LABEL[props.friend.status]}
-          <Show when={props.friend.detail}>{(detail) => <> · {detail()}</>}</Show>
+          {/* The same line every style's friends look shows: what they do, then the party. */}
+          {isInParty() ? "In your party" : friendActivity(props.friend)}
           <Show when={props.friend.status === "offline" && props.friend.last_online_ms}>
             <> · {lastSeen(props.friend.last_online_ms)}</>
           </Show>
         </span>
       </span>
+      <button class={styles.message} title="Message" aria-label={`Message ${props.friend.game_name}`} disabled={!isConnected()} onClick={message}>
+        <MessageSquare size={14} />
+      </button>
       <Show when={canInvite()}>
         <button class={styles.invite} disabled={isSent()} title="Invite to party" onClick={() => void invite()}>
           <UserPlus size={14} />
@@ -102,6 +109,7 @@ export function FriendsPiece(props: PieceProps) {
         <h2 class={styles.title}>Friends</h2>
         <span class={styles.count}>{onlineCount()} online</span>
       </header>
+      <FriendRequests />
       <FriendsList showOffline={props.piece.props["showOffline"] === true} />
     </section>
   );
@@ -117,7 +125,14 @@ function InviteById() {
         void partyActions.invite(riotId()).then((isSent) => isSent && setRiotId(""));
       }}
     >
-      <input placeholder="Invite by Riot ID (Name#TAG)" value={riotId()} spellcheck={false} onInput={(event) => setRiotId(event.currentTarget.value)} />
+      <input
+        placeholder="Invite by Riot ID (Name#TAG)"
+        aria-label="Invite by Riot ID"
+        value={riotId()}
+        spellcheck={false}
+        data-sensitive
+        onInput={(event) => setRiotId(event.currentTarget.value)}
+      />
       <button type="submit" disabled={!riotId().includes("#") || !isConnected()} title="Send invite">
         <UserPlus size={14} />
       </button>
@@ -145,6 +160,8 @@ export function FriendsDrawer() {
           </button>
         </header>
         <InviteById />
+        <AddFriend />
+        <FriendRequests />
         <FriendsList showOffline />
       </aside>
     </Show>

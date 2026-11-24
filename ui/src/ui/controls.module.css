@@ -210,11 +210,12 @@ textarea.input {
 }
 
 /* ---- segmented ---- */
+/* One row while the options fit, wrapping to more rows when they don't, so a long list never
+   runs past its panel. `columns` (controls.tsx) asks for a fixed grid instead. */
 .segmented {
   position: relative;
-  display: grid;
-  grid-auto-flow: column;
-  grid-auto-columns: 1fr;
+  display: flex;
+  flex-wrap: wrap;
   padding: 3px;
   border-radius: var(--radius-sm);
   background: rgb(0 0 0 / 0.35);
@@ -224,6 +225,7 @@ textarea.input {
 .segment {
   position: relative;
   z-index: 1;
+  flex: 1 0 auto;
   height: 28px;
   padding: 0 var(--space-2);
   border-radius: 3px;
@@ -231,6 +233,10 @@ textarea.input {
   font-weight: 600;
   color: var(--text-3);
   white-space: nowrap;
+  /* A label longer than its cell ends in an ellipsis (full text in the tooltip), never spills. */
+  min-width: 0;
+  overflow: hidden;
+  text-overflow: ellipsis;
   transition: color var(--dur-fast) var(--ease-standard), background var(--dur-fast) var(--ease-standard);
 }
 
@@ -260,6 +266,11 @@ textarea.input {
   cursor: pointer;
 }
 
+/* Not set: the style's colour applies, so the swatch only hints that one can be picked. */
+.color input[type="color"][data-unset] {
+  opacity: 0.3;
+}
+
 .color input[type="color"]::-webkit-color-swatch-wrapper {
   padding: 0;
 }
@@ -271,8 +282,12 @@ textarea.input {
 }
 
 /* ---- panels ---- */
+/* The editor's own panels (inspector, Studio bar): a thick material, not the style's --panel.
+   They float over busy, moving screens, and a see-through panel let names and art show
+   through its controls; nearly opaque with a strong blur, the tools always read first. */
 .glass {
-  background: var(--panel);
+  background: color-mix(in srgb, var(--surface-popup, #16171c) 94%, transparent);
+  backdrop-filter: blur(24px) saturate(150%);
   box-shadow: inset 0 0 0 1px rgb(255 255 255 / 0.08), 0 18px 50px rgb(0 0 0 / 0.45);
 }
 

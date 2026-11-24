@@ -2,7 +2,7 @@
 // condition bar for each party slot around it (head, arms, legs), a row of readouts under it,
 // the action hints and the HP / LEVEL / AP status bar along the bottom. The figure is your
 // agent, drawn in phosphor green.
-import { For, Index, Show, createMemo, onCleanup, onMount } from "solid-js";
+import { Index, Show, createMemo, onCleanup, onMount } from "solid-js";
 import type { MemberView } from "~/bindings/MemberView";
 import type { PieceProps } from "~/studio/registry";
 import { playCue } from "~/menu/sound";
@@ -54,7 +54,9 @@ export function PipStat(props: PieceProps) {
         <span>PERKS</span>
       </div>
       <div class={styles.figure}>
-        <Show when={agent()?.portrait}>{(src) => <img class={styles.figureArt} src={src()} alt="" draggable={false} />}</Show>
+        <Show when={agent()?.portrait}>
+          {(src) => <img class={styles.figureArt} src={src()} alt="" draggable={false} />}
+        </Show>
         <Index each={LIMBS}>{(limb, index) => <LimbBar member={members()[index]} limb={limb()} />}</Index>
       </div>
       <div class={styles.readouts}>
@@ -93,17 +95,34 @@ export function PipHints(_props: PieceProps) {
     if (play.searchClock() !== null) return `CANCEL SEARCH ${play.searchClock()}`;
     if (play.penaltyClock()) return `RESTRICTED ${play.penaltyClock()}`;
     if (!play.isOwner()) return play.isReady() ? "NOT READY" : "READY";
-    return "FIND MATCH";
+    return play.isCustom() ? "START GAME" : "FIND MATCH";
   };
   const hints = () => [
-    { key: "ENTER", label: playLabel(), run: () => play.press(), isOff: !play.canStart() && play.searchClock() === null },
-    { key: "M", label: `MODE: ${(play.current()?.label ?? "-").toUpperCase()}`, run: cycleQueue, isOff: !play.isOwner() },
+    {
+      key: "ENTER",
+      label: playLabel(),
+      run: () => play.press(),
+      isOff: !play.canStart() && play.searchClock() === null,
+    },
+    {
+      key: "M",
+      label: `MODE: ${(play.current()?.label ?? "-").toUpperCase()}`,
+      run: cycleQueue,
+      isOff: !play.isOwner(),
+    },
     { key: "F", label: "FRIENDS", run: () => setDrawerOpen(true), isOff: false },
   ];
   onMount(() => {
     const onKey = (event: KeyboardEvent) => {
       // A focused button already answers Enter itself.
-      if (isTyping(event.target) || event.target instanceof HTMLButtonElement || event.repeat || event.ctrlKey || event.altKey) return;
+      if (
+        isTyping(event.target) ||
+        event.target instanceof HTMLButtonElement ||
+        event.repeat ||
+        event.ctrlKey ||
+        event.altKey
+      )
+        return;
       if (event.key === "Enter") play.press();
       else if (event.key === "m" || event.key === "M") cycleQueue();
     };
@@ -112,21 +131,23 @@ export function PipHints(_props: PieceProps) {
   });
   return (
     <div class={styles.hints}>
-      <For each={hints()}>
+      {/* Index, not For: the hints are rebuilt every second of a search, and For would remount the
+          buttons and drop focus. */}
+      <Index each={hints()}>
         {(hint) => (
           <button
             class={styles.hint}
-            disabled={hint.isOff}
+            disabled={hint().isOff}
             onMouseEnter={() => playCue("hover")}
             onClick={() => {
               playCue("confirm");
-              hint.run();
+              hint().run();
             }}
           >
-            <kbd>{hint.key})</kbd> {hint.label}
+            <kbd>{hint().key})</kbd> {hint().label}
           </button>
         )}
-      </For>
+      </Index>
     </div>
   );
 }

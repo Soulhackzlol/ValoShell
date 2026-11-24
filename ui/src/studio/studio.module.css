@@ -11,7 +11,7 @@
   max-height: calc(100vh - 170px);
   border-radius: 3px;
   overflow: hidden;
-  animation: panelIn 520ms cubic-bezier(0.22, 1.2, 0.36, 1) both;
+  animation: panelIn 520ms var(--ease-settle) both;
   will-change: transform;
 }
 
@@ -129,7 +129,7 @@
   color: var(--text-2);
   background: rgb(255 255 255 / 0.05);
   transition: background var(--dur-fast) var(--ease-standard), color var(--dur-fast) var(--ease-standard),
-    transform 200ms cubic-bezier(0.34, 1.56, 0.64, 1);
+    transform 200ms var(--ease-settle);
 }
 
 .iconAction:hover {
@@ -155,7 +155,7 @@
 /* ---- add palette ---- */
 .palette {
   display: grid;
-  grid-template-columns: repeat(3, 1fr);
+  grid-template-columns: repeat(3, minmax(0, 1fr));
   gap: 6px;
 }
 
@@ -173,7 +173,7 @@
   box-shadow: inset 0 0 0 1px var(--border-subtle);
   animation: contentIn 340ms var(--ease-decelerate) both;
   animation-delay: calc(var(--stagger) * 30ms);
-  transition: transform 260ms cubic-bezier(0.34, 1.56, 0.64, 1), background var(--dur-fast) var(--ease-standard),
+  transition: transform 260ms var(--ease-settle), background var(--dur-fast) var(--ease-standard),
     color var(--dur-fast) var(--ease-standard);
 }
 
@@ -198,10 +198,21 @@
   color: var(--text-1);
 }
 
+/* Which style's look a job places, under its name. */
+.paletteNote {
+  max-width: 100%;
+  overflow: hidden;
+  margin-top: -4px;
+  font-size: 10px;
+  white-space: nowrap;
+  text-overflow: ellipsis;
+  color: var(--text-3);
+}
+
 /* ---- theme ---- */
 .presets {
   display: grid;
-  grid-template-columns: repeat(4, 1fr);
+  grid-template-columns: repeat(4, minmax(0, 1fr));
   gap: 8px;
 }
 
@@ -218,7 +229,7 @@
   border-radius: 3px;
   background: linear-gradient(135deg, var(--a) 0 45%, var(--b) 45% 60%, var(--g) 60%);
   box-shadow: inset 0 0 0 1px rgb(255 255 255 / 0.12);
-  transition: transform 260ms cubic-bezier(0.34, 1.56, 0.64, 1), box-shadow var(--dur-fast) var(--ease-standard);
+  transition: transform 260ms var(--ease-settle), box-shadow var(--dur-fast) var(--ease-standard);
 }
 
 .preset:hover .presetSwatch {
@@ -330,7 +341,7 @@
   padding: 8px 8px 8px 16px;
   border-radius: 3px;
   transform: translateX(-50%);
-  animation: barIn 560ms cubic-bezier(0.22, 1.25, 0.36, 1) both;
+  animation: barIn 560ms var(--ease-settle) both;
 }
 
 .barStage {
@@ -367,7 +378,7 @@
   font-weight: 600;
   color: var(--text-2);
   transition: background var(--dur-fast) var(--ease-standard), color var(--dur-fast) var(--ease-standard),
-    transform 200ms cubic-bezier(0.34, 1.56, 0.64, 1);
+    transform 200ms var(--ease-settle);
 }
 
 .barButton[data-wide] {
@@ -450,7 +461,7 @@
   font-weight: 600;
   color: var(--text-1);
   background: rgb(255 255 255 / 0.05);
-  transition: background var(--dur-fast) var(--ease-standard), transform 200ms cubic-bezier(0.34, 1.56, 0.64, 1);
+  transition: background var(--dur-fast) var(--ease-standard), transform 200ms var(--ease-settle);
 }
 
 .lookApply:hover {
@@ -462,14 +473,17 @@
 }
 
 /* ---- backdrop pickers ---- */
+/* As many columns as fit the panel: a fixed four ran past it with longer names. */
 .kindGrid {
   display: grid;
-  grid-template-columns: repeat(4, 1fr);
+  grid-template-columns: repeat(auto-fill, minmax(84px, 1fr));
   gap: 4px;
 }
 
 .kind {
-  height: 30px;
+  min-height: 30px;
+  padding: 4px 6px;
+  line-height: 1.2;
   font-size: 12px;
   font-weight: 600;
   color: var(--text-2);
@@ -687,7 +701,7 @@
   background: var(--accent);
   box-shadow: 0 0 0 3px rgb(0 0 0 / 0.5), 0 0 14px var(--accent);
   transform: translate(-50%, -50%);
-  transition: left 120ms var(--ease-decelerate), top 120ms var(--ease-decelerate);
+  /* No transition: the dot follows the pointer 1:1 while dragging, never trailing behind it. */
   pointer-events: none;
 }
 
@@ -726,4 +740,20 @@
 .colorProp > :first-child {
   flex: 1;
   min-width: 0;
+}
+
+/* A labelled choice in a piece's Look (Layout, Spacing). */
+.lookRow {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-1);
+}
+
+/* A look's delete, armed: the second click deletes the file (gallery/DeleteLookButton.tsx). */
+.layerToggle[data-armed] {
+  width: auto;
+  gap: 4px;
+  padding: 0 6px;
+  color: var(--negative);
+  background: var(--negative-soft);
 }

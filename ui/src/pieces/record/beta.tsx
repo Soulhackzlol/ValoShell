@@ -6,8 +6,10 @@ import { Art } from "~/ui/Art";
 import { relativeDate } from "../career";
 import { TIER_GROUPS, division, groupIndex, signed, useCountUp, type RecordProps } from "./shared";
 import styles from "./beta.module.css";
+import { useOpenMatch } from "~/menu/openMatch";
 
 export function BetaRecord(props: RecordProps) {
+  const { rowProps } = useOpenMatch();
   const rr = useCountUp(() => props.view.rr, 300, 900);
   const current = () => groupIndex(props.view.rank.tier);
   const peak = () => groupIndex(props.view.peak?.tier ?? 0);
@@ -79,7 +81,7 @@ export function BetaRecord(props: RecordProps) {
         <ol class={styles.rows}>
           <For each={props.view.updates}>
             {(update, index) => (
-              <li class={styles.row} data-up={update.rr_earned >= 0 ? "" : undefined} style={{ "--stagger": index() }}>
+              <li {...rowProps(update.match_id)} class={styles.row} data-up={update.rr_earned >= 0 ? "" : undefined} style={{ "--stagger": index() }}>
                 <span class={styles.index}>{String(index() + 1).padStart(2, "0")}</span>
                 <span class={styles.map}>{update.map_name}</span>
                 <span class={styles.when}>{relativeDate(update.started_at_ms)}</span>

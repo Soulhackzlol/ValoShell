@@ -17,8 +17,6 @@
     inset 0 1px 0 rgb(255 255 255 / 0.1),
     0 24px 60px rgb(0 0 0 / 0.35);
   backdrop-filter: blur(32px) saturate(180%);
-  transform: perspective(900px) rotateX(var(--rx, 0deg)) rotateY(var(--ry, 0deg));
-  transition: transform 500ms cubic-bezier(0.2, 1, 0.3, 1);
   animation: cardIn 900ms cubic-bezier(0.2, 1.35, 0.35, 1) 240ms backwards;
 }
 
@@ -110,11 +108,11 @@
 }
 
 .recent li[data-result="win"] {
-  background: #30d158;
+  background: var(--win, #30d158);
 }
 
 .recent li[data-result="loss"] {
-  background: #ff453a;
+  background: var(--loss, #ff453a);
 }
 
 .note {

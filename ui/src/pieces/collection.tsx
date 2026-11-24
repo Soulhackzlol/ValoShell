@@ -1,39 +1,27 @@
-// Collection pieces: the loadout as a weapon wall grouped by category, and the skin picker
-// for the selected weapon (owned skins, chroma swatches, Equip). Equipping changes your
-// real loadout, so the wall only updates from Riot's answer.
-import { For, Match, Show, Switch, createEffect, createMemo, createSignal, on, onMount } from "solid-js";
-import { Check, Play } from "lucide-solid";
-import type { SkinOption } from "~/bindings/SkinOption";
+// Collection pieces: the loadout as a weapon wall grouped by category; the skin picker for the
+// selected weapon lives in skinPicker.tsx. The wall only updates from Riot's answer.
+import { For, Match, Show, Switch, createMemo, createSignal, onMount } from "solid-js";
 import type { WeaponSlot } from "~/bindings/WeaponSlot";
 import type { PieceProps } from "~/studio/registry";
-import { call, errorText } from "~/ipc/commands";
 import { playCue } from "~/menu/sound";
-import { pushToast } from "~/state/toasts";
 import { collectionView } from "~/state/views";
 import { Art } from "~/ui/Art";
-import { Empty, controls } from "~/ui/controls";
 import { doc } from "~/studio/store";
 import type { Skin } from "~/studio/types";
+import { ViewStatus } from "~/ui/ViewStatus";
 import styles from "./collection.module.css";
 import layouts from "./collectionLayouts.module.css";
 
 export const [selectedWeapon, setSelectedWeapon] = createSignal<string | null>(null);
 
-function useCollection(): void {
+export function useCollection(): void {
   onMount(() => {
     if (!collectionView.value()) void collectionView.load();
   });
 }
 
 function Status(props: { what: string }) {
-  return (
-    <Show
-      when={collectionView.error()}
-      fallback={<Empty title={props.what}>{collectionView.isLoading() ? "Opening your collection…" : "Connect to VALORANT to see your loadout."}</Empty>}
-    >
-      {(error) => <Empty title={props.what}>{error()}</Empty>}
-    </Show>
-  );
+  return <ViewStatus view={collectionView} title={props.what} loading="Opening your collection…" idle="Connect to VALORANT to see your loadout." />;
 }
 
 function WeaponCard(props: { slot: WeaponSlot; index: number }) {
@@ -76,6 +64,8 @@ const AUTO_WALL: Record<Skin, WallLayout> = {
   minecraft: "slots",
   pipboy: "list",
   league: "categories",
+  phantom: "categories",
+  nightcity: "list",
 };
 
 /** Category names as a CS-style buy menu words them. */
@@ -178,7 +168,7 @@ function wallColumns(groups: Groups): Groups[] {
   return columns.filter((column) => column.length > 0);
 }
 
-/** CS:GO's inventory: filter tabs over one dense grid, "Weapon | Finish", a rarity bar. */
+/** Grid (CS:GO's inventory): filter tabs over one dense grid, "Weapon | Finish", a rarity bar. */
 function InventoryWall(props: { groups: Groups }) {
   const [filter, setFilter] = createSignal<string | null>(null);
   const shown = () => props.groups.filter(([category]) => filter() === null || category === filter()).flatMap(([, slots]) => slots);
@@ -292,6 +282,8 @@ function BuyMenuWall(props: { groups: Groups; isEditing: boolean }) {
                     data-selected={selectedWeapon() === slot.weapon_id ? "" : undefined}
                     onMouseEnter={() => setHovered(slot)}
                     onMouseLeave={() => setHovered(null)}
+                    onFocus={() => setHovered(slot)}
+                    onBlur={() => setHovered(null)}
                     onClick={() => pickWeapon(slot)}
                   >
                     <kbd>{index() + 1}</kbd> {slot.weapon_name}
@@ -381,286 +373,10 @@ function SlotWall(props: { groups: Groups }) {
 }
 
 /** Edition colours, as the game tints its store cards. */
-const EDITION_COLORS: Record<string, string> = {
+export const EDITION_COLORS: Record<string, string> = {
   Select: "#5a9fe2",
   Deluxe: "#009587",
   Premium: "#d1548d",
   Exclusive: "#f5955b",
   Ultra: "#fad663",
 };
-const MAX_TILT_DEG = 16;
-const MIN_ZOOM = 1;
-const MAX_ZOOM = 1.8;
-
-/** The weapon on a stage: tilts toward the pointer, drag spins it, wheel zooms, double-click resets. */
-function InspectStage(props: { image: string | null; fallback: string; edition: string | null; video: string | null; onCloseVideo: () => void; swapKey: string }) {
-  const [tilt, setTilt] = createSignal({ x: 0, y: 0 });
-  const [spin, setSpin] = createSignal(0);
-  const [zoom, setZoom] = createSignal(1);
-  let dragFrom: { x: number; spin: number } | null = null;
-  const onPointerMove = (event: PointerEvent) => {
-    const box = (event.currentTarget as HTMLElement).getBoundingClientRect();
-    const x = (event.clientX - box.left) / box.width - 0.5;
-    const y = (event.clientY - box.top) / box.height - 0.5;
-    setTilt({ x: -y * MAX_TILT_DEG, y: x * MAX_TILT_DEG });
-    if (dragFrom) setSpin(dragFrom.spin + (event.clientX - dragFrom.x) * 0.5);
-  };
-  const reset = () => {
-    setTilt({ x: 0, y: 0 });
-    setSpin(0);
-    setZoom(1);
-  };
-  return (
-    <div
-      class={styles.stage}
-      data-part="skin-stage"
-      data-edition={props.edition ?? undefined}
-      style={{ "--edition": props.edition ? (EDITION_COLORS[props.edition] ?? "var(--accent)") : "var(--accent)" }}
-      onPointerMove={onPointerMove}
-      onPointerLeave={() => {
-        dragFrom = null;
-        setTilt({ x: 0, y: 0 });
-      }}
-      onPointerDown={(event) => {
-        (event.currentTarget as HTMLElement).setPointerCapture(event.pointerId);
-        dragFrom = { x: event.clientX, spin: spin() };
-      }}
-      onPointerUp={() => (dragFrom = null)}
-      onWheel={(event) => {
-        event.preventDefault();
-        setZoom((current) => Math.min(MAX_ZOOM, Math.max(MIN_ZOOM, current - event.deltaY * 0.0015)));
-      }}
-      onDblClick={reset}
-    >
-      <span class={styles.stageFloor} />
-      <Show when={props.edition}>
-        {(edition) => (
-          <span class={styles.edition}>
-            <i />
-            {edition()} Edition
-          </span>
-        )}
-      </Show>
-      <Show keyed when={props.swapKey}>
-        <div class={styles.model}>
-          <div
-            class={styles.modelTilt}
-            style={{ transform: `perspective(900px) rotateX(${tilt().x}deg) rotateY(${tilt().y + spin()}deg) scale(${zoom()})` }}
-          >
-            <Art src={props.image} class={styles.modelImage} fallback={<span class={styles.weaponInitial}>{props.fallback}</span>} />
-            <span class={styles.sheen} />
-          </div>
-        </div>
-      </Show>
-      <Show when={props.image}>
-        {(image) => <img class={styles.reflection} src={image()} alt="" aria-hidden="true" />}
-      </Show>
-      <span class={styles.stageHint}>Drag to turn · scroll to zoom · double-click to reset</span>
-      <Show when={props.video}>
-        {(url) => (
-          <div class={styles.showcase}>
-            <video class={styles.showcaseVideo} src={url()} autoplay controls playsinline onEnded={props.onCloseVideo} />
-            <button class={styles.showcaseClose} title="Close video" onClick={props.onCloseVideo}>
-              ×
-            </button>
-          </div>
-        )}
-      </Show>
-    </div>
-  );
-}
-
-export function SkinPicker(_props: PieceProps) {
-  useCollection();
-  const [options, setOptions] = createSignal<SkinOption[] | null>(null);
-  const [error, setError] = createSignal<string | null>(null);
-  const [picked, setPicked] = createSignal<{ skinId: string; chromaId: string } | null>(null);
-  const [isEquipping, setEquipping] = createSignal(false);
-  const [video, setVideo] = createSignal<string | null>(null);
-  const slot = () => collectionView.value()?.weapons.find((weapon) => weapon.weapon_id === selectedWeapon());
-
-  createEffect(
-    on(selectedWeapon, (weaponId) => {
-      setOptions(null);
-      setError(null);
-      setPicked(null);
-      setVideo(null);
-      if (!weaponId) return;
-      call("get_skin_options", { weaponId }).then(
-        (next) => selectedWeapon() === weaponId && setOptions(next),
-        (failure) => setError(errorText(failure)),
-      );
-    }),
-  );
-
-  const preview = () => {
-    const choice = picked();
-    const all = options() ?? [];
-    const skin = all.find((option) => option.skin_id === (choice?.skinId ?? slot()?.skin_id));
-    const chroma = skin?.chromas.find((entry) => entry.chroma_id === (choice?.chromaId ?? slot()?.chroma_id));
-    return { skin, chroma, image: chroma?.image ?? skin?.image ?? slot()?.image ?? null };
-  };
-
-  const isEquipped = () => {
-    const choice = picked();
-    return !choice || (choice.skinId === slot()?.skin_id && choice.chromaId === slot()?.chroma_id);
-  };
-
-  const pick = (option: SkinOption) => {
-    playCue("tab");
-    setVideo(null);
-    setPicked({ skinId: option.skin_id, chromaId: option.chromas[0]?.chroma_id ?? "" });
-  };
-
-  /** Step through the owned skins with the arrows (or ← →). */
-  const step = (direction: 1 | -1) => {
-    const all = options() ?? [];
-    if (all.length === 0) return;
-    const index = all.findIndex((option) => option.skin_id === preview().skin?.skin_id);
-    const next = all[(index + direction + all.length) % all.length];
-    if (next) pick(next);
-  };
-
-  const equip = async () => {
-    const weaponId = selectedWeapon();
-    const choice = picked();
-    if (!weaponId || !choice) return;
-    setEquipping(true);
-    try {
-      collectionView.set(await call("equip_skin", { weaponId, skinId: choice.skinId, chromaId: choice.chromaId }));
-      playCue("confirm");
-      setPicked(null);
-    } catch (failure) {
-      pushToast("negative", "Not equipped", errorText(failure));
-    } finally {
-      setEquipping(false);
-    }
-  };
-
-  return (
-    <Show when={slot()} fallback={<Empty title="Pick a weapon">Choose a weapon to see your skins for it.</Empty>}>
-      {(current) => (
-        <div
-          class={styles.picker}
-          data-part="screen-board"
-          tabIndex={0}
-          onKeyDown={(event) => {
-            if (event.key === "ArrowRight" || event.key === "ArrowLeft") {
-              event.preventDefault();
-              step(event.key === "ArrowRight" ? 1 : -1);
-            }
-          }}
-        >
-          <header class={styles.pickerHead}>
-            <span class="overline">{current().category}</span>
-            <div class={styles.titleRow}>
-              <button class={styles.stepButton} title="Previous skin (←)" onClick={() => step(-1)}>
-                ‹
-              </button>
-              <h2 class={styles.pickerTitle}>{preview().skin?.name ?? current().skin_name}</h2>
-              <button class={styles.stepButton} title="Next skin (→)" onClick={() => step(1)}>
-                ›
-              </button>
-            </div>
-          </header>
-          <InspectStage
-            image={preview().image}
-            fallback={current().weapon_name}
-            edition={preview().skin?.edition ?? null}
-            video={video()}
-            onCloseVideo={() => setVideo(null)}
-            swapKey={`${preview().skin?.skin_id ?? current().skin_id}:${preview().chroma?.chroma_id ?? ""}`}
-          />
-          <Show when={preview().skin}>
-            {(skin) => (
-              <div class={styles.upgrades}>
-                <Show when={skin().levels.length > 1}>
-                  <ol class={styles.levelTrack} aria-label="Upgrade levels">
-                    <For each={skin().levels}>
-                      {(level, index) => (
-                        <li>
-                          <button
-                            class={styles.level}
-                            data-part="skin-level"
-                            data-owned={level.is_owned ? "" : undefined}
-                            disabled={!level.video}
-                            title={level.video ? `Play ${level.name}` : level.name}
-                            onClick={() => {
-                              playCue("confirm");
-                              setVideo(level.video);
-                            }}
-                          >
-                            <b class="num">{index() + 1}</b>
-                            <span>{index() === 0 ? "Base" : (level.effect ?? "Upgrade")}</span>
-                            <Show when={level.video}>
-                              <Play size={11} />
-                            </Show>
-                          </button>
-                        </li>
-                      )}
-                    </For>
-                  </ol>
-                </Show>
-                <Show when={skin().chromas.length > 1}>
-                  <div class={styles.chromas}>
-                    <For each={skin().chromas}>
-                      {(chroma) => (
-                        <button
-                          class={styles.chroma}
-                          data-part="skin-chroma"
-                          disabled={!chroma.is_owned}
-                          title={chroma.is_owned ? chroma.name : `${chroma.name} (not owned)`}
-                          data-active={(picked()?.chromaId ?? current().chroma_id) === chroma.chroma_id ? "" : undefined}
-                          onClick={() => {
-                            playCue("tab");
-                            setVideo(null);
-                            setPicked({ skinId: skin().skin_id, chromaId: chroma.chroma_id });
-                          }}
-                        >
-                          <Art src={chroma.swatch} fallback={<span class={styles.swatchFallback} />} />
-                        </button>
-                      )}
-                    </For>
-                    <span class={styles.chromaName}>{preview().chroma?.name}</span>
-                    <Show when={preview().chroma?.video}>
-                      {(url) => (
-                        <button class={styles.stepButton} title="Play this variant's video" onClick={() => setVideo(url())}>
-                          <Play size={12} />
-                        </button>
-                      )}
-                    </Show>
-                  </div>
-                </Show>
-              </div>
-            )}
-          </Show>
-          <div class={styles.skinList}>
-            <Show when={options()} fallback={<span class={styles.loading}>{error() ?? "Loading your skins…"}</span>}>
-              {(all) => (
-                <For each={all()}>
-                  {(option) => (
-                    <button
-                      class={styles.skin}
-                      data-part="skin-row"
-                      data-equipped={option.skin_id === current().skin_id ? "" : undefined}
-                      data-picked={preview().skin?.skin_id === option.skin_id ? "" : undefined}
-                      style={{ "--edition": option.edition ? (EDITION_COLORS[option.edition] ?? "transparent") : "transparent" }}
-                      onMouseEnter={() => playCue("hover")}
-                      onClick={() => pick(option)}
-                    >
-                      <Art src={option.image} fallback={<span />} />
-                      <span>{option.name}</span>
-                    </button>
-                  )}
-                </For>
-              )}
-            </Show>
-          </div>
-          <button class={controls.button} data-part="play" disabled={isEquipped() || isEquipping()} onClick={() => void equip()}>
-            <Check size={15} /> {isEquipped() ? "Equipped" : isEquipping() ? "Equipping…" : "Equip"}
-          </button>
-        </div>
-      )}
-    </Show>
-  );
-}

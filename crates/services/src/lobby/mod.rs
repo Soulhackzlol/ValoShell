@@ -199,16 +199,10 @@ impl LobbyService {
         }
     }
 
-    /// Agent select hides enemy ranks in the game, so they stay unread unless the player opts in.
+    /// Riot sends no enemy team during agent select; should a roster ever carry one there, its
+    /// ranks stay unread, as the game hides them until the match starts.
     fn are_enemy_ranks_hidden(&self, roster: &Roster) -> bool {
         roster.is_pregame
-            && !self
-                .inner
-                .ctx
-                .settings
-                .get()
-                .lobby
-                .should_rank_enemies_in_agent_select
     }
 
     /// The active act, read once per match.
@@ -233,12 +227,14 @@ impl LobbyService {
     fn publish(&self, session: &RiotSession, roster: &Roster, stacks: &HashMap<Puuid, (u32, u32)>) {
         let index = self.inner.assets.index();
         let names = self.inner.names.snapshot();
+        let party = self.inner.names.party();
         let view = {
             let state = self.state();
             let inputs = LobbyInputs {
                 index: &index,
                 own: &session.puuid,
                 names: &names,
+                party: &party,
                 rows: &state.rows,
                 stacks,
                 are_enemy_ranks_hidden: self.are_enemy_ranks_hidden(roster),

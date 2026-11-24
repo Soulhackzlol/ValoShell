@@ -10,10 +10,13 @@ import { catalog } from "~/state/catalog";
 import { friendActivity, friends, isElsewhere, onlineCount } from "~/state/friends";
 import { party, partyActions } from "~/state/party";
 import { isConnected } from "~/state/session";
+import { sensitiveTitle } from "~/state/settings";
 import { careerView } from "~/state/views";
 import { Art } from "~/ui/Art";
 import { Silhouette } from "./avatars";
-import { ladderPosition, usePlay } from "./usePlay";
+import { UNRATED_BAND, bandColor, cs2Rating, isRated as isRatedView, ratingParts } from "./cs2Rating";
+import { usePlay } from "./usePlay";
+import { slideOnWheel } from "~/ui/sideScroll";
 import styles from "./cs2.module.css";
 
 const MAX_MAPS = 10;
@@ -51,11 +54,7 @@ export function Cs2Play(props: PieceProps) {
       <header
         class={styles.modes}
         role="tablist"
-        onWheel={(event) => {
-          if (Math.abs(event.deltaX) > Math.abs(event.deltaY)) return;
-          event.preventDefault();
-          event.currentTarget.scrollLeft += event.deltaY;
-        }}
+        onWheel={slideOnWheel}
       >
         <For each={play.queues()}>
           {(queue) => (
@@ -133,25 +132,7 @@ export function Cs2Play(props: PieceProps) {
 
 // ---- rating badge -----------------------------------------------------------------------
 
-const RATING_FLOOR = 1000;
-const RATING_SPAN = 32000;
-/** Colour bands by rating, lowest first. */
-const BANDS: readonly [number, string][] = [
-  [0, "#b0c3d9"],
-  [5000, "#8cc6ff"],
-  [10000, "#6a7dff"],
-  [15000, "#c166ff"],
-  [20000, "#f03cff"],
-  [25000, "#eb4b4b"],
-  [30000, "#fed700"],
-];
 const RECENT_GAMES = 10;
-
-function bandColor(rating: number): string {
-  let color = BANDS[0]?.[1] ?? "#b0c3d9";
-  for (const [from, band] of BANDS) if (rating >= from) color = band;
-  return color;
-}
 
 export function Cs2Rating(_props: PieceProps) {
   onMount(() => {
@@ -160,12 +141,11 @@ export function Cs2Rating(_props: PieceProps) {
   const view = () => careerView.value();
   const isRated = () => {
     const current = view();
-    return current !== null && current.rank.tier >= 3 && current.placements_left === 0;
+    return current !== null && isRatedView(current);
   };
-  /** The rank and RR as one number on a CS2-like scale. */
   const rating = () => {
     const current = view();
-    return current ? Math.round(RATING_FLOOR + ladderPosition(current.rank.tier, current.rr) * RATING_SPAN) : 0;
+    return current ? cs2Rating(current.rank.tier, current.rr) : 0;
   };
   const recent = () => view()?.updates.slice(0, RECENT_GAMES) ?? [];
   const wins = () => recent().filter((update) => update.rr_earned > 0).length;
@@ -174,12 +154,12 @@ export function Cs2Rating(_props: PieceProps) {
   return (
     <section class={styles.rating}>
       <span class={styles.ratingTitle}>Rating</span>
-      <div class={styles.badge} style={{ "--band": isRated() ? bandColor(rating()) : "#5b6370" }}>
+      <div class={styles.badge} style={{ "--band": isRated() ? bandColor(rating()) : UNRATED_BAND }}>
         <span class={styles.badgeStripes} />
         <span class={`${styles.badgeValue} num`}>
           <Show when={isRated()} fallback={<b>---</b>}>
-            <b>{Math.floor(rating() / 1000)}</b>
-            <small>,{(rating() % 1000).toString().padStart(3, "0")}</small>
+            <b>{ratingParts(rating())[0]}</b>
+            <small>{ratingParts(rating())[1]}</small>
           </Show>
         </span>
       </div>
@@ -261,7 +241,7 @@ export function Cs2Friends(props: PieceProps) {
           <button
             class={styles.tile}
             data-status={friend.status}
-            title={`${friend.game_name}#${friend.tag_line} · ${friendActivity(friend)}`}
+            title={sensitiveTitle(`${friend.game_name}#${friend.tag_line} · ${friendActivity(friend)}`)}
             onMouseEnter={() => playCue("hover")}
             onClick={() => toggle(true)}
           >
@@ -319,7 +299,7 @@ function Cs2FriendPanel(props: { style: JSX.CSSProperties; onClose: () => void }
                 }
               >
                 {(member) => (
-                  <span class={styles.partyFace} data-ready={member().is_ready ? "" : undefined} title={member().game_name}>
+                  <span class={styles.partyFace} data-ready={member().is_ready ? "" : undefined} title={sensitiveTitle(member().game_name)}>
                     <Art src={member().card_small} class={styles.tileImage} fallback={<Silhouette />} />
                   </span>
                 )}

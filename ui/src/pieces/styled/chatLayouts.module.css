@@ -1,0 +1,123 @@
+/* Layouts of every party chat line (chatFrame.tsx). Line: the line alone, as each style draws
+   it. Chat box: the latest party messages above the line, light on a dark glass panel as game
+   chats print them. Icon: only the button that opens the full chat. The stage frame sets
+   data-layout on the piece; selectors go through the frame so they win over a style's own
+   `.chat { height: 100% }` whatever order the sheets load in. */
+
+.frame {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+  width: 100%;
+  height: 100%;
+  min-height: 0;
+}
+
+.frame > form {
+  flex: 1;
+  min-height: 0;
+}
+
+.log {
+  display: none;
+  flex-direction: column;
+  justify-content: flex-end;
+  gap: 2px;
+  min-height: 0;
+  margin: 0;
+  padding: 8px 10px;
+  overflow: hidden;
+  list-style: none;
+  font-size: 13px;
+  line-height: 1.35;
+  color: #f2f2f2;
+  background: rgb(0 0 0 / 0.5);
+  text-shadow: 0 1px 1px rgb(0 0 0 / 0.6);
+  /* Older lines fade out at the top instead of being cut by the edge. */
+  mask-image: linear-gradient(to bottom, transparent, black 28px);
+}
+
+.message {
+  overflow-wrap: anywhere;
+}
+
+.message[data-system] {
+  font-style: italic;
+  opacity: 0.7;
+}
+
+.author {
+  margin-right: 6px;
+  font-weight: 700;
+  color: #9fd3ff;
+}
+
+.author::after {
+  content: ":";
+}
+
+.author[data-self] {
+  color: #ffd27a;
+}
+
+/* ---- unread badge on the open-chat button (ChatUnread) ---- */
+
+.frame [data-part="chat-open"] {
+  position: relative;
+}
+
+/* Unread waits behind the button: it shows at full strength, whatever the style's resting dim. */
+.frame [data-part="chat-open"]:has(.unread) {
+  opacity: 1;
+}
+
+/* Inside the button's top-right corner: a chat line is a thin strip, and a badge hung past its
+   edge would spill out of the piece. */
+.unread {
+  position: absolute;
+  top: 0;
+  right: 0;
+  min-width: 15px;
+  height: 15px;
+  padding: 0 3px;
+  border-radius: 8px;
+  font: 700 11px/15px var(--font-text);
+  font-variant-numeric: tabular-nums;
+  text-align: center;
+  color: var(--on-accent, #ffffff);
+  background: var(--accent, #ff4655);
+  box-shadow: 0 0 0 1.5px rgb(0 0 0 / 0.5);
+  pointer-events: none;
+}
+
+/* ---- chat box ---- */
+
+[data-layout="box"] .frame > .log {
+  display: flex;
+  flex: 1;
+}
+
+[data-layout="box"] .frame > form {
+  flex: none;
+  height: 36px;
+}
+
+/* ---- icon: the button alone ---- */
+
+[data-layout="icon"] .frame {
+  align-items: flex-start;
+  justify-content: center;
+}
+
+[data-layout="icon"] .frame > form {
+  flex: none;
+  width: auto;
+  height: 100%;
+  aspect-ratio: 1;
+  justify-content: center;
+  padding: 0;
+}
+
+[data-layout="icon"] .frame > form > :not([data-part="chat-open"]) {
+  display: none;
+}

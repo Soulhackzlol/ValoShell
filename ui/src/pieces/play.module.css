@@ -13,12 +13,16 @@
   gap: var(--space-5);
   width: 100%;
   height: 100%;
-  overflow: auto;
+  overflow: hidden auto;
 }
 
+/* The rows share the panel's height, so every mode shows without scrolling at any window size. */
 .queueGrid {
   display: grid;
+  flex: 1;
+  min-height: 0;
   grid-template-columns: repeat(auto-fill, minmax(170px, 1fr));
+  grid-auto-rows: minmax(0, 1fr);
   gap: var(--space-3);
 }
 
@@ -29,8 +33,9 @@
   flex-direction: column;
   justify-content: flex-end;
   gap: 6px;
-  aspect-ratio: 3 / 4;
-  container-type: inline-size;
+  min-height: 0;
+  /* Sized by its grid row, so a short card can drop its icon (below) instead of clipping it. */
+  container-type: size;
   padding: var(--space-4);
   overflow: hidden;
   text-align: left;
@@ -137,13 +142,20 @@
   color: var(--text-2);
 }
 
+/* A short card (a small window): the name and blurb keep the room, the icon goes. */
+@container (max-height: 150px) {
+  .queueGlyph {
+    display: none;
+  }
+}
+
 /* Glass: rounded, hairline-edged cards in sentence case; the picked one ringed in accent. */
 :global(:root[data-skin="glass"]) .queueCard {
   --ring: inset 0 0 0 0.5px rgb(255 255 255 / 0.22);
   border-radius: 22px;
   clip-path: none;
   box-shadow: 0 18px 40px rgb(0 0 0 / 0.3);
-  transition: transform 500ms cubic-bezier(0.2, 1.35, 0.35, 1), box-shadow var(--dur-fast) var(--ease-standard);
+  transition: transform 500ms var(--ease-settle), box-shadow var(--dur-fast) var(--ease-standard);
 }
 
 :global(:root[data-skin="glass"]) .queueCard:hover:not(:disabled) {
@@ -163,14 +175,15 @@
   color: var(--text-3);
 }
 
+/* Spacing shrinks with the window's height, so Leave party stays on screen at 680px tall. */
 .tools {
   display: flex;
   flex-direction: column;
-  gap: var(--space-5);
+  gap: min(var(--space-5), 2vh);
   width: 100%;
   height: 100%;
-  padding: var(--space-5);
-  overflow: auto;
+  padding: min(var(--space-5), 2.6vh) var(--space-5);
+  overflow: hidden auto;
   background: var(--panel);
   box-shadow: inset 0 0 0 1px var(--border-subtle);
 }
@@ -205,6 +218,169 @@
 
 .spacer {
   flex: 1;
+}
+
+/* ---- party tool layouts ---- "panel" is the look above. */
+
+/* Tiles: each tool on its own card, two across; the title and Leave span the width. */
+[data-layout="tiles"] .tools {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(min(100%, 180px), 1fr));
+  align-content: start;
+  gap: var(--space-3);
+  background: none;
+  box-shadow: none;
+  padding: 0;
+}
+
+[data-layout="tiles"] .title,
+[data-layout="tiles"] .tools > :last-child {
+  grid-column: 1 / -1;
+}
+
+[data-layout="tiles"] .block {
+  justify-content: space-between;
+  padding: var(--space-4);
+  background: var(--panel);
+  box-shadow: inset 0 0 0 1px var(--border-subtle);
+}
+
+[data-layout="tiles"] .spacer {
+  display: none;
+}
+
+/* Toolbar: the tools in a row for a wide, short strip; in a narrower piece they wrap into
+   rows, packed at the bottom, instead of squeezing the fields. */
+[data-layout="toolbar"] .tools {
+  flex-flow: row wrap;
+  align-items: flex-end;
+  align-content: flex-end;
+  gap: var(--space-3) var(--space-4);
+  padding: var(--space-3) var(--space-4);
+}
+
+[data-layout="toolbar"] .title,
+[data-layout="toolbar"] .spacer {
+  display: none;
+}
+
+[data-layout="toolbar"] .block {
+  flex: none;
+}
+
+[data-layout="toolbar"] .block :global(.overline) {
+  white-space: nowrap;
+}
+
+[data-layout="toolbar"] .block:has(input) {
+  flex: 1 1 200px;
+}
+
+/* ---- mode card layouts ----
+   The frame sets data-layout; "cards" is the look above. */
+
+/* Banners: wide rows on the mode's art, name and blurb on the left. */
+/* Rows share the piece's height and every card fills its row (a fixed card shape spilled onto
+   the next row in a short piece); too many modes for the room scroll instead of squashing. */
+[data-layout="banners"] .queueGrid {
+  grid-template-columns: repeat(auto-fill, minmax(min(100%, 340px), 1fr));
+  grid-auto-rows: minmax(64px, 1fr);
+  overflow: hidden auto;
+  /* The cards rising in overflow for a moment; the bar only shows when the player points at the
+     list, so the entrance never flashes one. */
+  scrollbar-width: none;
+}
+
+[data-layout="banners"] .queueGrid:hover {
+  scrollbar-width: thin;
+}
+
+[data-layout="banners"] .queueCard {
+  justify-content: center;
+  max-height: 150px;
+  padding: var(--space-3) var(--space-5);
+}
+
+[data-layout="banners"] .queueCard::before {
+  background: linear-gradient(
+    to right,
+    rgb(var(--ground-rgb, 10 10 14) / 0.94) 10%,
+    rgb(var(--ground-rgb, 10 10 14) / 0.45) 55%,
+    transparent 90%
+  );
+}
+
+[data-layout="banners"] .queueArt {
+  object-position: right center;
+}
+
+[data-layout="banners"] .queueName {
+  flex-direction: row;
+  align-items: center;
+}
+
+[data-layout="banners"] .queueLabel {
+  font-size: min(20px, 6cqi);
+}
+
+[data-layout="banners"] .queueBlurb {
+  max-width: 60%;
+}
+
+/* List: compact rows, icon and name with the blurb beside it; no art. */
+[data-layout="list"] .queues {
+  gap: var(--space-3);
+}
+
+[data-layout="list"] .queueGrid {
+  grid-template-columns: 1fr;
+  grid-auto-rows: auto;
+  gap: var(--space-1);
+}
+
+[data-layout="list"] .queueCard {
+  flex-direction: row;
+  align-items: center;
+  justify-content: flex-start;
+  gap: var(--space-4);
+  aspect-ratio: auto;
+  /* Rows here size to their text, which a size container cannot do. */
+  container-type: inline-size;
+  padding: var(--space-2) var(--space-4);
+  clip-path: none;
+}
+
+[data-layout="list"] .queueArt,
+[data-layout="list"] .queueCard::before {
+  display: none;
+}
+
+/* A fixed icon column, so names line up even for modes without an icon. */
+[data-layout="list"] .queueName {
+  flex: none;
+  display: grid;
+  grid-template-columns: 22px minmax(0, 1fr);
+  align-items: center;
+  width: 42%;
+}
+
+[data-layout="list"] .queueLabel {
+  grid-column: 2;
+}
+
+[data-layout="list"] .queueGlyph {
+  width: 22px;
+  height: 22px;
+}
+
+[data-layout="list"] .queueLabel {
+  font-size: 15px;
+}
+
+[data-layout="list"] .queueCard[data-active]::after {
+  inset: 0 auto 0 0;
+  width: 3px;
+  height: auto;
 }
 
 @keyframes rise {

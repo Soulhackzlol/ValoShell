@@ -7,18 +7,21 @@ import { ChevronDown, Copy, Download, Info } from "lucide-solid";
 import type { MatchRow } from "~/bindings/MatchRow";
 import type { PieceProps } from "~/studio/registry";
 import { playCue } from "~/menu/sound";
-import { agentByUpperName } from "~/state/catalog";
+import { topMastery } from "~/state/agents";
+import { agentByUuid } from "~/state/catalog";
 import { party } from "~/state/party";
 import { ownRiotId } from "~/state/session";
 import { pushToast } from "~/state/toasts";
 import { careerView, historyView } from "~/state/views";
 import { Art } from "~/ui/Art";
-import { colorVars, textProp } from "./current";
+import { partyLabel } from "~/ui/stacks";
+import { colorVars } from "./current";
 import { ValProgress } from "./currentProgress";
 import { ValCanvas } from "./valCanvas";
 import { CompetitiveGlyph, DeathmatchGlyph, SpikeGlyph } from "./valIcons";
 import { queueName, valLang } from "./valText";
 import styles from "./currentCareer.module.css";
+import { useOpenMatch } from "~/menu/openMatch";
 
 const PAGE_BACKGROUND = "radial-gradient(ellipse at 50% 30%, #1d2b3a, #172230 60%, #142030)";
 const TABS_ES = ["Trayectoria", "Resumen de rango", "Legado de rango", "Calificación en el mapa", "Méritos"];
@@ -40,14 +43,10 @@ export function ValCareer(props: PieceProps) {
 
 function CareerPage(props: PieceProps) {
   const [tab, setTab] = createSignal(0);
-  const [mode, setMode] = createSignal("all");
   onMount(() => {
     if (!careerView.value() && !careerView.isLoading()) void careerView.load();
     if (!historyView.value() && !historyView.isLoading()) void historyView.load();
   });
-  const self = () => party()?.members.find((member) => member.is_self);
-  const rows = () => (historyView.value()?.rows ?? []).filter((row) => mode() === "all" || row.queue_id === mode());
-  const modes = createMemo(() => [...new Set((historyView.value()?.rows ?? []).map((row) => row.queue_id))]);
   const tabs = () => (valLang() === "es" ? TABS_ES : TABS_EN);
   return (
     <ValCanvas style={{ ...colorVars(props, ["win", "loss", "gold"]), background: PAGE_BACKGROUND }}>
@@ -56,40 +55,8 @@ function CareerPage(props: PieceProps) {
           <i />
           {tabs()[0]}
         </span>
-        <nav class={styles.tabs}>
-          <For each={tabs()}>
-            {(label, index) => (
-              <button
-                class={styles.tab}
-                data-active={tab() === index() ? "" : undefined}
-                onMouseEnter={() => playCue("hover")}
-                onClick={() => {
-                  playCue("tab");
-                  setTab(index());
-                }}
-              >
-                {label}
-              </button>
-            )}
-          </For>
-        </nav>
-        <header class={styles.identity}>
-          <Art src={self()?.card_small} class={styles.identityCard} fallback={<span class={styles.identityCard} />} />
-          <b data-sensitive>{self()?.game_name || ownRiotId()?.name || "—"}</b>
-          <button
-            class={styles.copy}
-            title={say("Copy Riot ID", "Copiar Riot ID")}
-            onClick={() => {
-              const id = ownRiotId();
-              if (!id) return;
-              void navigator.clipboard?.writeText(`${id.name}#${id.tag}`).catch(() => undefined);
-              pushToast("positive", say("Riot ID copied", "Riot ID copiado"), `${id.name}#${id.tag}`);
-            }}
-          >
-            <Copy size={16} strokeWidth={2.4} />
-          </button>
-          <small>{self()?.title ?? ""}</small>
-        </header>
+        <CareerTabs labels={tabs()} active={tab()} onPick={setTab} />
+        <Identity />
         <h3 class={styles.heading} data-col="1">
           {say("Agent mastery", "Maestría de agente")}
         </h3>
@@ -100,38 +67,109 @@ function CareerPage(props: PieceProps) {
           {queueName("competitive", "Competitive")}
           <Info size={16} />
         </h3>
-        <Mastery rows={historyView.value()?.rows ?? []} />
-        <section class={styles.history}>
-          <div class={styles.historyTools}>
-            <label class={styles.modeFilter}>
-              <select value={mode()} onChange={(event) => setMode(event.currentTarget.value)}>
-                <option value="all">{say("All modes", "Todos los modos")}</option>
-                <For each={modes()}>{(id) => <option value={id}>{queueName(id, id)}</option>}</For>
-              </select>
-              <ChevronDown size={16} />
-            </label>
-            <span class={styles.replays}>
-              <i />
-              {say("Show only replay downloads", "Mostrar solo descargas de repeticiones")}
-            </span>
-          </div>
-          <div class={styles.rows}>
-            <Show when={rows().length > 0} fallback={<p class={styles.empty}>{historyView.isLoading() ? say("Loading matches…", "Cargando partidas…") : (historyView.error() ?? say("No matches yet.", "Aún no hay partidas."))}</p>}>
-              <For each={rows()}>{(row) => <HistoryRow row={row} />}</For>
-            </Show>
-          </div>
-        </section>
+        <Mastery />
+        <History />
         <RankCard />
         <h3 class={styles.heading} data-col="premier">
           {say("Premier portal", "Portal de Premier")}
         </h3>
-        <section class={styles.premier}>
-          <b>{textProp(props, "premierTeam", "premierNone")}</b>
-          <small>{stringProp(props, "premierTag")}</small>
-          <PremierMark />
-        </section>
+        <Premier {...props} />
       </div>
     </ValCanvas>
+  );
+}
+
+function CareerTabs(props: { labels: readonly string[]; active: number; onPick: (index: number) => void }) {
+  return (
+    <nav class={styles.tabs}>
+      <For each={props.labels}>
+        {(label, index) => (
+          <button
+            class={styles.tab}
+            data-active={props.active === index() ? "" : undefined}
+            onMouseEnter={() => playCue("hover")}
+            onClick={() => {
+              playCue("tab");
+              props.onPick(index());
+            }}
+          >
+            {label}
+          </button>
+        )}
+      </For>
+    </nav>
+  );
+}
+
+/** Copies the Riot ID; the toast never repeats it, so streamer mode has nothing to blur. */
+async function copyRiotId(): Promise<void> {
+  const id = ownRiotId();
+  if (!id || !navigator.clipboard) return;
+  try {
+    await navigator.clipboard.writeText(`${id.name}#${id.tag}`);
+    pushToast("positive", say("Riot ID copied", "Riot ID copiado"));
+  } catch (error) {
+    console.warn("copy_riot_id_failed", error);
+    pushToast("negative", say("Couldn't copy the Riot ID", "No se pudo copiar el Riot ID"));
+  }
+}
+
+function Identity() {
+  const self = () => party()?.members.find((member) => member.is_self);
+  return (
+    <header class={styles.identity}>
+      <Art src={self()?.card_small} class={styles.identityCard} fallback={<span class={styles.identityCard} />} />
+      <b data-sensitive>{self()?.game_name || ownRiotId()?.name || "—"}</b>
+      <button class={styles.copy} title={say("Copy Riot ID", "Copiar Riot ID")} onClick={() => void copyRiotId()}>
+        <Copy size={16} strokeWidth={2.4} />
+      </button>
+      {/* The title in the client's language, as the game shows it ("Seis, siete"). */}
+      <small>{(valLang() === "es" ? self()?.title_es : self()?.title) ?? self()?.title ?? ""}</small>
+    </header>
+  );
+}
+
+function History() {
+  const [mode, setMode] = createSignal("all");
+  const rows = () => (historyView.value()?.rows ?? []).filter((row) => mode() === "all" || row.queue_id === mode());
+  const modes = createMemo(() => [...new Set((historyView.value()?.rows ?? []).map((row) => row.queue_id))]);
+  const empty = () =>
+    historyView.isLoading()
+      ? say("Loading matches…", "Cargando partidas…")
+      : (historyView.error() ?? say("No matches yet.", "Aún no hay partidas."));
+  return (
+    <section class={styles.history}>
+      <div class={styles.historyTools}>
+        <label class={styles.modeFilter}>
+          <select value={mode()} onChange={(event) => setMode(event.currentTarget.value)}>
+            <option value="all">{say("All modes", "Todos los modos")}</option>
+            <For each={modes()}>{(id) => <option value={id}>{queueName(id, id)}</option>}</For>
+          </select>
+          <ChevronDown size={16} />
+        </label>
+        <span class={styles.replays}>
+          <i />
+          {say("Show only replay downloads", "Mostrar solo descargas de repeticiones")}
+        </span>
+      </div>
+      <div class={styles.rows}>
+        <Show when={rows().length > 0} fallback={<p class={styles.empty}>{empty()}</p>}>
+          <For each={rows()}>{(row) => <HistoryRow row={row} />}</For>
+        </Show>
+      </div>
+    </section>
+  );
+}
+
+/** Your real team; the piece's own text, when set, replaces it. */
+function Premier(props: PieceProps) {
+  const team = () => careerView.value()?.premier;
+  return (
+    <section class={styles.premier}>
+      <b data-sensitive>{stringProp(props, "premierTeam") || team()?.name || say("No team", "Sin equipo")}</b>
+      <small data-sensitive>{stringProp(props, "premierTag") || (team() ? `#${team()?.tag}` : "")}</small>
+      <PremierMark />
+    </section>
   );
 }
 
@@ -141,8 +179,13 @@ function stringProp(props: PieceProps, key: string): string {
 }
 
 function HistoryRow(props: { row: MatchRow }) {
+  const { rowProps } = useOpenMatch();
   const won = () => props.row.result === "victory";
-  const rankIcon = () => (props.row.queue_id === "competitive" ? careerView.value()?.updates.find((update) => update.match_id === props.row.match_id)?.rank_after.icon : null);
+  const rankIcon = () => {
+    if (props.row.queue_id !== "competitive") return null;
+    const update = careerView.value()?.updates.find((entry) => entry.match_id === props.row.match_id);
+    return update?.rank_after.icon ?? null;
+  };
   const verdict = () => {
     if (props.row.placement !== null) return say(`Place #${props.row.placement}`, `Puesto #${props.row.placement}`);
     if (props.row.result === "draw") return say("Draw", "Empate");
@@ -154,7 +197,7 @@ function HistoryRow(props: { row: MatchRow }) {
     return "";
   };
   return (
-    <article class={styles.row} data-won={won() ? "" : undefined} onMouseEnter={() => playCue("hover")}>
+    <article {...rowProps(props.row.match_id)} class={styles.row} data-won={won() ? "" : undefined} onMouseEnter={() => playCue("hover")}>
       <Show when={props.row.map_splash}>{(splash) => <img class={styles.rowMap} src={splash()} alt="" draggable={false} />}</Show>
       <Art src={props.row.agent_icon} class={styles.rowAgent} fallback={<span class={styles.rowAgent} />} />
       <span class={styles.rowMode}>
@@ -172,7 +215,11 @@ function HistoryRow(props: { row: MatchRow }) {
         </Show>
       </span>
       <span class={styles.rowStats}>
-        <small>{props.row.map_name}</small>
+        <small>
+          {props.row.map_name}
+          {/* Who you queued with that night: "Ascent · Duo". */}
+          <Show when={partyLabel(props.row.party_size)}>{(party) => <> · {party()}</>}</Show>
+        </small>
         <b>
           {props.row.kills} / {props.row.deaths} / {props.row.assists}
         </b>
@@ -208,18 +255,14 @@ function ModeGlyph(props: { queue: string }) {
   return <SpikeGlyph size={40} />;
 }
 
-/** The three agents you played most lately, as the client's mastery cards. */
-function Mastery(props: { rows: readonly MatchRow[] }) {
-  const top = createMemo(() => {
-    const counts = new Map<string, number>();
-    for (const row of props.rows) if (row.agent_name) counts.set(row.agent_name, (counts.get(row.agent_name) ?? 0) + 1);
-    return [...counts.entries()].sort((a, b) => b[1] - a[1]).slice(0, MASTERY_SHOWN);
-  });
+/** Your three most mastered agents with their real mastery level, as the client's cards. */
+function Mastery() {
+  const top = () => topMastery(MASTERY_SHOWN);
   return (
     <div class={styles.mastery}>
       <For each={top()}>
-        {([name, games]) => {
-          const agent = () => agentByUpperName(name.toUpperCase());
+        {(row) => {
+          const agent = () => agentByUuid(row.agent_uuid);
           const tint = () => agent()?.colors[1] ?? "#3a4656";
           return (
             <article class={styles.masteryCard} style={{ "--tint": tint() }}>
@@ -227,14 +270,14 @@ function Mastery(props: { rows: readonly MatchRow[] }) {
                 <Art src={agent()?.portrait} class={styles.masteryPortrait} fallback={<span />} />
               </span>
               <footer>
-                <span class={styles.masteryLevel}>
+                <span class={styles.masteryLevel} title={say("Mastery level", "Nivel de maestría")}>
                   <svg viewBox="0 0 50 50" aria-hidden="true">
                     <path d="M25 4 L31 10 M25 4 L19 10 M25 46 L31 40 M25 46 L19 40 M4 25 L10 19 M4 25 L10 31 M46 25 L40 19 M46 25 L40 31" />
                     <path d="M25 11 L39 25 L25 39 L11 25 Z" />
                   </svg>
-                  <b>{games}</b>
+                  <b>{row.lifetime_level}</b>
                 </span>
-                <h4>{name}</h4>
+                <h4>{agent()?.display_name ?? ""}</h4>
               </footer>
             </article>
           );

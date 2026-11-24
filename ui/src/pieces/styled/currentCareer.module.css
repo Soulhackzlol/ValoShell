@@ -4,7 +4,7 @@
   position: absolute;
   inset: 0;
   font-family: var(--font-din);
-  color: #ece8e1;
+  color: var(--current-ink, #ece8e1);
 }
 
 .crumb {
@@ -17,13 +17,13 @@
   font-size: 14px;
   letter-spacing: 0.6px;
   text-transform: uppercase;
-  color: rgb(236 232 225 / 0.8);
+  color: color-mix(in srgb, var(--current-ink, #ece8e1) 80%, transparent);
 }
 
 .crumb i {
   width: 8px;
   height: 9px;
-  background: rgb(236 232 225 / 0.5);
+  background: color-mix(in srgb, var(--current-line, #ece8e1) 50%, transparent);
   clip-path: polygon(0 0, 100% 50%, 0 100%);
 }
 
@@ -44,11 +44,11 @@
   font-weight: 500;
   letter-spacing: 0.4px;
   text-transform: uppercase;
-  color: rgb(236 232 225 / 0.92);
+  color: color-mix(in srgb, var(--current-ink, #ece8e1) 92%, transparent);
 }
 
 .tab:hover {
-  color: #ffffff;
+  color: var(--current-bright, #ffffff);
 }
 
 .tab::after {
@@ -58,13 +58,13 @@
   right: 12px;
   bottom: -1px;
   height: 2px;
-  background: #ece8e1;
+  background: var(--current-line, #ece8e1);
   opacity: 0;
   transition: opacity 140ms ease;
 }
 
 .tab[data-active] {
-  color: #ffffff;
+  color: var(--current-bright, #ffffff);
 }
 
 .tab[data-active]::after {
@@ -89,8 +89,8 @@
   width: 51px;
   height: 50px;
   object-fit: cover;
-  background: #2a3540;
-  box-shadow: 0 0 0 1px rgb(236 232 225 / 0.5);
+  background: var(--current-tile, #2a3540);
+  box-shadow: 0 0 0 1px color-mix(in srgb, var(--current-line, #ece8e1) 50%, transparent);
 }
 
 .identity b {
@@ -105,14 +105,14 @@
   place-items: center;
   margin-left: -6px;
   padding: 0;
-  color: #ece8e1;
+  color: var(--current-ink, #ece8e1);
 }
 
 .identity small {
   grid-column: 2 / 4;
   font-size: 14px;
   letter-spacing: 0.4px;
-  color: rgb(236 232 225 / 0.6);
+  color: color-mix(in srgb, var(--current-ink, #ece8e1) 60%, transparent);
 }
 
 /* ---- section headings ---- */
@@ -128,7 +128,7 @@
   font-weight: 500;
   letter-spacing: 0.4px;
   text-transform: uppercase;
-  border-bottom: 1px solid rgb(236 232 225 / 0.2);
+  border-bottom: 1px solid color-mix(in srgb, var(--current-line, #ece8e1) 20%, transparent);
 }
 
 .heading[data-col="1"] {
@@ -171,8 +171,12 @@
   position: relative;
   height: 240px;
   overflow: hidden;
-  background: linear-gradient(to bottom, color-mix(in srgb, var(--tint) 45%, #0f1923), color-mix(in srgb, var(--tint) 70%, #0f1923));
-  box-shadow: inset 0 0 0 1px rgb(236 232 225 / 0.18);
+  background: linear-gradient(
+    to bottom,
+    color-mix(in srgb, var(--tint) 45%, var(--current-panel, #0f1923)),
+    color-mix(in srgb, var(--tint) 70%, var(--current-panel, #0f1923))
+  );
+  box-shadow: inset 0 0 0 1px color-mix(in srgb, var(--current-line, #ece8e1) 18%, transparent);
 }
 
 .masteryArt {
@@ -217,7 +221,7 @@
 }
 
 .masteryLevel svg path {
-  fill: rgb(15 25 35 / 0.5);
+  fill: color-mix(in srgb, var(--current-panel, #0f1923) 50%, transparent);
   stroke: #f2c06b;
   stroke-width: 2.4;
 }
@@ -247,7 +251,7 @@
   top: 182px;
   width: 858px;
   height: 752px;
-  background: rgb(15 25 35 / 0.35);
+  background: color-mix(in srgb, var(--current-panel, #0f1923) 35%, transparent);
 }
 
 .historyTools {
@@ -276,17 +280,18 @@
   font: inherit;
   font-size: 11.5px;
   text-transform: uppercase;
-  color: #ece8e1;
+  color: var(--current-ink, #ece8e1);
   background: transparent;
   cursor: pointer;
 }
 
-.modeFilter select:focus {
+/* No ring for a mouse click; the keyboard keeps the global :focus-visible ring. */
+.modeFilter select:focus:not(:focus-visible) {
   outline: none;
 }
 
 .modeFilter option {
-  color: #ece8e1;
+  color: var(--current-ink, #ece8e1);
   background: #1b2733;
 }
 
@@ -308,9 +313,9 @@
 .replays i {
   width: 42px;
   height: 18px;
-  background: rgb(236 232 225 / 0.15);
+  background: color-mix(in srgb, var(--current-line, #ece8e1) 15%, transparent);
   clip-path: polygon(0 50%, 18% 0, 82% 0, 100% 50%, 82% 100%, 18% 100%);
-  box-shadow: inset 0 0 0 2px #ece8e1;
+  box-shadow: inset 0 0 0 2px var(--current-line, #ece8e1);
 }
 
 .rows {
@@ -321,17 +326,17 @@
   padding: 3px 20px 0 5px;
   overflow-y: auto;
   scrollbar-width: thin;
-  scrollbar-color: #ece8e1 transparent;
+  scrollbar-color: var(--current-line, #ece8e1) transparent;
 }
 
 .empty {
   padding: 30px;
   font-size: 14px;
-  color: rgb(236 232 225 / 0.6);
+  color: color-mix(in srgb, var(--current-ink, #ece8e1) 60%, transparent);
 }
 
 .row {
-  --tone: var(--val-loss, rgb(255 70 85));
+  --tone: var(--val-loss, var(--current-red, #ff4655));
   position: relative;
   flex: none;
   display: grid;
@@ -340,7 +345,12 @@
   height: 75px;
   padding-right: 4px;
   overflow: hidden;
-  background: linear-gradient(to right, color-mix(in srgb, var(--tone) 34%, #142030), color-mix(in srgb, var(--tone) 22%, #142030) 70%, color-mix(in srgb, var(--tone) 14%, #142030));
+  background: linear-gradient(
+    to right,
+    color-mix(in srgb, var(--tone) 34%, var(--current-panel, #142030)),
+    color-mix(in srgb, var(--tone) 22%, var(--current-panel, #142030)) 70%,
+    color-mix(in srgb, var(--tone) 14%, var(--current-panel, #142030))
+  );
   box-shadow: inset 3px 0 0 var(--tone);
 }
 
@@ -379,7 +389,7 @@
   flex-direction: column;
   align-items: center;
   gap: 2px;
-  color: #ece8e1;
+  color: var(--current-ink, #ece8e1);
 }
 
 .rowRank {
@@ -403,7 +413,7 @@
   font-size: 12.5px;
   letter-spacing: 0.4px;
   text-transform: uppercase;
-  color: rgb(236 232 225 / 0.6);
+  color: color-mix(in srgb, var(--current-ink, #ece8e1) 60%, transparent);
 }
 
 .rowStats b {
@@ -419,7 +429,7 @@
   font-style: normal;
   letter-spacing: 0.4px;
   text-transform: uppercase;
-  color: rgb(236 232 225 / 0.6);
+  color: color-mix(in srgb, var(--current-ink, #ece8e1) 60%, transparent);
   background: rgb(0 0 0 / 0.2);
 }
 
@@ -445,7 +455,7 @@
 .rowResult small {
   font-size: 13px;
   letter-spacing: 1px;
-  color: rgb(236 232 225 / 0.75);
+  color: color-mix(in srgb, var(--current-ink, #ece8e1) 75%, transparent);
 }
 
 .rowMvp {
@@ -460,7 +470,7 @@
   letter-spacing: 0.4px;
   text-align: right;
   text-transform: uppercase;
-  color: var(--val-gold, rgb(236 196 108));
+  color: var(--val-gold, var(--current-gold, #ecc46c));
 }
 
 .rowDownload {
@@ -471,9 +481,9 @@
   width: 31px;
   height: 62px;
   padding: 0;
-  color: #ece8e1;
-  background: rgb(15 25 35 / 0.55);
-  box-shadow: inset 0 0 0 1px rgb(236 232 225 / 0.6);
+  color: var(--current-ink, #ece8e1);
+  background: color-mix(in srgb, var(--current-panel, #0f1923) 55%, transparent);
+  box-shadow: inset 0 0 0 1px color-mix(in srgb, var(--current-line, #ece8e1) 60%, transparent);
 }
 
 .rowDownload:disabled {
@@ -492,13 +502,13 @@
   height: 530px;
   overflow: hidden;
   background: radial-gradient(ellipse at 50% 40%, rgb(30 90 80), rgb(14 50 48) 70%);
-  box-shadow: inset 0 0 0 1px rgb(236 232 225 / 0.18);
+  box-shadow: inset 0 0 0 1px color-mix(in srgb, var(--current-line, #ece8e1) 18%, transparent);
 }
 
 .rankFrame {
   position: absolute;
   inset: 70px 40px 60px;
-  border: solid rgb(236 232 225 / 0.08);
+  border: solid color-mix(in srgb, var(--current-line, #ece8e1) 8%, transparent);
   border-width: 0 2px;
   clip-path: polygon(0 10%, 8% 0, 92% 0, 100% 10%, 100% 90%, 92% 100%, 8% 100%, 0 90%);
 }
@@ -529,14 +539,14 @@
   top: 354px;
   width: 200px;
   height: 3px;
-  background: rgb(236 232 225 / 0.25);
+  background: color-mix(in srgb, var(--current-line, #ece8e1) 25%, transparent);
 }
 
 .rankBar i {
   position: absolute;
   inset: 0 auto 0 0;
   width: var(--rr);
-  background: rgb(36 255 198);
+  background: var(--current-teal, #24ffc6);
 }
 
 .rankRr {
@@ -552,7 +562,14 @@
   bottom: 58px;
   width: 116px;
   height: 2px;
-  background: linear-gradient(to right, #ece8e1 6px, transparent 6px 12px, rgb(236 232 225 / 0.4) 12px calc(100% - 12px), transparent calc(100% - 12px) calc(100% - 6px), #ece8e1 calc(100% - 6px));
+  background: linear-gradient(
+    to right,
+    var(--current-line, #ece8e1) 6px,
+    transparent 6px 12px,
+    color-mix(in srgb, var(--current-line, #ece8e1) 40%, transparent) 12px calc(100% - 12px),
+    transparent calc(100% - 12px) calc(100% - 6px),
+    var(--current-line, #ece8e1) calc(100% - 6px)
+  );
   transform: translateX(-50%);
 }
 
@@ -569,7 +586,7 @@
   padding-left: 20px;
   overflow: hidden;
   background: linear-gradient(110deg, #1c1e22 55%, #2a2620);
-  box-shadow: inset 0 0 0 1px rgb(236 232 225 / 0.18);
+  box-shadow: inset 0 0 0 1px color-mix(in srgb, var(--current-line, #ece8e1) 18%, transparent);
 }
 
 .premier b {
@@ -580,7 +597,7 @@
 
 .premier small {
   font-size: 13px;
-  color: rgb(236 232 225 / 0.5);
+  color: color-mix(in srgb, var(--current-ink, #ece8e1) 50%, transparent);
 }
 
 .premierMark {

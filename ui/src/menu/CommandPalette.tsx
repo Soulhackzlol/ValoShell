@@ -5,8 +5,11 @@ import { For, Show, createMemo, createSignal, onCleanup, onMount } from "solid-j
 import { Portal } from "solid-js/web";
 import { useNavigate } from "@solidjs/router";
 import { ArrowRight, Search } from "lucide-solid";
+import { openDirectChat } from "~/state/chat";
+import { openTour } from "~/state/onboarding";
 import { friends } from "~/state/friends";
 import { party, partyActions } from "~/state/party";
+import { copyPartyCode } from "~/state/partyCode";
 import { SKINS } from "~/studio/skins";
 import { doc, isEditing, setEditMode } from "~/studio/store";
 import { switchSkin } from "~/studio/shortcuts";
@@ -22,6 +25,8 @@ interface Entry {
   group: string;
   title: string;
   hint?: string;
+  /** The title is a player's name: blurred in streamer mode. */
+  isSensitive?: boolean;
   run: () => void;
 }
 
@@ -50,18 +55,33 @@ function useEntries(): () => Entry[] {
     }
     if (view) {
       if (view.is_queueing) entries.push({ id: "cancel", group: "Party", title: "Cancel search", run: () => void partyActions.stopQueue() });
-      else if (view.is_owner) entries.push({ id: "start", group: "Party", title: `Find match · ${view.queue.label}`, run: () => void partyActions.startQueue() });
+      else if (view.is_owner) {
+        const title = view.is_custom_game ? "Start custom game" : `Find match · ${view.queue.label}`;
+        entries.push({ id: "start", group: "Party", title, run: () => void partyActions.start() });
+      }
       const self = view.members.find((member) => member.is_self);
       if (!view.is_owner && self) entries.push({ id: "ready", group: "Party", title: self.is_ready ? "Not ready" : "Ready up", run: () => void partyActions.setReady(!self.is_ready) });
       if (view.is_owner) entries.push({ id: "access", group: "Party", title: view.is_open ? "Close party" : "Open party", run: () => void partyActions.setOpen(!view.is_open) });
-      entries.push({ id: "code", group: "Party", title: "Party code", hint: view.invite_code ?? "Generate", run: () => void partyActions.generateCode() });
+      // The hint never shows the code itself: the palette is on screen, and a code lets anyone join.
+      const code = view.invite_code;
+      entries.push({
+        id: "code",
+        group: "Party",
+        title: "Party code",
+        hint: code ? "Copy" : "Create",
+        run: () => void (code ? copyPartyCode(code) : partyActions.generateCode()),
+      });
       if (view.members.length > 1) entries.push({ id: "leave", group: "Party", title: "Leave party", run: () => void partyActions.leave() });
     }
     for (const friend of friends()) {
       if (friend.status !== "menus" && friend.status !== "queueing") continue;
       if (view?.members.some((member) => member.puuid === friend.puuid)) continue;
       const riotId = `${friend.game_name}#${friend.tag_line}`;
-      entries.push({ id: `invite-${friend.puuid}`, group: "Invite", title: riotId, hint: "Invite to party", run: () => void partyActions.invite(riotId) });
+      entries.push({ id: `invite-${friend.puuid}`, group: "Invite", title: riotId, hint: "Invite to party", isSensitive: true, run: () => void partyActions.invite(riotId) });
+    }
+    for (const friend of friends()) {
+      const riotId = `${friend.game_name}#${friend.tag_line}`;
+      entries.push({ id: `message-${friend.puuid}`, group: "Message", title: riotId, hint: "Whisper", isSensitive: true, run: () => openDirectChat(friend.puuid) });
     }
     for (const skin of SKINS) {
       if (skin.id === doc.theme.skin) continue;
@@ -70,6 +90,7 @@ function useEntries(): () => Entry[] {
     entries.push(
       { id: "studio", group: "App", title: isEditing() ? "Close Studio" : "Open Studio", hint: "Ctrl+E", run: () => setEditMode(!isEditing()) },
       { id: "intro", group: "App", title: "Replay intro", hint: "F9", run: replayIntro },
+      { id: "tour", group: "App", title: "Welcome tour", hint: "Styles, comfort, privacy, keys", run: openTour },
       { id: "settings", group: "App", title: "Settings", hint: "Esc", run: openEscMenu },
     );
     return entries;
@@ -167,7 +188,9 @@ export function CommandPalette() {
                   onClick={() => runEntry(entry)}
                 >
                   <span class={styles.group}>{entry.group}</span>
-                  <span class={styles.title}>{entry.title}</span>
+                  <span class={styles.title} data-sensitive={entry.isSensitive ? "" : undefined}>
+                    {entry.title}
+                  </span>
                   <Show when={entry.hint}>
                     <span class={styles.hint}>{entry.hint}</span>
                   </Show>

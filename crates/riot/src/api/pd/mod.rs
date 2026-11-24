@@ -16,6 +16,7 @@ pub mod mmr;
 pub mod names;
 pub mod offer;
 pub mod penalties;
+pub mod premier;
 pub mod store;
 pub mod wallet;
 

@@ -1,0 +1,157 @@
+/* Phantom home looks: Persona 5's red, black and white. Cut-out words on black paper leaning by
+   hand, a red slash torn out behind the hovered one, cards clipped to jagged edges. */
+
+.play,
+.card {
+  --red: var(--phantom-red, #e5191c);
+  --ink: var(--phantom-ink, #0b0b0b);
+  --paper: var(--phantom-paper, #ffffff);
+  container-type: size;
+  width: 100%;
+  height: 100%;
+  color: var(--paper);
+}
+
+.play {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+  justify-content: center;
+  gap: 6px;
+}
+
+.word {
+  position: relative;
+  isolation: isolate;
+  padding: 0.05em 0.4em 0.1em;
+  border: 0;
+  font-family: var(--font-display);
+  font-size: clamp(32px, 58cqh, 110px);
+  line-height: 0.92;
+  text-transform: uppercase;
+  color: var(--paper);
+  background: var(--ink);
+  transform: rotate(-4deg) skewX(-8deg);
+  cursor: pointer;
+}
+
+/* The red slash behind the word, torn in on hover. */
+.word::before {
+  content: "";
+  position: absolute;
+  inset: 18% -6%;
+  z-index: -1;
+  background: var(--theme-play, var(--red));
+  clip-path: polygon(0 30%, 100% 0, 96% 70%, 4% 100%);
+  opacity: 0;
+  transform: scaleX(0.6);
+  transition:
+    opacity 120ms ease,
+    transform 180ms cubic-bezier(0.2, 1.6, 0.4, 1);
+}
+
+.word:hover:not(:disabled)::before,
+.word:focus-visible::before {
+  opacity: 1;
+  transform: scaleX(1);
+}
+
+.word:hover:not(:disabled),
+.word:focus-visible {
+  outline: none;
+  color: var(--ink);
+  background: var(--paper);
+}
+
+.word:disabled {
+  opacity: 0.45;
+  cursor: default;
+}
+
+.tag {
+  padding: 1px 8px;
+  font-family: var(--font-display);
+  font-size: 14px;
+  text-transform: uppercase;
+  color: var(--ink);
+  background: var(--paper);
+  transform: rotate(-2deg);
+}
+
+/* ---- the calling card: jagged black paper with a red edge ---- */
+
+.card {
+  display: flex;
+  align-items: center;
+  gap: 14px;
+  padding: 12px 18px;
+  background: var(--ink);
+  box-shadow: inset 0 0 0 3px var(--red);
+  clip-path: polygon(0 6%, 97% 0, 100% 88%, 3% 100%);
+}
+
+.emblem,
+.portrait {
+  flex: none;
+  width: clamp(48px, 62cqh, 110px);
+  aspect-ratio: 1;
+  object-fit: contain;
+  transform: rotate(-6deg);
+}
+
+.portrait {
+  object-fit: cover;
+  border: 3px solid var(--paper);
+}
+
+.body {
+  display: flex;
+  flex: 1;
+  flex-direction: column;
+  align-items: flex-start;
+  gap: 6px;
+  min-width: 0;
+}
+
+.stat {
+  font-family: var(--font-display);
+  font-size: clamp(18px, 24cqh, 34px);
+  text-transform: uppercase;
+  transform: rotate(-3deg);
+}
+
+/* The gauge as a red bar on white paper, slanted like the battle HUD's. */
+.gauge {
+  width: 100%;
+  height: 10px;
+  background: linear-gradient(90deg, var(--red) calc(var(--progress) * 100%), var(--paper) 0);
+  transform: skewX(-20deg);
+}
+
+.ransom {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 2px;
+}
+
+.letter {
+  padding: 0 4px;
+  font-family: var(--font-display);
+  font-size: clamp(16px, 22cqh, 30px);
+  text-transform: uppercase;
+  color: var(--ink);
+  background: var(--paper);
+  transform: rotate(var(--tilt));
+}
+
+.letter[data-alt] {
+  color: var(--paper);
+  background: var(--red);
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .word::before {
+    transition: opacity 120ms ease;
+    transform: none;
+  }
+}

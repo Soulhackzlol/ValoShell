@@ -1,0 +1,167 @@
+/* Pip-Boy barter screen (pipboyStore.tsx): one phosphor green on near-black, uppercase mono,
+   faint scanlines, the picked row inverted to solid green like Fallout's lists. Only colour
+   changes on hover, so nothing moves under the pointer. */
+
+.barter {
+  --green: var(--pipboy-green, #1aff80);
+  --dim: color-mix(in srgb, var(--green) 45%, transparent);
+  --ink: #021a0c;
+  container-type: size;
+  display: grid;
+  grid-template-rows: auto minmax(0, 1fr) auto;
+  gap: 10px;
+  width: 100%;
+  height: 100%;
+  padding: 12px 16px;
+  font-family: var(--font-mono);
+  font-size: 13px;
+  color: var(--green);
+  background:
+    repeating-linear-gradient(to bottom, rgb(0 0 0 / 0.18) 0 1px, transparent 1px 3px),
+    radial-gradient(ellipse at 50% 40%, rgb(10 40 22 / 0.95), rgb(2 10 5 / 0.97));
+  text-shadow: 0 0 6px color-mix(in srgb, var(--green) 45%, transparent);
+}
+
+/* ---- tabs: [ DAILY ]  BUNDLE  NIGHT MKT ---- */
+
+.tabs {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 4px 18px;
+  padding-bottom: 6px;
+  box-shadow: inset 0 -1px 0 var(--dim);
+}
+
+.tab {
+  min-height: 36px;
+  padding: 0 4px;
+  border: 0;
+  font: inherit;
+  font-size: clamp(13px, 2.4cqh, 16px);
+  letter-spacing: 0.12em;
+  color: var(--dim);
+  background: none;
+  cursor: pointer;
+  transition: color 120ms ease;
+}
+
+.tab:hover,
+.tab[aria-selected="true"] {
+  color: var(--green);
+}
+
+.tab[aria-selected="true"]::before {
+  content: "[ ";
+}
+
+.tab[aria-selected="true"]::after {
+  content: " ]";
+}
+
+/* ---- list beside the picked item ---- */
+
+.body {
+  display: grid;
+  grid-template-columns: minmax(0, 1.1fr) minmax(0, 0.9fr);
+  gap: 18px;
+  min-height: 0;
+}
+
+.list {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+  min-height: 0;
+  margin: 0;
+  padding: 0;
+  overflow: hidden auto;
+  list-style: none;
+  scrollbar-width: thin;
+}
+
+.row {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+  min-height: 36px;
+  padding: 0 10px;
+  font-size: clamp(13px, 2.6cqh, 17px);
+  outline: none;
+  cursor: default;
+  transition:
+    color 80ms linear,
+    background-color 80ms linear;
+}
+
+.row[data-on] {
+  color: var(--ink);
+  background: var(--green);
+  text-shadow: none;
+}
+
+.rowName {
+  overflow: hidden;
+  white-space: nowrap;
+  text-overflow: ellipsis;
+}
+
+.detail {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+  min-height: 0;
+}
+
+/* Any skin's colours become the screen's one green, the way the Pip-Boy shows every item. */
+.art {
+  flex: 1;
+  width: 100%;
+  min-height: 0;
+  object-fit: contain;
+  filter: grayscale(1) sepia(1) hue-rotate(85deg) saturate(5) brightness(0.95)
+    drop-shadow(0 0 8px color-mix(in srgb, var(--green) 40%, transparent));
+}
+
+.stats {
+  display: grid;
+  grid-template-columns: auto 1fr;
+  margin: 0;
+}
+
+.stats > dt,
+.stats > dd {
+  margin: 0;
+  padding: 5px 8px;
+  box-shadow: inset 0 -1px 0 color-mix(in srgb, var(--green) 20%, transparent);
+}
+
+.stats > dt {
+  color: var(--dim);
+}
+
+.stats > dd {
+  text-align: right;
+}
+
+.bar {
+  display: flex;
+  justify-content: space-between;
+  gap: 12px;
+  padding: 6px 8px;
+  font-size: 11px;
+  letter-spacing: 0.08em;
+  color: var(--ink);
+  background: var(--dim);
+  text-shadow: none;
+}
+
+@container (max-width: 520px) {
+  .body {
+    grid-template-columns: minmax(0, 1fr);
+  }
+
+  .detail {
+    display: none;
+  }
+}

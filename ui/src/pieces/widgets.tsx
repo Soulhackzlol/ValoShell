@@ -1,6 +1,6 @@
 // Free widgets anyone can drop on any stage: text, clock, image/GIF, video, web embed
 // (TikTok, YouTube, Twitch, Spotify, any site) and the live match score.
-import { Match, Show, Switch, createResource, createSignal, onCleanup } from "solid-js";
+import { Index, Match, Show, Switch, createResource, createSignal, onCleanup } from "solid-js";
 import { call } from "~/ipc/commands";
 import { isTauri } from "~/ipc/runtime";
 import { blockedReason, embedSource, embedUrl, isShortLink } from "~/studio/embeds";
@@ -31,24 +31,48 @@ const FONT_VARS: Record<string, string> = {
   mono: "var(--font-mono)",
 };
 
+/** Text effects that animate each letter on its own, so the text is split into letters. */
+const PER_LETTER_EFFECTS = new Set(["wave"]);
+
+function TextBody(props: { content: string; effect: string }) {
+  return (
+    <Show when={PER_LETTER_EFFECTS.has(props.effect)} fallback={<span data-text={props.content}>{props.content}</span>}>
+      <span aria-label={props.content}>
+        <Index each={[...props.content]}>
+          {(letter, index) => (
+            <span class={styles.letter} style={{ "--i": index }} aria-hidden="true">
+              {letter()}
+            </span>
+          )}
+        </Index>
+      </span>
+    </Show>
+  );
+}
+
 export function TextWidget(props: PieceProps) {
+  const content = () => text(props, "text", "Your text");
+  const effect = () => text(props, "effect", "none");
   return (
     <div class={looks.frame}>
       <div
         class={styles.text}
+        data-effect={effect()}
         style={{
           // Never taller than the box, so shrinking the piece shrinks the text instead of clipping it.
           "font-size": `min(${number(props, "size", 48)}px, 92cqh)`,
           "font-weight": text(props, "weight", "800"),
           "text-align": text(props, "align", "left") as "left" | "center" | "right",
           "justify-content": { left: "flex-start", center: "center", right: "flex-end" }[text(props, "align", "left")] ?? "flex-start",
-          color: text(props, "color") || "var(--text-1)",
+          // Effects (outline, gradient, neon) paint with the colour, so it is a variable they share.
+          "--ink": text(props, "color") || "var(--text-1)",
+          "--chars": [...content()].length,
           "font-family": FONT_VARS[text(props, "font", "display")] ?? "var(--font-display)",
           "text-transform": flag(props, "isUppercase", true) ? "uppercase" : "none",
           "text-shadow": flag(props, "hasShadow", true) ? "0 4px 24px rgb(0 0 0 / 0.55)" : "none",
         }}
       >
-        <span>{text(props, "text", "Your text")}</span>
+        <TextBody content={content()} effect={effect()} />
       </div>
     </div>
   );
@@ -168,6 +192,9 @@ export function WebWidget(props: PieceProps) {
               title={embedSource(target())}
               allow="autoplay; encrypted-media; picture-in-picture; clipboard-write"
               referrerpolicy="strict-origin-when-cross-origin"
+              // Players run it, but it is a stranger's page (a shared look can carry it): it may
+              // script and play, never navigate the app or open windows.
+              sandbox="allow-scripts allow-same-origin allow-presentation"
               style={{ "pointer-events": props.isEditing || !flag(props, "isInteractive", true) ? "none" : "auto" }}
             />
           </div>
@@ -177,14 +204,22 @@ export function WebWidget(props: PieceProps) {
   );
 }
 
-/** Open a link in the browser (the system one inside the app). */
-export async function openExternal(url: string): Promise<void> {
+/** Open a link in the browser (the system one inside the app); false when it did not open,
+ * so callers that depend on it (sharing a look) can say so. */
+export async function openExternal(url: string): Promise<boolean> {
   if (!isTauri) {
+    // With `noopener` the result is always null, so a blocked tab cannot be told apart.
     window.open(url, "_blank", "noopener");
-    return;
+    return true;
   }
   const { openUrl } = await import("@tauri-apps/plugin-opener");
-  await openUrl(url).catch(() => undefined);
+  try {
+    await openUrl(url);
+    return true;
+  } catch (error) {
+    console.warn("open_external_failed", url, error);
+    return false;
+  }
 }
 
 export function MatchScoreWidget(props: PieceProps) {

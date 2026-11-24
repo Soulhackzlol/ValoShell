@@ -4,7 +4,7 @@
 import { For, Show, createEffect, on, type JSX } from "solid-js";
 import { A, useLocation } from "@solidjs/router";
 import { Paintbrush, Search, Settings, Users } from "lucide-solid";
-import { magnetic, pointerGlow, pop, roll, stretch } from "~/pieces/styled/glassMotion";
+import { pointerGlow, pop, roll, stretch } from "~/pieces/styled/glassMotion";
 import { KcCoin, RpCoin, VpCoin } from "~/pieces/styled/valIcons";
 import { isDrawerOpen, onlineCount, setDrawerOpen } from "~/state/friends";
 import { party } from "~/state/party";
@@ -30,8 +30,8 @@ export function GlassNav() {
   createEffect(on(index, (next, previous) => previous !== undefined && previous >= 0 && next >= 0 && stretch(thumb, next - previous), { defer: true }));
   createEffect(on(onlineCount, () => pop(badge, 1.4), { defer: true }));
   return (
-    <header class={styles.nav} data-part="nav" data-tauri-drag-region>
-      <div ref={(element) => pointerGlow(element)} class={styles.capsule} data-tauri-drag-region>
+    <header class={styles.nav} data-part="nav">
+      <div ref={(element) => pointerGlow(element)} class={styles.capsule}>
         <span class={styles.glare} aria-hidden="true" />
         <span class={styles.avatar}>
           <Art src={self()?.card_small ?? null} class={styles.avatarImage} fallback={<span class={styles.avatarEmpty} />} />
@@ -66,7 +66,7 @@ export function GlassNav() {
             <i /> Live
           </A>
         </Show>
-        <button ref={(element) => magnetic(element, 0.2)} class={styles.search} onMouseEnter={() => playCue("hover")} onClick={openCommandPalette}>
+        <button class={styles.search} onMouseEnter={() => playCue("hover")} onClick={openCommandPalette}>
           <Search size={15} />
           <span>Search</span>
           <kbd>Ctrl K</kbd>

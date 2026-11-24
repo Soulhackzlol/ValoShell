@@ -1,0 +1,139 @@
+/* Fortnite: see-through navy panels, heavy Anton caps, the yellow button with a pressed edge.
+   Layout comes from matchBase.module.css (screenBase / resultsBase for the other screens);
+   these rules are this style's material. */
+
+.pick {
+  composes: pick from "./matchBase.module.css";
+}
+
+.head {
+  composes: head from "./matchBase.module.css";
+}
+
+.hero {
+  composes: hero from "./matchBase.module.css";
+}
+
+.heroArt {
+  composes: heroArt from "./matchBase.module.css";
+}
+
+.heroName {
+  composes: heroName from "./matchBase.module.css";
+}
+
+.heroRole {
+  composes: heroRole from "./matchBase.module.css";
+}
+
+.roster {
+  composes: roster from "./matchBase.module.css";
+}
+
+.group {
+  composes: group from "./matchBase.module.css";
+}
+
+.groupName {
+  composes: groupName from "./matchBase.module.css";
+}
+
+.tile {
+  composes: tile from "./matchBase.module.css";
+}
+
+.tileArt {
+  composes: tileArt from "./matchBase.module.css";
+}
+
+.bar {
+  composes: bar from "./matchBase.module.css";
+}
+
+.dodge {
+  composes: dodge from "./matchBase.module.css";
+}
+
+.timer {
+  composes: timer from "./matchBase.module.css";
+}
+
+.lock {
+  composes: lock from "./matchBase.module.css";
+}
+
+.empty {
+  composes: empty from "./matchBase.module.css";
+}
+
+.lobby {
+  composes: lobby from "./matchBase.module.css";
+}
+
+.teams {
+  composes: teams from "./matchBase.module.css";
+}
+
+.team {
+  composes: team from "./matchBase.module.css";
+}
+
+.teamHead {
+  composes: teamHead from "./matchBase.module.css";
+}
+
+.lines {
+  composes: lines from "./matchBase.module.css";
+}
+
+.line {
+  composes: line from "./matchBase.module.css";
+}
+
+.lineAgent {
+  composes: lineAgent from "./matchBase.module.css";
+}
+
+.lineName {
+  composes: lineName from "./matchBase.module.css";
+}
+
+.stack {
+  composes: stack from "./matchBase.module.css";
+}
+
+.lineRank {
+  composes: lineRank from "./matchBase.module.css";
+}
+
+.rankIcon {
+  composes: rankIcon from "./matchBase.module.css";
+}
+
+/* ---- material ---- */
+.pick, .lobby { color: #ffffff; background: color-mix(in srgb, var(--fortnite-navy, #081246) 72%, transparent); border-radius: 10px; }
+.head, .heroName, .teamHead { font-family: "Anton", "Oswald Variable", var(--font-display); text-transform: uppercase; letter-spacing: 0.02em; }
+.head { font-size: 22px; }
+.head > span, .heroRole, .groupName, .teamHead > span { font-family: "Oswald Variable", var(--font-display); font-size: 13px; color: rgb(255 255 255 / 0.75); text-transform: uppercase; }
+.hero { border-radius: 8px; background: radial-gradient(circle at 50% 40%, #5ec8ff, #2a5bd7 60%, #1b2f86); }
+.heroArt { object-fit: contain; }
+.heroName { font-size: clamp(28px, 9cqh, 58px); }
+.tile { border: 0; border-radius: 8px; background: radial-gradient(circle, #5ec8ff, #2a5bd7); }
+.tile[data-own] { box-shadow: 0 0 0 3px var(--fortnite-yellow, #fbe925); }
+.dodge { border: 0; border-radius: 8px; padding: 8px 14px; color: #ffffff; background: rgb(255 255 255 / 0.14); font-weight: 700; text-transform: uppercase; }
+.timer { font-family: "Anton", var(--font-display); font-size: 30px; }
+.lock { height: 50px; border: 0; border-radius: 10px; font-family: "Anton", var(--font-display); font-size: 24px; text-transform: uppercase; color: #121212; background: var(--fortnite-yellow, #fbe925); box-shadow: inset 0 -5px 0 var(--fortnite-yellow-edge, #cdbb0b); }
+.lock[data-locked] { color: #ffffff; background: #2a5bd7; box-shadow: inset 0 -5px 0 #1b2f86; }
+.teamHead { font-size: 18px; }
+.line { border-radius: 8px; background: rgb(255 255 255 / 0.08); box-shadow: inset 3px 0 0 var(--stack); }
+.line[data-self] { background: rgb(251 233 37 / 0.2); }
+
+/* ---- News, Progress and Chat (styledScreens.tsx) ---- */
+.meter { --meter-fill: var(--fortnite-yellow, #fbe925); --meter-track: rgb(255 255 255 / 0.15); }
+.field { color: #ffffff; background: color-mix(in srgb, var(--fortnite-navy, #081246) 80%, transparent); border-radius: 8px; font-weight: 700; font-size: 13px; }
+
+/* ---- Results (styledResults.tsx) ---- */
+.resultTitle { font-family: "Anton", var(--font-display); font-style: italic; text-transform: uppercase; transform: skewX(-6deg); transform-origin: left; }
+.lobby[data-result="victory"] .resultTitle { color: var(--fortnite-yellow, #fbe925); text-shadow: 0 4px 0 #8a6d00; }
+.lobby[data-result="defeat"] .resultTitle { color: #ffffff; text-shadow: 0 4px 0 #3a1a6e; }
+.mvp { --mvp-fill: var(--fortnite-yellow, #fbe925); --mvp-text: #121212; border-radius: 4px; }

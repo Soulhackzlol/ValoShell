@@ -106,7 +106,7 @@ impl RateGate {
                 }
             }
         }
-        tracing::warn!(path = %request.path, status = last_status, "riot_gate_gave_up");
+        tracing::warn!(path = %crate::http::redacted_path(&request.path), status = last_status, "riot_gate_gave_up");
         Fetched::failed(last_status)
     }
 

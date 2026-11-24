@@ -1,11 +1,13 @@
 // Terminal style: a working console. A live status line on top, a scrollback log and a
 // prompt. Commands drive the real party and menu: play, cancel, mode, ready, invite, open,
 // close, friends, rank, store, cd <tab>, clear, help. Up/Down walk the command history.
+import type { FriendView } from "~/bindings/FriendView";
 import { For, Show, createEffect, createSignal, on, onCleanup, onMount } from "solid-js";
 import { useNavigate } from "@solidjs/router";
 import type { PieceProps } from "~/studio/registry";
 import { TABS } from "~/menu/scenes";
 import { friends } from "~/state/friends";
+import { partyLabel } from "~/ui/stacks";
 import { party, partyActions } from "~/state/party";
 import { connection, ownRiotId } from "~/state/session";
 import { careerView, storeView } from "~/state/views";
@@ -17,6 +19,8 @@ interface Line {
   id: number;
   kind: LineKind;
   text: string;
+  /** Holds a player name or Riot ID, so streamer mode can hide it. */
+  isSensitive: boolean;
 }
 
 const MAX_LINES = 300;
@@ -38,7 +42,7 @@ const HELP = [
 ];
 
 let lineId = 0;
-const line = (kind: LineKind, text: string): Line => ({ id: (lineId += 1), kind, text });
+const line = (kind: LineKind, text: string, isSensitive = false): Line => ({ id: (lineId += 1), kind, text, isSensitive });
 
 export function TerminalConsole(props: PieceProps) {
   const navigate = useNavigate();
@@ -56,8 +60,9 @@ export function TerminalConsole(props: PieceProps) {
   let scroller: HTMLDivElement | undefined;
   let field: HTMLInputElement | undefined;
 
-  const print = (kind: LineKind, ...texts: string[]) =>
-    setLines((current) => [...current, ...texts.map((text) => line(kind, text))].slice(-MAX_LINES));
+  const append = (next: Line[]) => setLines((current) => [...current, ...next].slice(-MAX_LINES));
+  const print = (kind: LineKind, ...texts: string[]) => append(texts.map((text) => line(kind, text)));
+  const printNames = (...texts: string[]) => append(texts.map((text) => line("out", text, true)));
 
   createEffect(on(lines, () => scroller?.scrollTo({ top: scroller.scrollHeight })));
   // A short boot log, one check per beat, so the console opens alive rather than empty.
@@ -128,7 +133,7 @@ export function TerminalConsole(props: PieceProps) {
       const riotId = args.join(" ");
       if (!riotId.includes("#")) return print("err", "usage: invite NAME#TAG");
       void partyActions.invite(riotId);
-      print("out", `invite -> ${riotId}`);
+      printNames(`invite -> ${riotId}`);
     },
     open: () => {
       void partyActions.setOpen(true);
@@ -141,7 +146,10 @@ export function TerminalConsole(props: PieceProps) {
     friends: () => {
       const online = friends().filter((friend) => friend.status !== "offline");
       if (online.length === 0) return print("out", "nobody online");
-      print("out", ...online.map((friend) => `${friend.game_name.padEnd(16)} ${friend.status.replace("_", " ").padEnd(13)} ${friend.detail}`));
+      const status = (friend: FriendView) => friend.status.replace("_", " ").padEnd(13);
+      const row = (friend: FriendView) =>
+        `${friend.game_name.padEnd(16)} ${status(friend)} ${friend.detail} ${partyLabel(friend.party_size)}`;
+      printNames(...online.map(row));
     },
     rank: () => {
       const view = careerView.value();
@@ -165,7 +173,8 @@ export function TerminalConsole(props: PieceProps) {
 
   const run = (raw: string) => {
     const text = raw.trim();
-    print("in", `$ ${text}`);
+    // A typed Riot ID (invite NAME#TAG) is echoed back, so that echo hides like any name.
+    append([line("in", `$ ${text}`, text.includes("#"))]);
     if (!text) return;
     history.push(text);
     historyIndex = history.length;
@@ -188,9 +197,7 @@ export function TerminalConsole(props: PieceProps) {
     const current = party();
     if (connection().state !== "connected" || !current) return "offline";
     const searching = play.searchClock();
-    const who = ownRiotId();
     return [
-      who ? `${who.name}#${who.tag}` : "",
       `mode=${current.queue.label.toLowerCase()}`,
       `party=${current.members.length}/${current.max_size}`,
       searching ? `searching ${searching}` : "idle",
@@ -201,7 +208,12 @@ export function TerminalConsole(props: PieceProps) {
 
   return (
     <section class={styles.console} onClick={() => field?.focus()}>
-      <div class={styles.status}>{statusLine()}</div>
+      <div class={styles.status}>
+        <Show when={connection().state === "connected" && party() ? ownRiotId() : null}>
+          {(who) => <span data-sensitive>{`${who().name}#${who().tag}  `}</span>}
+        </Show>
+        {statusLine()}
+      </div>
       <div ref={scroller} class={styles.log}>
         <Show when={hasGreeting()}>
           <div class={styles.line} data-kind="out">
@@ -210,7 +222,7 @@ export function TerminalConsole(props: PieceProps) {
         </Show>
         <For each={lines()}>
           {(entry) => (
-            <div class={styles.line} data-kind={entry.kind}>
+            <div class={styles.line} data-kind={entry.kind} data-sensitive={entry.isSensitive ? "" : undefined}>
               {entry.text || " "}
             </div>
           )}

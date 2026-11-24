@@ -1,5 +1,6 @@
 // Fragment shaders for the animated backdrops. Each is tinted by the theme (ground, accent,
-// accent 2) and drifts with the pointer. GLSL ES 3.00 (WebGL 2).
+// accent 2) and drifts on its own clock, never with the pointer (calm motion). GLSL ES 3.00
+// (WebGL 2).
 import type { ShaderId } from "~/studio/types";
 
 export const VERTEX_SOURCE = `#version 300 es
@@ -14,7 +15,6 @@ uniform float uTime;
 uniform vec3 uAccent;
 uniform vec3 uAccent2;
 uniform vec3 uGround;
-uniform vec2 uPointer;
 out vec4 outColor;
 
 float hash(vec2 p) {
@@ -50,7 +50,7 @@ float fbm(vec2 p) {
 const FLOW = `
 void main() {
   vec2 uv = gl_FragCoord.xy / uRes;
-  vec2 p = (gl_FragCoord.xy - 0.5 * uRes) / uRes.y + uPointer * 0.05;
+  vec2 p = (gl_FragCoord.xy - 0.5 * uRes) / uRes.y;
   float t = uTime * 0.05;
   vec2 q = vec2(fbm(p * 1.5 + t), fbm(p * 1.5 - t + 3.1));
   float f = fbm(p * 1.8 + 2.0 * q + vec2(t * 0.7, -t * 0.4));
@@ -64,7 +64,7 @@ void main() {
 /** A perspective floor grid scrolling toward the horizon. */
 const GRID = `
 void main() {
-  vec2 p = (gl_FragCoord.xy - 0.5 * uRes) / uRes.y + uPointer * 0.03;
+  vec2 p = (gl_FragCoord.xy - 0.5 * uRes) / uRes.y;
   float horizon = -0.05;
   float below = step(p.y, horizon - 0.001);
   float depth = 0.35 / max(horizon - p.y, 0.001);
@@ -84,7 +84,7 @@ void main() {
 /** Hard-edged diagonal bands sliding slowly, like the menu's slashes. */
 const RIFT = `
 void main() {
-  vec2 p = (gl_FragCoord.xy - 0.5 * uRes) / uRes.y + uPointer * 0.04;
+  vec2 p = (gl_FragCoord.xy - 0.5 * uRes) / uRes.y;
   float angle = 0.42;
   float across = p.x * cos(angle) - p.y * sin(angle);
   vec3 color = uGround;
@@ -119,7 +119,7 @@ void main() {
 const HAZE = `
 void main() {
   vec2 uv = gl_FragCoord.xy / uRes;
-  vec2 p = (gl_FragCoord.xy - 0.5 * uRes) / uRes.y + uPointer * 0.04;
+  vec2 p = (gl_FragCoord.xy - 0.5 * uRes) / uRes.y;
   float t = uTime * 0.03;
   vec2 q = vec2(fbm(p * 1.2 + t), fbm(p * 1.2 - t + 5.2));
   float f = fbm(p * 1.4 + 1.6 * q + vec2(t * 0.5, t * 0.2));
@@ -135,7 +135,7 @@ void main() {
 const BURST = `
 void main() {
   vec2 uv = gl_FragCoord.xy / uRes;
-  vec2 p = (gl_FragCoord.xy - vec2(0.5, 0.42) * uRes) / uRes.y + uPointer * 0.03;
+  vec2 p = (gl_FragCoord.xy - vec2(0.5, 0.42) * uRes) / uRes.y;
   float angle = atan(p.y, p.x);
   float radius = length(p);
   float rays = 0.5 + 0.5 * sin(angle * 18.0 + uTime * 0.12);
@@ -153,7 +153,7 @@ void main() {
 const DIAMONDS = `
 void main() {
   vec2 uv = gl_FragCoord.xy / uRes;
-  vec2 p = (gl_FragCoord.xy - vec2(0.485, 0.47) * uRes) / uRes.y + uPointer * 0.012;
+  vec2 p = (gl_FragCoord.xy - vec2(0.485, 0.47) * uRes) / uRes.y;
   float d = abs(p.x) * 0.92 + abs(p.y);
   float rings = d * 2.3 - 0.38 + sin(uTime * 0.05) * 0.01;
   float ring = floor(rings);

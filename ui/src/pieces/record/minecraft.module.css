@@ -137,7 +137,7 @@
   flex-direction: column;
   margin-top: 6px;
   padding: 3px;
-  overflow: auto;
+  overflow: hidden auto;
   background: #8b8b8b;
   box-shadow: inset 3px 3px 0 #373737, inset -3px -3px 0 #ffffff;
 }

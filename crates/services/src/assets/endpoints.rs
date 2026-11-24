@@ -26,6 +26,7 @@ pub enum Endpoint {
     CompetitiveTiers,
     Currencies,
     Contracts,
+    Missions,
     Seasons,
     GameModes,
     Queues,
@@ -34,7 +35,7 @@ pub enum Endpoint {
 
 impl Endpoint {
     /// Version first: it decides whether the rest is downloaded at all.
-    pub const ALL: [Endpoint; 19] = [
+    pub const ALL: [Endpoint; 20] = [
         Endpoint::Version,
         Endpoint::Agents,
         Endpoint::Maps,
@@ -50,6 +51,7 @@ impl Endpoint {
         Endpoint::CompetitiveTiers,
         Endpoint::Currencies,
         Endpoint::Contracts,
+        Endpoint::Missions,
         Endpoint::Seasons,
         Endpoint::GameModes,
         Endpoint::Queues,
@@ -73,6 +75,7 @@ impl Endpoint {
             Self::CompetitiveTiers => "competitivetiers",
             Self::Currencies => "currencies",
             Self::Contracts => "contracts",
+            Self::Missions => "missions",
             Self::Seasons => "seasons",
             Self::GameModes => "gamemodes",
             Self::Queues => "gamemodes/queues",
@@ -98,6 +101,7 @@ impl Endpoint {
             Self::CompetitiveTiers => "competitivetiers.json",
             Self::Currencies => "currencies.json",
             Self::Contracts => "contracts.json",
+            Self::Missions => "missions.json",
             Self::Seasons => "seasons.json",
             Self::GameModes => "gamemodes.json",
             Self::Queues => "queues.json",

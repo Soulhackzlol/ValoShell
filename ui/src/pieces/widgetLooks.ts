@@ -1,10 +1,12 @@
 // The Look and Layout options every free widget shares. Looks are drawn by
-// widgetLooks.module.css from theme tokens, so each menu style recolours them; layouts are
+// widgetLooks.module.css from theme tokens, so each menu style recolours them, and "Style's own"
+// is drawn in each menu style's own language; layouts are
 // read by each widget's own CSS, and "auto" is resolved here from the piece's size.
 import { createSignal, onCleanup } from "solid-js";
 import type { PieceProps, PropField } from "~/studio/registry";
 
 export const WIDGET_LOOKS = [
+  { value: "native", label: "Style's own" },
   { value: "panel", label: "Panel" },
   { value: "glass", label: "Glass" },
   { value: "minimal", label: "Minimal" },

@@ -156,6 +156,9 @@
   width: 100%;
   height: 70px;
   overflow: visible;
+  /* Drawn in by a left-to-right wipe: a stroke dash would need the line's length on screen,
+     which changes with every size and layout. */
+  animation: draw 1.4s var(--ease-decelerate) both 200ms;
 }
 
 .trend polyline {
@@ -164,9 +167,6 @@
   stroke-width: 2;
   vector-effect: non-scaling-stroke;
   stroke-linejoin: round;
-  stroke-dasharray: 600;
-  stroke-dashoffset: 600;
-  animation: draw 1.4s var(--ease-decelerate) forwards 200ms;
 }
 
 .matches {
@@ -176,8 +176,10 @@
   flex-direction: column;
   gap: 6px;
   padding: 0;
-  overflow: auto;
+  overflow: hidden auto;
   list-style: none;
+  /* The last rows fade out, so a cut-off row reads as "scroll for more", not as a clipping bug. */
+  mask-image: linear-gradient(to bottom, #000 calc(100% - 28px), transparent);
 }
 
 .match {
@@ -274,8 +276,13 @@
 }
 
 @keyframes draw {
+  from {
+    clip-path: inset(-10% 100% -10% 0);
+  }
+
+  /* A little past both ends, so the line's caps and joins at the edges are not cut. */
   to {
-    stroke-dashoffset: 0;
+    clip-path: inset(-10% -2% -10% -2%);
   }
 }
 
@@ -284,4 +291,82 @@
     opacity: 0;
     transform: translateX(-16px);
   }
+}
+
+/* ---- layouts (Studio > Look > Layout; studio/pieceLayout.ts) ----
+   The frame sets data-layout; "card" and "full" are the looks above. */
+
+/* Rank card as a strip: small emblem, everything else on one line. */
+[data-layout="strip"] .rank {
+  container-type: size;
+  gap: var(--space-4);
+  padding: var(--space-2) var(--space-5);
+}
+
+/* The emblem is as tall as the strip allows, so a short strip never clips it. */
+[data-layout="strip"] .emblem {
+  width: clamp(24px, calc(100cqh - 2 * var(--space-2)), 72px);
+}
+
+/* One line: rank, then the RR bar; the rest has no room in a strip. */
+[data-layout="strip"] .rankInfo {
+  flex-flow: row nowrap;
+  align-items: center;
+  column-gap: var(--space-5);
+}
+
+[data-layout="strip"] .rankInfo > span:first-child,
+[data-layout="strip"] .peak,
+[data-layout="strip"] .stats,
+[data-layout="strip"] .placements {
+  display: none;
+}
+
+[data-layout="strip"] .rankName {
+  font-size: clamp(18px, 7cqi, 32px);
+}
+
+[data-layout="strip"] .rrRow {
+  flex: 1 1 140px;
+}
+
+/* Rank card as a badge: the emblem and the rank, centred, nothing else. */
+[data-layout="badge"] .rank {
+  grid-template-columns: 1fr;
+  justify-items: center;
+  align-content: center;
+  gap: var(--space-3);
+  text-align: center;
+}
+
+[data-layout="badge"] .emblem {
+  width: min(60%, 160px);
+}
+
+[data-layout="badge"] .rankInfo {
+  align-items: center;
+}
+
+[data-layout="badge"] .rankInfo > span:first-child,
+[data-layout="badge"] .rrRow,
+[data-layout="badge"] .stats,
+[data-layout="badge"] .peak,
+[data-layout="badge"] .placements {
+  display: none;
+}
+
+/* Ranked history as only its trend line, which then takes the whole piece. */
+[data-layout="chart"] .matches {
+  display: none;
+}
+
+[data-layout="chart"] .trend {
+  flex: 1;
+  height: auto;
+  min-height: 0;
+}
+
+/* Ranked history as only its match list. */
+[data-layout="list"] .trend {
+  display: none;
 }

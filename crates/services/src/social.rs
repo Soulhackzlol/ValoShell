@@ -1,6 +1,8 @@
 //! Friends: the friend list joined with live presence, so the menu can
 //! show who is online, what they are doing, and invite them in one click.
 
+pub mod requests;
+
 use std::collections::HashMap;
 use std::sync::{Arc, Mutex, PoisonError};
 use std::time::Duration;
@@ -51,7 +53,8 @@ pub struct FriendView {
     pub game_name: String,
     pub tag_line: String,
     pub status: FriendStatus,
-    /// "Ascent 7-5", "Party of 3"...; empty when there is nothing to add.
+    /// "Ascent 7-5" in a match; empty otherwise. The party is `party_size`, which every friends
+    /// look prints its own way ("Duo", "Trio").
     pub detail: String,
     pub party_size: u32,
     pub note: String,
@@ -123,7 +126,6 @@ fn valorant_status(
     };
     let detail = match status {
         FriendStatus::InMatch => scores.unwrap_or_else(|| "In a match".to_owned()),
-        _ if party_size > 1 => format!("Party of {party_size}"),
         _ => String::new(),
     };
     (status, detail, party_size)

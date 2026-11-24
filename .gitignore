@@ -3,3 +3,5 @@ node_modules/
 dist/
 *.log
 app/gen/
+__pycache__/
+*.pyc
