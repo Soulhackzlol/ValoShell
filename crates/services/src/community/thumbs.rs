@@ -1,7 +1,7 @@
 //! Community look thumbnails: a screenshot of each look's Home page, made by the repository's
-//! workflow when the look is merged (`community/thumbs/<id>.webp`). Handed to the UI as a
-//! `data:` URL, so a card never loads an image from the web itself, and only once the bytes
-//! really are a WebP picture.
+//! workflow when the look is merged (`thumbs/<id>.webp` on the `community-index` branch). Handed
+//! to the UI as a `data:` URL, so a card never loads an image from the web itself, and only once
+//! the bytes really are a WebP picture.
 
 use std::collections::HashMap;
 use std::sync::{Mutex, OnceLock, PoisonError};
@@ -10,7 +10,7 @@ use std::time::Instant;
 use base64::Engine;
 
 use super::{
-    CommunityError, FRESH_FOR, MAX_CACHED_LOOKS, RAW_BASE, fetch_capped_bytes, is_valid_id,
+    CommunityError, FRESH_FOR, INDEX_BASE, MAX_CACHED_LOOKS, fetch_capped_bytes, is_valid_id,
 };
 
 /// A 640x360 WebP is 20-60 KB; anything far past that is not one of the workflow's pictures.
@@ -55,7 +55,7 @@ pub async fn community_thumb(id: &str) -> Result<String, CommunityError> {
         return Ok(url);
     }
     let bytes =
-        fetch_capped_bytes(&format!("{RAW_BASE}/thumbs/{id}.webp"), MAX_THUMB_BYTES).await?;
+        fetch_capped_bytes(&format!("{INDEX_BASE}/thumbs/{id}.webp"), MAX_THUMB_BYTES).await?;
     let url = thumb_data_url(&bytes)?;
     let mut cache = thumb_cache().lock().unwrap_or_else(PoisonError::into_inner);
     if cache.len() >= MAX_CACHED_LOOKS {

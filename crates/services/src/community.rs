@@ -1,7 +1,9 @@
 //! Community looks: themes players share through the ValoShell repository. A look is added by
-//! pull request as `community/looks/<id>.json`; once merged, a workflow rebuilds
-//! `community/index.json`, which lists them. The app only reads, over HTTPS from GitHub's raw
-//! file host without redirects, with size caps. The UI checks every look like any shared file
+//! pull request as `community/looks/<id>.json`; once merged, a workflow screenshots it and
+//! rebuilds the list (`index.json`, `thumbs/`) on the generated `community-index` branch, since
+//! `main` only takes pull requests. The looks themselves are always read from `main`, so only
+//! reviewed files are ever applied. The app only reads, over HTTPS from GitHub's raw file host
+//! without redirects, with size caps. The UI checks every look like any shared file
 //! (colours, ids and pieces are repaired before use), so even a merged file cannot inject CSS.
 
 use std::collections::HashMap;
@@ -14,7 +16,10 @@ use ts_rs::TS;
 
 pub mod thumbs;
 
+/// Merged look files.
 const RAW_BASE: &str = "https://raw.githubusercontent.com/Soulhackzlol/ValoShell/main/community";
+/// The list and screenshots the community workflow generates (never hand-edited).
+const INDEX_BASE: &str = "https://raw.githubusercontent.com/Soulhackzlol/ValoShell/community-index";
 const TIMEOUT: Duration = Duration::from_secs(15);
 /// The list is small text; anything bigger is not ours.
 const MAX_INDEX_BYTES: usize = 256 * 1024;
@@ -153,7 +158,7 @@ pub async fn community_looks() -> Result<Vec<CommunityLook>, CommunityError> {
         return Ok(looks);
     }
     let looks =
-        parse_index(&fetch_capped(&format!("{RAW_BASE}/index.json"), MAX_INDEX_BYTES).await?)?;
+        parse_index(&fetch_capped(&format!("{INDEX_BASE}/index.json"), MAX_INDEX_BYTES).await?)?;
     *cache().lock().unwrap_or_else(PoisonError::into_inner) = Some((Instant::now(), looks.clone()));
     Ok(looks)
 }

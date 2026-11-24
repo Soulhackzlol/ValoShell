@@ -22,5 +22,7 @@ Community) lists every look here and applies one in a click.
 
 Check locally with `python community/build_index.py --check`. Don't edit `index.json` or
 `thumbs/` by hand: after each merge a workflow screenshots the new look for its gallery card
-(`node ui/scripts/look-thumbs.mjs community <id>`, with `npm run ui:dev` running) and rebuilds
-the index.
+(`node ui/scripts/look-thumbs.mjs community <id>`, with `npm run ui:dev` running), rebuilds the
+index and publishes both to the `community-index` branch, which is what the app reads. The
+copies here on `main` are only the starting point (and what the browser preview shows); the
+looks themselves are always read from `main`.
