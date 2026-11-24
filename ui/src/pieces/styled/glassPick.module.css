@@ -1,0 +1,300 @@
+/* Glass agent select: the Glass agents app's materials (frosted, deeply rounded, hairline top)
+   on a pick screen. The hero card washes in the agent's own colour; avatars are round chips
+   with a ring for your pick; LOCK IN is the capsule PLAY button's shape. Only opacity and
+   transform animate. */
+
+.pick {
+  --g-fill: var(--glass-fill, #181a20);
+  --g-text: var(--glass-text, #f5f5f7);
+  --g-line: var(--glass-line, #ffffff);
+  --g-spring: cubic-bezier(0.32, 1.25, 0.5, 1);
+  --g-soft: cubic-bezier(0.2, 1, 0.3, 1);
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) minmax(0, 1.1fr);
+  grid-template-rows: minmax(0, 1fr) auto;
+  gap: 16px;
+  width: 100%;
+  height: 100%;
+  font-family: var(--font-text);
+  color: var(--g-text);
+}
+
+.hero,
+.roster,
+.actions {
+  background: color-mix(in srgb, var(--g-fill) 50%, transparent);
+  backdrop-filter: blur(28px) saturate(180%);
+  border-radius: 22px;
+  box-shadow:
+    inset 0 1px 0 color-mix(in srgb, var(--g-line) 20%, transparent),
+    inset 0 0 0 0.5px color-mix(in srgb, var(--g-line) 14%, transparent),
+    0 18px 50px rgb(0 0 0 / 0.35);
+}
+
+/* ---- hero ---- */
+.hero {
+  position: relative;
+  min-height: 0;
+  overflow: hidden;
+}
+
+.prompt {
+  display: grid;
+  place-items: center;
+  height: 100%;
+  margin: 0;
+  font-size: 15px;
+  color: color-mix(in srgb, var(--g-text) 60%, transparent);
+}
+
+.heroStage {
+  position: absolute;
+  inset: 0;
+  background: radial-gradient(ellipse at 50% 30%, color-mix(in srgb, var(--tint) 45%, transparent), transparent 70%);
+  animation: fadeIn 500ms var(--g-soft);
+}
+
+.portrait {
+  position: absolute;
+  inset: 0 0 18%;
+  width: 100%;
+  height: 82%;
+  object-fit: contain;
+  object-position: center bottom;
+  animation: riseIn 700ms var(--g-soft);
+}
+
+.heroText {
+  position: absolute;
+  inset: auto 0 0;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 6px;
+  padding: 16px;
+  background: linear-gradient(to top, color-mix(in srgb, var(--g-fill) 80%, transparent), transparent);
+}
+
+.role {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  font-size: 12px;
+  font-weight: 600;
+  letter-spacing: 0.04em;
+  text-transform: uppercase;
+  color: color-mix(in srgb, var(--g-text) 70%, transparent);
+}
+
+.role img {
+  width: 14px;
+  height: 14px;
+}
+
+.name {
+  margin: 0;
+  font-size: clamp(26px, 4.2vh, 44px);
+  font-weight: 700;
+  letter-spacing: -0.03em;
+  line-height: 1;
+}
+
+.abilities {
+  display: flex;
+  gap: 8px;
+}
+
+.abilities > * {
+  width: 30px;
+  height: 30px;
+  padding: 5px;
+  border-radius: 50%;
+  background: color-mix(in srgb, var(--g-line) 10%, transparent);
+  object-fit: contain;
+}
+
+.hero[data-locked] .heroStage {
+  box-shadow: inset 0 0 0 2px color-mix(in srgb, var(--tint) 70%, transparent);
+  border-radius: inherit;
+}
+
+/* ---- roster ---- */
+.roster {
+  min-height: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 14px;
+  padding: 16px;
+  overflow: hidden auto;
+  scrollbar-width: thin;
+}
+
+.groupLabel {
+  display: block;
+  margin-bottom: 8px;
+  font-size: 12px;
+  font-weight: 600;
+  color: color-mix(in srgb, var(--g-text) 55%, transparent);
+}
+
+.avatars {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+}
+
+.avatar {
+  position: relative;
+  width: 52px;
+  height: 52px;
+  padding: 0;
+  border-radius: 50%;
+  background: color-mix(in srgb, var(--g-line) 8%, transparent);
+  box-shadow: inset 0 0 0 0.5px color-mix(in srgb, var(--g-line) 18%, transparent);
+  transition:
+    transform 300ms var(--g-spring),
+    opacity 200ms ease;
+  animation: popIn 500ms var(--g-spring) backwards;
+}
+
+.avatar img,
+.avatar > span {
+  display: grid;
+  place-items: center;
+  width: 100%;
+  height: 100%;
+  border-radius: 50%;
+  object-fit: cover;
+  font-size: 13px;
+  font-weight: 700;
+}
+
+.avatar:hover:not(:disabled) {
+  transform: scale(1.08);
+}
+
+.avatar:active:not(:disabled) {
+  transform: scale(0.95);
+}
+
+.avatar[data-own] {
+  box-shadow:
+    0 0 0 2px var(--g-fill),
+    0 0 0 4px var(--accent);
+}
+
+.avatar:disabled:not([data-own]) {
+  opacity: 0.32;
+}
+
+.lockMark {
+  position: absolute;
+  right: -2px;
+  bottom: -2px;
+  padding: 3px;
+  width: 18px;
+  height: 18px;
+  border-radius: 50%;
+  background: var(--g-fill);
+}
+
+/* ---- actions ---- */
+.actions {
+  grid-column: 1 / -1;
+  display: flex;
+  align-items: center;
+  gap: 14px;
+  padding: 10px 12px;
+  border-radius: 999px;
+}
+
+.dodge {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  padding: 8px 14px;
+  font-size: 13px;
+  font-weight: 600;
+  color: color-mix(in srgb, var(--g-text) 70%, transparent);
+  border-radius: 999px;
+  transition: background 160ms ease;
+}
+
+.dodge:hover:not(:disabled) {
+  background: color-mix(in srgb, var(--g-line) 10%, transparent);
+}
+
+.timer {
+  margin-left: auto;
+  min-width: 2ch;
+  font-size: 22px;
+  font-weight: 700;
+  text-align: right;
+}
+
+.lock {
+  position: relative;
+  isolation: isolate;
+  min-width: 200px;
+  height: 50px;
+  padding: 0 36px;
+  overflow: hidden;
+  font: inherit;
+  font-size: 17px;
+  font-weight: 650;
+  color: var(--theme-on-play, #ffffff);
+  border-radius: 25px;
+  background: linear-gradient(180deg, color-mix(in oklch, var(--accent) 92%, white), var(--accent));
+  box-shadow:
+    inset 0 1px 0 color-mix(in srgb, var(--g-line) 35%, transparent),
+    0 10px 30px color-mix(in srgb, var(--accent) 35%, transparent);
+  transition:
+    transform 300ms var(--g-spring),
+    opacity 200ms ease;
+}
+
+.lock:hover:not(:disabled) {
+  transform: scale(1.04);
+}
+
+.lock:active:not(:disabled) {
+  transform: scale(0.97);
+}
+
+.lock:disabled:not([data-locked]) {
+  opacity: 0.45;
+}
+
+.ripple {
+  position: absolute;
+  z-index: -1;
+  border-radius: 50%;
+  background: radial-gradient(circle, color-mix(in srgb, var(--g-line) 50%, transparent), transparent 60%);
+  pointer-events: none;
+}
+
+@keyframes fadeIn {
+  from {
+    opacity: 0;
+  }
+}
+
+@keyframes riseIn {
+  from {
+    opacity: 0;
+    transform: translateY(16px) scale(0.98);
+  }
+}
+
+@keyframes popIn {
+  from {
+    opacity: 0;
+    transform: scale(0.8);
+  }
+}
+
+:global(:root[data-motion="reduced"]) .heroStage,
+:global(:root[data-motion="reduced"]) .portrait,
+:global(:root[data-motion="reduced"]) .avatar {
+  animation: none;
+}

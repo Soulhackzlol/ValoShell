@@ -11,8 +11,8 @@
   flex-direction: column;
   width: 100%;
   height: 100%;
-  background: rgb(30 35 41 / 0.94);
-  box-shadow: 0 0 0 1px rgb(0 0 0 / 0.55), inset 0 0 0 1px rgb(255 255 255 / 0.05);
+  background: color-mix(in srgb, var(--csgo-panel, #1e2329) 94%, transparent);
+  box-shadow: 0 0 0 1px rgb(0 0 0 / 0.55), inset 0 0 0 1px color-mix(in srgb, var(--csgo-line, #ffffff) 5%, transparent);
 }
 
 .titleBar,
@@ -31,13 +31,13 @@
   font-weight: 700;
   letter-spacing: 0.6px;
   text-transform: uppercase;
-  color: #dfe3e8;
+  color: var(--csgo-ink, #dfe3e8);
   background: linear-gradient(to bottom, #4a525c, #2e343c);
-  box-shadow: inset 0 1px 0 rgb(255 255 255 / 0.12), inset 0 -1px 0 rgb(0 0 0 / 0.5);
+  box-shadow: inset 0 1px 0 color-mix(in srgb, var(--csgo-line, #ffffff) 12%, transparent), inset 0 -1px 0 rgb(0 0 0 / 0.5);
 }
 
 .titleMode {
-  color: #de9b35;
+  color: var(--csgo-highlight, #de9b35);
 }
 
 .modeList {
@@ -48,7 +48,7 @@
   gap: 1px;
   margin: 0;
   padding: 8px;
-  overflow: auto;
+  overflow: hidden auto;
   list-style: none;
 }
 
@@ -62,17 +62,17 @@
   font-size: 13px;
   font-weight: 600;
   color: #b8c0c9;
-  background: rgb(255 255 255 / 0.02);
+  background: color-mix(in srgb, var(--csgo-line, #ffffff) 2%, transparent);
 }
 
 .modeRow:hover:not(:disabled) {
-  color: #ffffff;
-  background: rgb(255 255 255 / 0.06);
+  color: var(--csgo-bright, #ffffff);
+  background: color-mix(in srgb, var(--csgo-line, #ffffff) 6%, transparent);
 }
 
 .modeRow[data-active] {
-  color: #ffffff;
-  background: rgb(222 155 53 / 0.12);
+  color: var(--csgo-bright, #ffffff);
+  background: color-mix(in srgb, var(--csgo-highlight, #de9b35) 12%, transparent);
 }
 
 .modeRow:disabled:not([data-active]) {
@@ -85,12 +85,12 @@
   width: 14px;
   height: 14px;
   background: rgb(0 0 0 / 0.35);
-  box-shadow: inset 0 0 0 1px rgb(255 255 255 / 0.25);
+  box-shadow: inset 0 0 0 1px color-mix(in srgb, var(--csgo-line, #ffffff) 25%, transparent);
 }
 
 .modeRow[data-active] .check {
-  background: #de9b35;
-  box-shadow: inset 0 0 0 3px rgb(30 35 41);
+  background: var(--csgo-highlight, #de9b35);
+  box-shadow: inset 0 0 0 3px var(--csgo-panel, #1e2329);
 }
 
 .footer {
@@ -102,20 +102,20 @@
   margin-top: auto;
   padding: 8px;
   background: rgb(0 0 0 / 0.2);
-  box-shadow: inset 0 1px 0 rgb(255 255 255 / 0.05);
+  box-shadow: inset 0 1px 0 color-mix(in srgb, var(--csgo-line, #ffffff) 5%, transparent);
 }
 
 .status {
   overflow: hidden;
   padding-left: 4px;
   font-size: 12px;
-  color: #9aa4ae;
+  color: var(--csgo-muted, #9aa4ae);
   white-space: nowrap;
   text-overflow: ellipsis;
 }
 
 .box[data-searching] .status {
-  color: #de9b35;
+  color: var(--csgo-highlight, #de9b35);
 }
 
 .go {
@@ -129,17 +129,17 @@
   font-weight: 800;
   letter-spacing: 2px;
   text-transform: uppercase;
-  color: #ffffff;
-  background: linear-gradient(to bottom, #6cae49, #4f8a31);
-  box-shadow: inset 0 1px 0 rgb(255 255 255 / 0.3), 0 0 0 1px rgb(0 0 0 / 0.5);
+  color: var(--theme-on-play, var(--csgo-bright, #ffffff));
+  background: var(--theme-play, linear-gradient(to bottom, #6cae49, #4f8a31));
+  box-shadow: inset 0 1px 0 color-mix(in srgb, var(--csgo-line, #ffffff) 30%, transparent), 0 0 0 1px rgb(0 0 0 / 0.5);
 }
 
 .go:hover:not(:disabled) {
-  background: linear-gradient(to bottom, #7cc055, #5a9a3a);
+  background: var(--theme-play-hover, linear-gradient(to bottom, #7cc055, #5a9a3a));
 }
 
 .go:active:not(:disabled) {
-  background: #4a8230;
+  background: var(--theme-play-pressed, #4a8230);
 }
 
 .go:disabled {
@@ -177,7 +177,7 @@
   height: calc(var(--plate-w) / 2.2);
   overflow: hidden;
   background: linear-gradient(to bottom, #59616b, #2c3238 55%, #3c434b);
-  box-shadow: inset 0 1px 0 rgb(255 255 255 / 0.3), inset 0 0 0 2px color-mix(in oklch, var(--rank) 55%, transparent);
+  box-shadow: inset 0 1px 0 color-mix(in srgb, var(--csgo-line, #ffffff) 30%, transparent), inset 0 0 0 2px color-mix(in oklch, var(--rank) 55%, transparent);
   clip-path: polygon(10% 0, 90% 0, 100% 50%, 90% 100%, 10% 100%, 0 50%);
 }
 
@@ -193,7 +193,7 @@
   font-family: var(--font-display);
   font-size: 22px;
   font-weight: 800;
-  color: rgb(255 255 255 / 0.4);
+  color: color-mix(in srgb, var(--csgo-line, #ffffff) 40%, transparent);
 }
 
 .skillText {
@@ -209,16 +209,16 @@
   font-size: clamp(16px, 9cqh, 24px);
   font-weight: 700;
   text-transform: uppercase;
-  color: #ffffff;
+  color: var(--csgo-bright, #ffffff);
 }
 
 .skillStats {
   font-size: 12px;
-  color: #9aa4ae;
+  color: var(--csgo-muted, #9aa4ae);
 }
 
 .skillStats b {
-  color: #dfe3e8;
+  color: var(--csgo-ink, #dfe3e8);
 }
 
 .levelRow {
@@ -237,7 +237,7 @@
   padding: 0 6px;
   font-size: 12px;
   font-weight: 700;
-  color: #1e2329;
+  color: var(--csgo-panel, #1e2329);
   background: #b0c3d9;
 }
 
@@ -245,7 +245,7 @@
   flex: 1;
   height: 6px;
   background: rgb(0 0 0 / 0.4);
-  box-shadow: inset 0 0 0 1px rgb(255 255 255 / 0.08);
+  box-shadow: inset 0 0 0 1px color-mix(in srgb, var(--csgo-line, #ffffff) 8%, transparent);
 }
 
 .levelBar i {
@@ -256,7 +256,7 @@
 
 .levelText {
   font-size: 11px;
-  color: #9aa4ae;
+  color: var(--csgo-muted, #9aa4ae);
 }
 
 /* ---- shared ---- */
@@ -266,7 +266,7 @@
   padding: 6px 14px;
   font-size: 12px;
   font-weight: 700;
-  color: #ffffff;
+  color: var(--csgo-bright, #ffffff);
   transition: filter var(--dur-fast) var(--ease-standard);
 }
 
@@ -301,7 +301,7 @@
   height: 62px;
   overflow: hidden;
   font-weight: 700;
-  color: #dfe3e8;
+  color: var(--csgo-ink, #dfe3e8);
   background: #20262c;
   box-shadow: 0 0 0 1px rgb(0 0 0 / 0.6);
 }
@@ -343,7 +343,7 @@
   font-size: 20px;
   white-space: nowrap;
   text-overflow: ellipsis;
-  color: #ffffff;
+  color: var(--csgo-bright, #ffffff);
 }
 
 .profileEmblem {
@@ -380,7 +380,7 @@
 
 .xpNext {
   font-size: 11px;
-  color: #9aa4ae;
+  color: var(--csgo-muted, #9aa4ae);
 }
 
 .xpBar {
@@ -401,7 +401,7 @@
   gap: 18px;
   padding: 10px 14px;
   font-size: 13px;
-  color: #9aa4ae;
+  color: var(--csgo-muted, #9aa4ae);
   background: rgb(26 31 36 / 0.7);
 }
 
@@ -412,7 +412,7 @@
 }
 
 .profileStats b {
-  color: #dfe3e8;
+  color: var(--csgo-ink, #dfe3e8);
 }
 
 /* ---- store strip ---- */
@@ -488,7 +488,7 @@
 
 .offerText b {
   font-size: 14px;
-  color: #ffffff;
+  color: var(--csgo-bright, #ffffff);
 }
 
 .offerImage {
@@ -521,15 +521,15 @@
   width: 7px;
   height: 7px;
   border-radius: 50%;
-  background: rgb(255 255 255 / 0.3);
+  background: color-mix(in srgb, var(--csgo-line, #ffffff) 30%, transparent);
 }
 
 .pager i[data-active] {
-  background: #ffffff;
+  background: var(--csgo-bright, #ffffff);
 }
 
 .pager button:hover {
-  color: #ffffff;
+  color: var(--csgo-bright, #ffffff);
 }
 
 /* ---- friends / party panel ---- */
@@ -547,17 +547,17 @@
   align-items: center;
   gap: 2px;
   padding: 0 12px;
-  color: #8fb3d9;
+  color: var(--csgo-link, #8fb3d9);
 }
 
 .socialTabs button[data-active] {
   color: #d6e6f5;
-  box-shadow: inset 0 -2px 0 #8fb3d9;
+  box-shadow: inset 0 -2px 0 var(--csgo-link, #8fb3d9);
 }
 
 .socialTabs sub {
   font-size: 11px;
-  color: #dfe3e8;
+  color: var(--csgo-ink, #dfe3e8);
 }
 
 .socialTitle {
@@ -573,14 +573,14 @@
 .socialList {
   flex: 1;
   min-height: 0;
-  overflow: auto;
+  overflow: hidden auto;
 }
 
 .socialEmpty {
   margin: 0;
   padding: 14px;
   font-size: 12px;
-  color: #9aa4ae;
+  color: var(--csgo-muted, #9aa4ae);
 }
 
 .socialRow {
@@ -593,7 +593,7 @@
 }
 
 .socialRow:nth-child(odd) {
-  background: rgb(255 255 255 / 0.025);
+  background: color-mix(in srgb, var(--csgo-line, #ffffff) 2.5%, transparent);
 }
 
 .socialAvatar {
@@ -604,14 +604,14 @@
   overflow: hidden;
   font-size: 13px;
   font-weight: 700;
-  color: #ffffff;
+  color: var(--csgo-bright, #ffffff);
   background: #4a5866;
   box-shadow: inset 0 -3px 0 #6b7785;
 }
 
 .socialAvatar[data-status="menus"],
 .socialAvatar[data-status="online"] {
-  box-shadow: inset 0 -3px 0 #8fb3d9;
+  box-shadow: inset 0 -3px 0 var(--csgo-link, #8fb3d9);
 }
 
 .socialAvatar[data-status="in_match"],
@@ -644,12 +644,12 @@
   height: 28px;
   font-size: 18px;
   color: #b8c7d6;
-  background: rgb(255 255 255 / 0.06);
+  background: color-mix(in srgb, var(--csgo-line, #ffffff) 6%, transparent);
 }
 
 .plus:hover {
-  color: #ffffff;
-  background: rgb(255 255 255 / 0.14);
+  color: var(--csgo-bright, #ffffff);
+  background: color-mix(in srgb, var(--csgo-line, #ffffff) 14%, transparent);
 }
 
 .lobby {
@@ -693,7 +693,7 @@
   outline: none;
   font: inherit;
   font-size: 13px;
-  color: #dfe3e8;
+  color: var(--csgo-ink, #dfe3e8);
   background: transparent;
 }
 
@@ -703,7 +703,7 @@
   flex: 1;
   min-height: 0;
   padding: 16px 6% 0;
-  overflow: auto;
+  overflow: hidden auto;
   background: rgb(37 44 52 / 0.7);
 }
 
@@ -725,11 +725,11 @@
   font-weight: 800;
   letter-spacing: 0.6px;
   text-transform: uppercase;
-  color: #ffffff;
+  color: var(--csgo-bright, #ffffff);
 }
 
 .pageTabs button[data-active] {
-  color: #de9b35;
+  color: var(--csgo-highlight, #de9b35);
 }
 
 .pageBody {
@@ -753,11 +753,11 @@
 
 .articleDate {
   font-size: 11px;
-  color: #9aa4ae;
+  color: var(--csgo-muted, #9aa4ae);
 }
 
 .articleDate b {
-  color: #de9b35;
+  color: var(--csgo-highlight, #de9b35);
 }
 
 .articleHeading {
@@ -798,11 +798,11 @@
   gap: 12px;
   padding: 4px;
   text-decoration: none;
-  background: rgb(255 255 255 / 0.03);
+  background: color-mix(in srgb, var(--csgo-line, #ffffff) 3%, transparent);
 }
 
 .storyList a:hover {
-  background: rgb(255 255 255 / 0.08);
+  background: color-mix(in srgb, var(--csgo-line, #ffffff) 8%, transparent);
 }
 
 .storyImage {
@@ -810,7 +810,7 @@
   width: 96px;
   aspect-ratio: 16 / 9;
   object-fit: cover;
-  background: #2a3138;
+  background: var(--csgo-bar, #2a3138);
 }
 
 .storyList b {
@@ -822,7 +822,7 @@
 
 .storyList small {
   font-size: 11px;
-  color: #9aa4ae;
+  color: var(--csgo-muted, #9aa4ae);
 }
 
 .figureImage {
@@ -840,9 +840,9 @@
   font-weight: 700;
   letter-spacing: 1px;
   text-transform: uppercase;
-  color: rgb(223 227 232 / 0.35);
+  color: color-mix(in srgb, var(--csgo-ink, #dfe3e8) 35%, transparent);
   background:
-    repeating-linear-gradient(135deg, rgb(255 255 255 / 0.03) 0 12px, transparent 12px 24px),
+    repeating-linear-gradient(135deg, color-mix(in srgb, var(--csgo-line, #ffffff) 3%, transparent) 0 12px, transparent 12px 24px),
     linear-gradient(160deg, #3a4550, #1f262d);
 }
 
@@ -874,7 +874,7 @@
   grid-template-columns: 80px 1fr auto;
   align-items: center;
   gap: 12px;
-  background: rgb(255 255 255 / 0.03);
+  background: color-mix(in srgb, var(--csgo-line, #ffffff) 3%, transparent);
 }
 
 .matchImage {
@@ -882,16 +882,16 @@
   width: 80px;
   height: 34px;
   object-fit: cover;
-  background: #2a3138;
+  background: var(--csgo-bar, #2a3138);
 }
 
 .matchList b {
   padding-right: 10px;
-  color: #8bc34a;
+  color: var(--win, #8bc34a);
 }
 
 .matchList b[data-down] {
-  color: #e57368;
+  color: var(--loss, #e57368);
 }
 
 .pageSide {
@@ -912,7 +912,7 @@
 .bigStat b {
   font-size: 22px;
   letter-spacing: 1px;
-  color: #ffffff;
+  color: var(--csgo-bright, #ffffff);
 }
 
 .bigStat span,
@@ -933,7 +933,7 @@
 .sideCard b {
   font-size: 13px;
   text-transform: uppercase;
-  color: #ffffff;
+  color: var(--csgo-bright, #ffffff);
 }
 
 .mapTile {
@@ -942,8 +942,8 @@
   align-items: flex-start;
   height: 70px;
   padding: 6px 8px;
-  background: var(--tile) center / cover, #2a3138;
-  box-shadow: inset 0 0 0 1px rgb(255 255 255 / 0.15);
+  background: var(--tile) center / cover, var(--csgo-bar, #2a3138);
+  box-shadow: inset 0 0 0 1px color-mix(in srgb, var(--csgo-line, #ffffff) 15%, transparent);
 }
 
 .mapTile span {
@@ -953,4 +953,15 @@
   text-transform: uppercase;
   color: #f3e3c0;
   -webkit-text-stroke: 1px #3a2a14;
+}
+
+/* ---- store strip layouts (Look → Layout). Strip: the bundle and two offers side by side. ---- */
+/* Feature: the bundle takes most of the strip. */
+[data-layout="feature"] .feature {
+  flex: 2.6;
+}
+
+/* Offers only: today's offers without the bundle tile. */
+[data-layout="offers"] .feature {
+  display: none;
 }

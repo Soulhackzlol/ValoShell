@@ -1,29 +1,26 @@
 // Game-style navigation. Modern, CS2 and Fortnite use the floating top bar; the other menu
 // styles draw their own game's nav: the current VALORANT client's icon bar and social panel, CS:GO's segmented bar, the Beta's thin spaced labels with
 // the emblem, a side menu (VALORANT 2022, CS 1.6, Halo 3), Minecraft's stone buttons and a
-// terminal prompt line, and the League client's PLAY crest with its social column. All share the tabs,
-// Q/E cycling, wallet and system buttons.
-import { For, Match, Show, Switch, onCleanup, onMount, type JSX } from "solid-js";
-import { A, useLocation, useNavigate } from "@solidjs/router";
-import { getCurrentWindow } from "@tauri-apps/api/window";
-import { House, Minus, Paintbrush, Power, Settings, Users } from "lucide-solid";
-import { isTauri } from "~/ipc/runtime";
-import { doc, isEditing, setEditMode } from "~/studio/store";
-import { tabLabel } from "~/studio/skins";
-import { isDrawerOpen, onlineCount, setDrawerOpen } from "~/state/friends";
-import { connection, game } from "~/state/session";
-import { wallet } from "~/state/wallet";
-import { TABS, getAdjacentTab, sceneForPath, type SceneInfo } from "./scenes";
+// terminal prompt line, the League client's PLAY crest with its social column, Phantom's leaning
+// paper tabs and Night City's numbered HUD tabs. All share the tabs, Q/E cycling, wallet and
+// system buttons (navParts.tsx).
+import { For, Match, Show, Switch, onCleanup, onMount } from "solid-js";
+import { useLocation, useNavigate } from "@solidjs/router";
+import { House, Power } from "lucide-solid";
+import { doc } from "~/studio/store";
+import { connection } from "~/state/session";
+import { openEscMenu } from "./EscMenu";
+import { LIVE_TAB, StatusLight, SystemButtons, TabLink, Wallet, isLive, label } from "./navParts";
+import { TABS, getAdjacentTab, sceneForPath } from "./scenes";
 import { CurrentNav } from "./CurrentNav";
 import { GlassNav } from "./GlassNav";
 import { LeagueNav } from "./LeagueNav";
-import { openEscMenu } from "./EscMenu";
+import { NightCityNav } from "./NightCityNav";
+import { PhantomNav } from "./PhantomNav";
 import { playCue } from "./sound";
 import { isTyping } from "./typing";
 import styles from "./TopNav.module.css";
 import nav from "./NavVariants.module.css";
-
-const ICON_SIZE = 17;
 
 export function TopNav() {
   const location = useLocation();
@@ -72,83 +69,22 @@ export function TopNav() {
       <Match when={skin() === "league"}>
         <LeagueNav />
       </Match>
+      <Match when={skin() === "phantom"}>
+        <PhantomNav />
+      </Match>
+      <Match when={skin() === "nightcity"}>
+        <NightCityNav />
+      </Match>
     </Switch>
   );
-}
-
-// ---- shared parts -----------------------------------------------------------------------
-
-const isLive = () => game()?.phase === "pregame" || game()?.phase === "ingame";
-const label = (tab: SceneInfo) => tabLabel(doc.theme.skin, tab.id, tab.label);
-
-const LIVE_TAB: SceneInfo = { id: "live", label: "Live", isTab: false };
-
-function TabLink(props: { tab: SceneInfo; class: string | undefined; activeClass: string | undefined; children?: JSX.Element }) {
-  return (
-    <A
-      href={`/${props.tab.id}`}
-      class={props.class ?? ""}
-      data-part="tab"
-      activeClass={props.activeClass ?? ""}
-      onMouseEnter={() => playCue("hover")}
-      onClick={() => playCue("tab")}
-    >
-      {props.children ?? label(props.tab)}
-    </A>
-  );
-}
-
-function SystemButtons() {
-  return (
-    <>
-      <IconButton
-        label="Friends"
-        isActive={isDrawerOpen()}
-        onClick={() => {
-          playCue(isDrawerOpen() ? "back" : "confirm");
-          setDrawerOpen(!isDrawerOpen());
-        }}
-      >
-        <Users size={ICON_SIZE} />
-        <Show when={onlineCount() > 0}>
-          <span class={styles.badge}>{onlineCount()}</span>
-        </Show>
-      </IconButton>
-      <IconButton
-        label={isEditing() ? "Close Studio (Esc)" : "Studio: edit everything (Ctrl+E)"}
-        isActive={isEditing()}
-        onClick={() => {
-          playCue(isEditing() ? "back" : "confirm");
-          setEditMode(!isEditing());
-        }}
-      >
-        <Paintbrush size={ICON_SIZE} />
-      </IconButton>
-      <IconButton label="Settings (Esc)" onClick={openEscMenu}>
-        <Settings size={ICON_SIZE} />
-      </IconButton>
-      <Show when={isTauri}>
-        <IconButton label="Minimise" onClick={() => void getCurrentWindow().minimize()}>
-          <Minus size={ICON_SIZE} />
-        </IconButton>
-        <IconButton label="Hide to tray (Ctrl+Alt+V brings it back)" onClick={() => void getCurrentWindow().hide()}>
-          <Power size={ICON_SIZE} />
-        </IconButton>
-      </Show>
-    </>
-  );
-}
-
-function StatusLight() {
-  return <span class={styles.status} data-state={connection().state} title={connection().state.replace(/_/g, " ")} />;
 }
 
 // ---- Modern / CS2: floating bar ---------------------------------------------------------
 
 function BarNav() {
   return (
-    <header class={styles.nav} data-part="nav" data-tauri-drag-region>
-      <div class={styles.brand} data-tauri-drag-region>
+    <header class={styles.nav} data-part="nav">
+      <div class={styles.brand}>
         <span class={styles.mark} aria-hidden="true" />
         <StatusLight />
       </div>
@@ -182,8 +118,8 @@ function CsgoNav() {
   const home = () => TABS.find((tab) => tab.id === "home") ?? LIVE_TAB;
   const tabs = () => TABS.filter((tab) => tab.id !== "home");
   return (
-    <header class={nav.csgo} data-part="nav" data-tauri-drag-region>
-      <div class={nav.csgoCorner} data-tauri-drag-region>
+    <header class={nav.csgo} data-part="nav">
+      <div class={nav.csgoCorner}>
         <StatusLight />
       </div>
       <nav class={nav.csgoCells} aria-label="Menu">
@@ -212,8 +148,8 @@ function CsgoNav() {
 
 function BetaNav() {
   return (
-    <header class={nav.beta} data-part="nav" data-tauri-drag-region>
-      <div class={nav.betaCorner} data-tauri-drag-region>
+    <header class={nav.beta} data-part="nav">
+      <div class={nav.betaCorner}>
         <StatusLight />
       </div>
       <nav class={nav.betaTabs} aria-label="Menu">
@@ -249,8 +185,8 @@ function SideNav() {
   const playTab = () => TABS.find((tab) => tab.id === "play") ?? LIVE_TAB;
   return (
     <>
-      <header class={nav.sideBar} data-part="nav" data-tauri-drag-region>
-        <div class={nav.sideBarStatus} data-tauri-drag-region>
+      <header class={nav.sideBar} data-part="nav">
+        <div class={nav.sideBarStatus}>
           <StatusLight />
         </div>
         <Wallet />
@@ -293,8 +229,8 @@ function SideNav() {
 
 function McNav() {
   return (
-    <header class={nav.mc} data-part="nav" data-tauri-drag-region>
-      <div class={nav.mcCorner} data-tauri-drag-region>
+    <header class={nav.mc} data-part="nav">
+      <div class={nav.mcCorner}>
         <StatusLight />
       </div>
       <nav class={nav.mcTabs} aria-label="Menu">
@@ -317,8 +253,8 @@ function McNav() {
 
 function TerminalNav() {
   return (
-    <header class={nav.term} data-part="nav" data-tauri-drag-region>
-      <span class={nav.termPrompt} data-tauri-drag-region>
+    <header class={nav.term} data-part="nav">
+      <span class={nav.termPrompt}>
         valoshell@{connection().state === "connected" ? "valorant" : "offline"}:~$
       </span>
       <nav class={nav.termTabs} aria-label="Menu">
@@ -347,7 +283,7 @@ function TerminalNav() {
 
 function PipNav() {
   return (
-    <header class={nav.pip} data-part="nav" data-tauri-drag-region>
+    <header class={nav.pip} data-part="nav">
       <nav class={nav.pipTabs} aria-label="Menu">
         <For each={TABS}>
           {(tab) => (
@@ -368,44 +304,5 @@ function PipNav() {
         <SystemButtons />
       </div>
     </header>
-  );
-}
-
-function Wallet() {
-  const currencies = () => {
-    const balances = wallet();
-    return [
-      { id: "vp", label: "VP", value: balances?.valorant_points },
-      { id: "rp", label: "RP", value: balances?.radianite_points },
-      { id: "kc", label: "KC", value: balances?.kingdom_credits },
-    ];
-  };
-  return (
-    <div class={styles.wallet} data-part="wallet" data-sensitive>
-      <For each={currencies()}>
-        {(currency) => (
-          <span class={styles.currency}>
-            <span class={styles.currencyLabel}>{currency.label}</span>
-            <span class="num">{currency.value === undefined ? "-" : currency.value.toLocaleString()}</span>
-          </span>
-        )}
-      </For>
-    </div>
-  );
-}
-
-function IconButton(props: { label: string; isActive?: boolean; onClick: () => void; children: JSX.Element }) {
-  return (
-    <button
-      class={styles.iconButton}
-      data-part="icon-button"
-      data-active={props.isActive ? "" : undefined}
-      aria-label={props.label}
-      title={props.label}
-      onMouseEnter={() => playCue("hover")}
-      onClick={() => props.onClick()}
-    >
-      {props.children}
-    </button>
   );
 }

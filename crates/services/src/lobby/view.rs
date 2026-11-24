@@ -1,7 +1,7 @@
 //! Live lobby view: every player of the current match with rank facts and party stacks.
 //! Pure functions over the roster, the ranker rows fetched so far, names and parties.
 
-use std::collections::HashMap;
+use std::collections::{HashMap, HashSet};
 
 use domain::ids::{AgentId, Puuid};
 use domain::match_details::player_row::RankerRow;
@@ -12,7 +12,7 @@ use serde::Serialize;
 use ts_rs::TS;
 
 use crate::assets::{AssetIndex, image_url};
-use crate::names::RiotName;
+use crate::names::{RiotName, shown_name};
 use crate::party::{RankBadge, rank_badge};
 
 /// One player as the match roster lists them.
@@ -169,6 +169,8 @@ pub struct LobbyInputs<'a> {
     pub index: &'a AssetIndex,
     pub own: &'a Puuid,
     pub names: &'a HashMap<Puuid, RiotName>,
+    /// Who sees the names of players hiding theirs (see `shown_name`).
+    pub party: &'a HashSet<Puuid>,
     pub rows: &'a HashMap<Puuid, RankerRow>,
     pub stacks: &'a HashMap<Puuid, (u32, u32)>,
     /// Enemy ranks are not shown (agent select with the reveal setting off).
@@ -180,7 +182,7 @@ fn player_view(entry: &RosterEntry, inputs: &LobbyInputs<'_>) -> LobbyPlayerView
         .agent
         .as_ref()
         .and_then(|id| inputs.index.agent(id.as_str()));
-    let name = inputs.names.get(&entry.puuid).cloned().unwrap_or_default();
+    let name = shown_name(inputs.names, &entry.puuid, entry.is_incognito, inputs.party);
     let is_rank_hidden = inputs.are_enemy_ranks_hidden && !entry.is_ally;
     let row = inputs.rows.get(&entry.puuid).filter(|_| !is_rank_hidden);
     let stack = inputs.stacks.get(&entry.puuid).copied();
@@ -347,6 +349,7 @@ mod tests {
             index: &index,
             own: &own,
             names: &names,
+            party: &HashSet::new(),
             rows: &rows,
             stacks: &stacks,
             are_enemy_ranks_hidden: false,
@@ -378,6 +381,7 @@ mod tests {
             index: &index,
             own: &own,
             names: &names,
+            party: &HashSet::new(),
             rows: &rows,
             stacks: &stacks,
             are_enemy_ranks_hidden: true,

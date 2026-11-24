@@ -1,0 +1,129 @@
+/* Minecraft home looks: pixel type with its quarter-colour shadow, the hotbar's sunken slot,
+   the green XP bar with its outlined level number, and the floating dark nametag. */
+
+.play,
+.rank,
+.profile {
+  --mc-font: "Pixelify Sans Variable", "Silkscreen", monospace;
+  container-type: size;
+  width: 100%;
+  height: 100%;
+  font-family: var(--mc-font);
+  color: var(--minecraft-text, #ffffff);
+  text-shadow: 2px 2px 0 #3f3f3f;
+}
+
+.play {
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  gap: 8px;
+}
+
+.caption {
+  font-size: 14px;
+  color: var(--minecraft-muted, #e0e0e0);
+}
+
+.warn {
+  font-size: 14px;
+  color: #ff5555;
+}
+
+/* ---- rank: an item in a hotbar slot beside the XP bar ---- */
+
+.rank {
+  display: flex;
+  align-items: center;
+  gap: 14px;
+  padding: 10px 12px;
+  background: rgb(0 0 0 / 0.55);
+  box-shadow: 0 0 0 2px #000000;
+}
+
+.slot {
+  display: grid;
+  flex: none;
+  place-items: center;
+  width: clamp(48px, 40cqh, 88px);
+  aspect-ratio: 1;
+  background: var(--minecraft-slot, #8b8b8b);
+  box-shadow: inset 2px 2px 0 #373737, inset -2px -2px 0 #ffffff;
+}
+
+.item {
+  width: 80%;
+  height: 80%;
+  object-fit: contain;
+}
+
+.rankBody {
+  display: flex;
+  flex: 1;
+  flex-direction: column;
+  gap: 6px;
+  min-width: 0;
+}
+
+.rankName {
+  overflow: hidden;
+  font-size: 18px;
+  white-space: nowrap;
+  text-overflow: ellipsis;
+}
+
+/* The XP bar: dark trough, green fill drawn in 18 notches like the hotbar's. */
+.xp {
+  position: relative;
+  height: 10px;
+  background:
+    repeating-linear-gradient(90deg, transparent 0 calc(100% / 18 - 2px), #000 0 calc(100% / 18)),
+    linear-gradient(90deg, #80ff20 calc(var(--progress) * 100%), #1d1d1d 0);
+  box-shadow: 0 0 0 2px #000000;
+}
+
+.level {
+  font-size: 18px;
+  color: #80ff20;
+  text-shadow:
+    2px 0 0 #000,
+    -2px 0 0 #000,
+    0 2px 0 #000,
+    0 -2px 0 #000;
+}
+
+.xp .level {
+  position: absolute;
+  bottom: 4px;
+  left: 50%;
+  transform: translateX(-50%);
+}
+
+/* ---- profile: a player head under its nametag ---- */
+
+.profile {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 6px;
+}
+
+.nametag {
+  max-width: 100%;
+  padding: 2px 8px;
+  overflow: hidden;
+  font-size: 16px;
+  white-space: nowrap;
+  text-overflow: ellipsis;
+  text-shadow: none;
+  background: rgb(0 0 0 / 0.45);
+}
+
+.head {
+  width: clamp(40px, 46cqh, 120px);
+  aspect-ratio: 1;
+  object-fit: cover;
+  image-rendering: pixelated;
+  box-shadow: 0 0 0 2px #000000;
+}

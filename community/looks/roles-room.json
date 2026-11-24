@@ -1,0 +1,341 @@
+{
+  "community": {
+    "name": "Roles Room",
+    "author": "ValoShell",
+    "description": "Clean Modern with amber: agents sorted by role, one-line header, faces in the party."
+  },
+  "version": 1,
+  "theme": {
+    "skin": "modern",
+    "preset": "valorant",
+    "accent": "#ffb020",
+    "accent2": "#ffb4a8",
+    "ground": "#0a0a0e",
+    "text": "#ededf0",
+    "backdrop": {
+      "kind": "game",
+      "url": "",
+      "agentUuid": "",
+      "mapId": "Ascent",
+      "gameVideo": "",
+      "shader": "flow",
+      "isAscii": false,
+      "asciiSize": 12,
+      "blur": 0,
+      "dim": 0.35,
+      "offsetX": 0,
+      "offsetY": 0,
+      "zoom": 1,
+      "rotate": 0,
+      "motion": "none",
+      "motionSpeed": 1,
+      "hue": 0,
+      "saturation": 1,
+      "figureX": 0,
+      "figureY": 0,
+      "figureScale": 1
+    },
+    "isGrainy": true,
+    "vignette": 0.7,
+    "parallax": 14,
+    "cut": 18,
+    "displayFont": "saira",
+    "sound": {
+      "pack": "auto",
+      "volume": 1,
+      "isHoverOn": true,
+      "useFiles": true
+    },
+    "transition": {
+      "kind": "auto",
+      "speed": 1
+    },
+    "fx": {
+      "isIntroOn": true,
+      "isCursorOn": true,
+      "isClickFxOn": true
+    },
+    "language": "auto",
+    "palette": {},
+    "play": "#ffb020"
+  },
+  "stages": {
+    "home": [
+      {
+        "id": "party-lineup-default",
+        "kind": "party-lineup",
+        "rect": {
+          "x": 0.1,
+          "y": 0.05,
+          "w": 0.8,
+          "h": 0.7
+        },
+        "z": 1,
+        "isHidden": false,
+        "isLocked": false,
+        "style": {
+          "opacity": 1,
+          "radius": 0,
+          "surface": "none",
+          "isGlowing": false,
+          "scale": 1,
+          "density": "comfortable",
+          "accent": ""
+        },
+        "props": {
+          "layout": "strip"
+        }
+      },
+      {
+        "id": "play-bar-default",
+        "kind": "play-bar",
+        "rect": {
+          "x": 0.29,
+          "y": 0.8,
+          "w": 0.42,
+          "h": 0.12
+        },
+        "z": 2,
+        "isHidden": false,
+        "isLocked": false,
+        "style": {
+          "opacity": 1,
+          "radius": 0,
+          "surface": "none",
+          "isGlowing": false,
+          "scale": 1,
+          "density": "comfortable",
+          "accent": ""
+        },
+        "props": {
+          "layout": "stacked"
+        }
+      }
+    ],
+    "play": [
+      {
+        "id": "queue-picker-default",
+        "kind": "queue-picker",
+        "rect": {
+          "x": 0.05,
+          "y": 0.05,
+          "w": 0.6,
+          "h": 0.7
+        },
+        "z": 1,
+        "isHidden": false,
+        "isLocked": false,
+        "style": {
+          "opacity": 1,
+          "radius": 0,
+          "surface": "none",
+          "isGlowing": false,
+          "scale": 1,
+          "density": "comfortable",
+          "accent": ""
+        },
+        "props": {}
+      },
+      {
+        "id": "party-tools-default",
+        "kind": "party-tools",
+        "rect": {
+          "x": 0.68,
+          "y": 0.05,
+          "w": 0.27,
+          "h": 0.7
+        },
+        "z": 2,
+        "isHidden": false,
+        "isLocked": false,
+        "style": {
+          "opacity": 1,
+          "radius": 0,
+          "surface": "none",
+          "isGlowing": false,
+          "scale": 1,
+          "density": "comfortable",
+          "accent": ""
+        },
+        "props": {}
+      },
+      {
+        "id": "play-bar-default",
+        "kind": "play-bar",
+        "rect": {
+          "x": 0.29,
+          "y": 0.8,
+          "w": 0.42,
+          "h": 0.12
+        },
+        "z": 3,
+        "isHidden": false,
+        "isLocked": false,
+        "style": {
+          "opacity": 1,
+          "radius": 0,
+          "surface": "none",
+          "isGlowing": false,
+          "scale": 1,
+          "density": "comfortable",
+          "accent": ""
+        },
+        "props": {
+          "layout": "stacked"
+        }
+      }
+    ],
+    "agent-select": [
+      {
+        "id": "pregame-header-default",
+        "kind": "pregame-header",
+        "rect": {
+          "x": 0.3,
+          "y": 0.02,
+          "w": 0.4,
+          "h": 0.15
+        },
+        "z": 1,
+        "isHidden": false,
+        "isLocked": false,
+        "style": {
+          "opacity": 1,
+          "radius": 0,
+          "surface": "none",
+          "isGlowing": false,
+          "scale": 1,
+          "density": "comfortable",
+          "accent": ""
+        },
+        "props": {
+          "layout": "line"
+        }
+      },
+      {
+        "id": "ally-roster-default",
+        "kind": "ally-roster",
+        "rect": {
+          "x": 0.02,
+          "y": 0.04,
+          "w": 0.21,
+          "h": 0.84
+        },
+        "z": 2,
+        "isHidden": false,
+        "isLocked": false,
+        "style": {
+          "opacity": 1,
+          "radius": 0,
+          "surface": "none",
+          "isGlowing": false,
+          "scale": 1,
+          "density": "comfortable",
+          "accent": ""
+        },
+        "props": {
+          "layout": "rows"
+        }
+      },
+      {
+        "id": "agent-picker-default",
+        "kind": "agent-picker",
+        "rect": {
+          "x": 0.26,
+          "y": 0.2,
+          "w": 0.48,
+          "h": 0.76
+        },
+        "z": 3,
+        "isHidden": false,
+        "isLocked": false,
+        "style": {
+          "opacity": 1,
+          "radius": 0,
+          "surface": "none",
+          "isGlowing": false,
+          "scale": 1,
+          "density": "comfortable",
+          "accent": ""
+        },
+        "props": {
+          "layout": "roles"
+        }
+      }
+    ],
+    "live": [
+      {
+        "id": "lobby-default",
+        "kind": "lobby",
+        "rect": {
+          "x": 0.03,
+          "y": 0.03,
+          "w": 0.94,
+          "h": 0.8
+        },
+        "z": 1,
+        "isHidden": false,
+        "isLocked": false,
+        "style": {
+          "opacity": 1,
+          "radius": 0,
+          "surface": "none",
+          "isGlowing": false,
+          "scale": 1,
+          "density": "comfortable",
+          "accent": ""
+        },
+        "props": {}
+      },
+      {
+        "id": "match-score-default",
+        "kind": "match-score",
+        "rect": {
+          "x": 0.42,
+          "y": 0.86,
+          "w": 0.16,
+          "h": 0.1
+        },
+        "z": 2,
+        "isHidden": false,
+        "isLocked": false,
+        "style": {
+          "opacity": 1,
+          "radius": 0,
+          "surface": "none",
+          "isGlowing": false,
+          "scale": 1,
+          "density": "comfortable",
+          "accent": ""
+        },
+        "props": {
+          "isCompact": false
+        }
+      }
+    ],
+    "post-match": [
+      {
+        "id": "post-match-default",
+        "kind": "post-match",
+        "rect": {
+          "x": 0.03,
+          "y": 0.03,
+          "w": 0.94,
+          "h": 0.94
+        },
+        "z": 1,
+        "isHidden": false,
+        "isLocked": false,
+        "style": {
+          "opacity": 1,
+          "radius": 0,
+          "surface": "none",
+          "isGlowing": false,
+          "scale": 1,
+          "density": "comfortable",
+          "accent": ""
+        },
+        "props": {}
+      }
+    ]
+  }
+}

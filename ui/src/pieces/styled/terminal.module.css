@@ -28,7 +28,7 @@
   flex: 1;
   min-height: 0;
   padding: 8px 10px 0;
-  overflow: auto;
+  overflow: hidden auto;
 }
 
 .line {
@@ -74,4 +74,21 @@
   caret-color: var(--accent);
   caret-shape: block;
   background: transparent;
+}
+
+/* ---- layouts (Look → Layout). Full: the status line on top, the prompt at the bottom. ---- */
+
+/* tmux: the status line becomes tmux's bar under the prompt. */
+[data-layout="tmux"] .status {
+  order: 1;
+}
+
+/* Bare: just text and the prompt over the backdrop, no box and no status line. */
+[data-layout="bare"] .console {
+  background: transparent;
+  box-shadow: none;
+}
+
+[data-layout="bare"] .status {
+  display: none;
 }

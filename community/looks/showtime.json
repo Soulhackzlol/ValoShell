@@ -1,0 +1,672 @@
+{
+  "community": {
+    "name": "Showtime",
+    "author": "ValoShell",
+    "description": "Today's client gone cinematic: splash-screen agent select, versus lobby, team-split results."
+  },
+  "version": 1,
+  "theme": {
+    "skin": "current",
+    "preset": "custom",
+    "accent": "#ff4655",
+    "accent2": "#2ee6c5",
+    "ground": "#0f1923",
+    "text": "#ece8e1",
+    "backdrop": {
+      "kind": "shader",
+      "url": "",
+      "agentUuid": "",
+      "mapId": "Ascent",
+      "gameVideo": "",
+      "shader": "diamonds",
+      "isAscii": false,
+      "asciiSize": 12,
+      "blur": 0,
+      "dim": 0,
+      "offsetX": 0,
+      "offsetY": 0,
+      "zoom": 1,
+      "rotate": 0,
+      "motion": "none",
+      "motionSpeed": 1,
+      "hue": 0,
+      "saturation": 1,
+      "figureX": 0,
+      "figureY": 0,
+      "figureScale": 1
+    },
+    "isGrainy": false,
+    "vignette": 0.25,
+    "parallax": 14,
+    "cut": 0,
+    "displayFont": "tall",
+    "sound": {
+      "pack": "auto",
+      "volume": 1,
+      "isHoverOn": true,
+      "useFiles": true
+    },
+    "transition": {
+      "kind": "auto",
+      "speed": 1
+    },
+    "fx": {
+      "isIntroOn": true,
+      "isCursorOn": true,
+      "isClickFxOn": true
+    },
+    "language": "auto",
+    "palette": {},
+    "play": "#ff4655"
+  },
+  "stages": {
+    "home": [
+      {
+        "id": "val-banner-default",
+        "kind": "val-banner",
+        "rect": {
+          "x": 0,
+          "y": 0,
+          "w": 0.24825806451612903,
+          "h": 0.4118
+        },
+        "z": 1,
+        "isHidden": false,
+        "isLocked": false,
+        "style": {
+          "opacity": 1,
+          "radius": 0,
+          "surface": "none",
+          "isGlowing": false,
+          "scale": 1,
+          "density": "comfortable",
+          "accent": ""
+        },
+        "props": {}
+      },
+      {
+        "id": "val-corner-default",
+        "kind": "val-corner",
+        "rect": {
+          "x": 0.8064516129032258,
+          "y": 0.6783,
+          "w": 0.1935483870967742,
+          "h": 0.3217
+        },
+        "z": 1,
+        "isHidden": false,
+        "isLocked": false,
+        "style": {
+          "opacity": 1,
+          "radius": 0,
+          "surface": "none",
+          "isGlowing": false,
+          "scale": 1,
+          "density": "comfortable",
+          "accent": ""
+        },
+        "props": {}
+      },
+      {
+        "id": "val-dailies-default",
+        "kind": "val-dailies",
+        "rect": {
+          "x": 0.4129032258064516,
+          "y": 0.0445,
+          "w": 0.17548387096774196,
+          "h": 0.06
+        },
+        "z": 2,
+        "isHidden": false,
+        "isLocked": false,
+        "style": {
+          "opacity": 1,
+          "radius": 0,
+          "surface": "none",
+          "isGlowing": false,
+          "scale": 1,
+          "density": "comfortable",
+          "accent": ""
+        },
+        "props": {}
+      },
+      {
+        "id": "val-mode-default",
+        "kind": "val-mode",
+        "rect": {
+          "x": 0.021470967741935482,
+          "y": 0.2907,
+          "w": 0.12903225806451613,
+          "h": 0.42
+        },
+        "z": 3,
+        "isHidden": false,
+        "isLocked": false,
+        "style": {
+          "opacity": 1,
+          "radius": 0,
+          "surface": "none",
+          "isGlowing": false,
+          "scale": 1,
+          "density": "comfortable",
+          "accent": ""
+        },
+        "props": {}
+      },
+      {
+        "id": "val-lineup-default",
+        "kind": "val-lineup",
+        "rect": {
+          "x": 0.23019354838709677,
+          "y": 0.2043,
+          "w": 0.5388387096774194,
+          "h": 0.581
+        },
+        "z": 4,
+        "isHidden": false,
+        "isLocked": false,
+        "style": {
+          "opacity": 1,
+          "radius": 0,
+          "surface": "none",
+          "isGlowing": false,
+          "scale": 1,
+          "density": "comfortable",
+          "accent": ""
+        },
+        "props": {}
+      },
+      {
+        "id": "val-custom-default",
+        "kind": "val-custom",
+        "rect": {
+          "x": 0.18978064516129034,
+          "y": 0.25097,
+          "w": 0.6182812903225807,
+          "h": 0.48062
+        },
+        "z": 4,
+        "isHidden": false,
+        "isLocked": false,
+        "style": {
+          "opacity": 1,
+          "radius": 0,
+          "surface": "none",
+          "isGlowing": false,
+          "scale": 1,
+          "density": "comfortable",
+          "accent": ""
+        },
+        "props": {}
+      },
+      {
+        "id": "val-find-default",
+        "kind": "val-find",
+        "rect": {
+          "x": 0.4407741935483871,
+          "y": 0.8858,
+          "w": 0.11767741935483872,
+          "h": 0.0484
+        },
+        "z": 5,
+        "isHidden": false,
+        "isLocked": false,
+        "style": {
+          "opacity": 1,
+          "radius": 0,
+          "surface": "none",
+          "isGlowing": false,
+          "scale": 1,
+          "density": "comfortable",
+          "accent": ""
+        },
+        "props": {}
+      },
+      {
+        "id": "val-news-default",
+        "kind": "val-news",
+        "rect": {
+          "x": 0.8495483870967742,
+          "y": 0.1307,
+          "w": 0.128,
+          "h": 0.688
+        },
+        "z": 6,
+        "isHidden": false,
+        "isLocked": false,
+        "style": {
+          "opacity": 1,
+          "radius": 0,
+          "surface": "none",
+          "isGlowing": false,
+          "scale": 1,
+          "density": "comfortable",
+          "accent": ""
+        },
+        "props": {}
+      },
+      {
+        "id": "val-chat-default",
+        "kind": "val-chat",
+        "rect": {
+          "x": 0,
+          "y": 0.961,
+          "w": 0.23948387096774196,
+          "h": 0.039
+        },
+        "z": 7,
+        "isHidden": false,
+        "isLocked": false,
+        "style": {
+          "opacity": 1,
+          "radius": 0,
+          "surface": "none",
+          "isGlowing": false,
+          "scale": 1,
+          "density": "comfortable",
+          "accent": ""
+        },
+        "props": {}
+      }
+    ],
+    "play": [
+      {
+        "id": "val-modes-default",
+        "kind": "val-modes",
+        "rect": {
+          "x": 0.06193548387096774,
+          "y": 0.06,
+          "w": 0.8877419354838709,
+          "h": 0.72
+        },
+        "z": 1,
+        "isHidden": false,
+        "isLocked": false,
+        "style": {
+          "opacity": 1,
+          "radius": 0,
+          "surface": "none",
+          "isGlowing": false,
+          "scale": 1,
+          "density": "comfortable",
+          "accent": ""
+        },
+        "props": {}
+      },
+      {
+        "id": "val-find-default",
+        "kind": "val-find",
+        "rect": {
+          "x": 0.4407741935483871,
+          "y": 0.8858,
+          "w": 0.11767741935483872,
+          "h": 0.0484
+        },
+        "z": 2,
+        "isHidden": false,
+        "isLocked": false,
+        "style": {
+          "opacity": 1,
+          "radius": 0,
+          "surface": "none",
+          "isGlowing": false,
+          "scale": 1,
+          "density": "comfortable",
+          "accent": ""
+        },
+        "props": {}
+      },
+      {
+        "id": "val-chat-default",
+        "kind": "val-chat",
+        "rect": {
+          "x": 0,
+          "y": 0.961,
+          "w": 0.23948387096774196,
+          "h": 0.039
+        },
+        "z": 3,
+        "isHidden": false,
+        "isLocked": false,
+        "style": {
+          "opacity": 1,
+          "radius": 0,
+          "surface": "none",
+          "isGlowing": false,
+          "scale": 1,
+          "density": "comfortable",
+          "accent": ""
+        },
+        "props": {}
+      }
+    ],
+    "agents": [
+      {
+        "id": "val-agents-default",
+        "kind": "val-agents",
+        "rect": {
+          "x": 0,
+          "y": 0,
+          "w": 1,
+          "h": 1
+        },
+        "z": 1,
+        "isHidden": false,
+        "isLocked": false,
+        "style": {
+          "opacity": 1,
+          "radius": 0,
+          "surface": "none",
+          "isGlowing": false,
+          "scale": 1,
+          "density": "comfortable",
+          "accent": ""
+        },
+        "props": {}
+      }
+    ],
+    "collection": [
+      {
+        "id": "val-collection-default",
+        "kind": "val-collection",
+        "rect": {
+          "x": 0,
+          "y": 0,
+          "w": 1,
+          "h": 1
+        },
+        "z": 1,
+        "isHidden": false,
+        "isLocked": false,
+        "style": {
+          "opacity": 1,
+          "radius": 0,
+          "surface": "none",
+          "isGlowing": false,
+          "scale": 1,
+          "density": "comfortable",
+          "accent": ""
+        },
+        "props": {}
+      },
+      {
+        "id": "val-chat-default",
+        "kind": "val-chat",
+        "rect": {
+          "x": 0,
+          "y": 0.965,
+          "w": 0.23948387096774196,
+          "h": 0.035
+        },
+        "z": 2,
+        "isHidden": false,
+        "isLocked": false,
+        "style": {
+          "opacity": 1,
+          "radius": 0,
+          "surface": "none",
+          "isGlowing": false,
+          "scale": 1,
+          "density": "comfortable",
+          "accent": ""
+        },
+        "props": {}
+      }
+    ],
+    "career": [
+      {
+        "id": "val-career-default",
+        "kind": "val-career",
+        "rect": {
+          "x": 0,
+          "y": 0,
+          "w": 1,
+          "h": 1
+        },
+        "z": 1,
+        "isHidden": false,
+        "isLocked": false,
+        "style": {
+          "opacity": 1,
+          "radius": 0,
+          "surface": "none",
+          "isGlowing": false,
+          "scale": 1,
+          "density": "comfortable",
+          "accent": ""
+        },
+        "props": {}
+      },
+      {
+        "id": "val-chat-default",
+        "kind": "val-chat",
+        "rect": {
+          "x": 0,
+          "y": 0.961,
+          "w": 0.23948387096774196,
+          "h": 0.039
+        },
+        "z": 2,
+        "isHidden": false,
+        "isLocked": false,
+        "style": {
+          "opacity": 1,
+          "radius": 0,
+          "surface": "none",
+          "isGlowing": false,
+          "scale": 1,
+          "density": "comfortable",
+          "accent": ""
+        },
+        "props": {}
+      }
+    ],
+    "store": [
+      {
+        "id": "val-store-default",
+        "kind": "val-store",
+        "rect": {
+          "x": 0,
+          "y": 0,
+          "w": 1,
+          "h": 1
+        },
+        "z": 1,
+        "isHidden": false,
+        "isLocked": false,
+        "style": {
+          "opacity": 1,
+          "radius": 0,
+          "surface": "none",
+          "isGlowing": false,
+          "scale": 1,
+          "density": "comfortable",
+          "accent": ""
+        },
+        "props": {}
+      },
+      {
+        "id": "val-chat-default",
+        "kind": "val-chat",
+        "rect": {
+          "x": 0,
+          "y": 0.961,
+          "w": 0.23948387096774196,
+          "h": 0.039
+        },
+        "z": 2,
+        "isHidden": false,
+        "isLocked": false,
+        "style": {
+          "opacity": 1,
+          "radius": 0,
+          "surface": "none",
+          "isGlowing": false,
+          "scale": 1,
+          "density": "comfortable",
+          "accent": ""
+        },
+        "props": {}
+      }
+    ],
+    "agent-select": [
+      {
+        "id": "pregame-header-default",
+        "kind": "pregame-header",
+        "rect": {
+          "x": 0.3,
+          "y": 0.02,
+          "w": 0.4,
+          "h": 0.15
+        },
+        "z": 1,
+        "isHidden": false,
+        "isLocked": false,
+        "style": {
+          "opacity": 1,
+          "radius": 0,
+          "surface": "none",
+          "isGlowing": false,
+          "scale": 1,
+          "density": "comfortable",
+          "accent": ""
+        },
+        "props": {
+          "layout": "banner"
+        }
+      },
+      {
+        "id": "ally-roster-default",
+        "kind": "ally-roster",
+        "rect": {
+          "x": 0.02,
+          "y": 0.04,
+          "w": 0.21,
+          "h": 0.84
+        },
+        "z": 2,
+        "isHidden": false,
+        "isLocked": false,
+        "style": {
+          "opacity": 1,
+          "radius": 0,
+          "surface": "none",
+          "isGlowing": false,
+          "scale": 1,
+          "density": "comfortable",
+          "accent": ""
+        },
+        "props": {
+          "layout": "banners"
+        }
+      },
+      {
+        "id": "agent-picker-default",
+        "kind": "agent-picker",
+        "rect": {
+          "x": 0.26,
+          "y": 0.2,
+          "w": 0.48,
+          "h": 0.76
+        },
+        "z": 3,
+        "isHidden": false,
+        "isLocked": false,
+        "style": {
+          "opacity": 1,
+          "radius": 0,
+          "surface": "none",
+          "isGlowing": false,
+          "scale": 1,
+          "density": "comfortable",
+          "accent": ""
+        },
+        "props": {
+          "layout": "showcase"
+        }
+      }
+    ],
+    "live": [
+      {
+        "id": "lobby-default",
+        "kind": "lobby",
+        "rect": {
+          "x": 0.03,
+          "y": 0.03,
+          "w": 0.94,
+          "h": 0.8
+        },
+        "z": 1,
+        "isHidden": false,
+        "isLocked": false,
+        "style": {
+          "opacity": 1,
+          "radius": 0,
+          "surface": "none",
+          "isGlowing": false,
+          "scale": 1,
+          "density": "comfortable",
+          "accent": ""
+        },
+        "props": {
+          "layout": "versus"
+        }
+      },
+      {
+        "id": "match-score-default",
+        "kind": "match-score",
+        "rect": {
+          "x": 0.42,
+          "y": 0.86,
+          "w": 0.16,
+          "h": 0.1
+        },
+        "z": 2,
+        "isHidden": false,
+        "isLocked": false,
+        "style": {
+          "opacity": 1,
+          "radius": 0,
+          "surface": "none",
+          "isGlowing": false,
+          "scale": 1,
+          "density": "comfortable",
+          "accent": ""
+        },
+        "props": {
+          "isCompact": false
+        }
+      }
+    ],
+    "post-match": [
+      {
+        "id": "post-match-default",
+        "kind": "post-match",
+        "rect": {
+          "x": 0.03,
+          "y": 0.03,
+          "w": 0.94,
+          "h": 0.94
+        },
+        "z": 1,
+        "isHidden": false,
+        "isLocked": false,
+        "style": {
+          "opacity": 1,
+          "radius": 0,
+          "surface": "none",
+          "isGlowing": false,
+          "scale": 1,
+          "density": "comfortable",
+          "accent": ""
+        },
+        "props": {
+          "layout": "teams"
+        }
+      }
+    ]
+  },
+  "layouts": {
+    "current": 4
+  }
+}

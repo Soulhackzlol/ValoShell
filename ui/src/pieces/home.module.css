@@ -305,7 +305,7 @@
   padding: 6px;
   background: var(--panel-strong);
   box-shadow: inset 0 0 0 1px var(--border-default), 0 20px 40px rgb(0 0 0 / 0.5);
-  animation: popUp 260ms cubic-bezier(0.34, 1.4, 0.64, 1) both;
+  animation: popUp 260ms var(--ease-settle) both;
   transform-origin: bottom left;
 }
 
@@ -430,4 +430,324 @@
   to {
     background-position: -200% 0;
   }
+}
+
+/* ---- lineup layouts ----
+   The frame sets data-layout; "cards" is the look above. Same markup in every layout: each one
+   only reshapes the cards and picks the member art that fits (--card-wide, --card-small). */
+
+/* Banners: stacked rows on the wide player card, you first, invites last. */
+[data-layout="banners"] .lineup {
+  flex-direction: column;
+  align-items: center;
+  row-gap: 1.5cqh;
+}
+
+[data-layout="banners"] .card {
+  --card-cut: 10px;
+  width: min(100%, 620px);
+  height: min(96px, calc((100cqh - 4 * 1.5cqh) / 5));
+  aspect-ratio: auto;
+}
+
+[data-layout="banners"] .cardArt {
+  background-image: var(--card-wide, var(--card-art));
+  background-position: left center;
+}
+
+[data-layout="banners"] .cardShade {
+  background: linear-gradient(to right, rgb(6 6 9 / 0.88) 0%, rgb(6 6 9 / 0.4) 55%, transparent 85%);
+}
+
+[data-layout="banners"] .cardInfo {
+  inset: 0;
+  justify-content: center;
+  gap: 2px;
+  padding: 0 4%;
+}
+
+[data-layout="banners"] .cardName {
+  font-size: clamp(14px, 1.3vw, 20px);
+}
+
+[data-layout="banners"] .ready {
+  position: absolute;
+  top: 50%;
+  right: 4%;
+  margin: 0;
+  transform: translateY(-50%);
+}
+
+[data-layout="banners"] .own {
+  order: -1;
+  border-bottom: 0;
+  box-shadow: inset 4px 0 0 var(--accent);
+}
+
+[data-layout="banners"] .invite {
+  order: 1;
+  outline-offset: -5px;
+}
+
+[data-layout="banners"] .inviteButton {
+  flex-direction: row;
+}
+
+[data-layout="banners"] .kick {
+  top: 50%;
+  left: auto;
+  right: 22%;
+  transform: translateY(-50%) scale(0.8);
+}
+
+[data-layout="banners"] .card:hover .kick {
+  transform: translateY(-50%) scale(1);
+}
+
+/* Portraits: round faces with the name underneath, the clean overlay look; yours glows. */
+[data-layout="portraits"] .lineup {
+  column-gap: 3%;
+}
+
+[data-layout="portraits"] .card {
+  --portrait: min(15cqw, calc(100cqh - 86px));
+  width: var(--portrait);
+  height: var(--portrait);
+  margin-bottom: 72px;
+  aspect-ratio: 1;
+  clip-path: none;
+  background: none;
+  box-shadow: none;
+}
+
+[data-layout="portraits"] .own {
+  --portrait: min(17cqw, calc(100cqh - 86px));
+  border-bottom: 0;
+}
+
+[data-layout="portraits"] .cardArt {
+  border-radius: 50%;
+  background-color: var(--surface-raised);
+  background-image: var(--card-small, var(--card-art));
+  box-shadow: 0 0 0 2px var(--border-default);
+}
+
+[data-layout="portraits"] .own .cardArt {
+  box-shadow:
+    0 0 0 3px var(--accent),
+    0 0 28px color-mix(in srgb, var(--accent) 45%, transparent);
+}
+
+[data-layout="portraits"] .cardShade,
+[data-layout="portraits"] .cardMeta {
+  display: none;
+}
+
+[data-layout="portraits"] .cardInfo {
+  inset: calc(100% + 10px) -30% auto;
+  align-items: center;
+  gap: 2px;
+  padding: 0;
+  text-align: center;
+}
+
+[data-layout="portraits"] .cardName {
+  max-width: 100%;
+  font-size: clamp(13px, 1.2vw, 18px);
+}
+
+[data-layout="portraits"] .ready {
+  margin-top: 0;
+}
+
+[data-layout="portraits"] .rank {
+  max-width: 100%;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+/* A narrow row (a lineup tucked in a corner): the rank shows as its icon alone, the name as the
+   tooltip, so a long rank never wraps into the name under it. */
+@container (max-width: 560px) {
+  [data-layout="portraits"] .rank {
+    gap: 0;
+    font-size: 0;
+  }
+
+  [data-layout="portraits"] .rank img {
+    width: 18px;
+    height: 18px;
+  }
+}
+
+[data-layout="portraits"] .invite {
+  border-radius: 50%;
+  outline-offset: -2px;
+  background: rgb(255 255 255 / 0.03);
+}
+
+[data-layout="portraits"] .owner {
+  top: -4px;
+  right: -4px;
+}
+
+[data-layout="portraits"] .kick {
+  top: -4px;
+  left: -4px;
+  transform: scale(0.8);
+}
+
+[data-layout="portraits"] .card:hover .kick {
+  transform: scale(1);
+}
+
+/* Strip: one short row of square faces with name and ready, for bars and tight spots. */
+[data-layout="strip"] .lineup {
+  column-gap: 1%;
+}
+
+[data-layout="strip"] .card {
+  --card-cut: 8px;
+  --tile-h: min(100cqh, 72px);
+  width: calc((100% - 4%) / 5);
+  height: var(--tile-h);
+  aspect-ratio: auto;
+  background: var(--panel);
+}
+
+[data-layout="strip"] .own {
+  border-bottom: 2px solid var(--accent);
+}
+
+[data-layout="strip"] .cardArt {
+  inset: 0 auto 0 0;
+  width: auto;
+  height: 100%;
+  aspect-ratio: 1;
+  background-image: var(--card-small, var(--card-art));
+}
+
+[data-layout="strip"] .cardShade,
+[data-layout="strip"] .cardMeta {
+  display: none;
+}
+
+[data-layout="strip"] .cardInfo {
+  inset: 0 0 0 var(--tile-h);
+  justify-content: center;
+  gap: 1px;
+  padding: 0 10px;
+}
+
+[data-layout="strip"] .cardName {
+  font-size: clamp(12px, 1vw, 15px);
+}
+
+[data-layout="strip"] .rank {
+  font-size: 9px;
+}
+
+[data-layout="strip"] .rank img {
+  width: 14px;
+  height: 14px;
+}
+
+[data-layout="strip"] .ready {
+  margin-top: 0;
+  font-size: 9px;
+}
+
+[data-layout="strip"] .inviteButton {
+  flex-direction: row;
+}
+
+[data-layout="strip"] .owner {
+  top: 4px;
+  right: 4px;
+}
+
+[data-layout="strip"] .kick {
+  top: 50%;
+  left: auto;
+  right: 6px;
+  transform: translateY(-50%) scale(0.8);
+}
+
+[data-layout="strip"] .card:hover .kick {
+  transform: translateY(-50%) scale(1);
+}
+
+/* ---- play bar layouts ---- "bar" is the look above. */
+.playMode {
+  display: none;
+}
+
+/* Big button: one PLAY that fills the piece; the mode shows under the label (no picker). */
+[data-layout="button"] .queueWrap {
+  display: none;
+}
+
+[data-layout="button"] .playGlow {
+  max-width: none;
+}
+
+[data-layout="button"] .play {
+  flex-direction: column;
+  gap: 2px;
+  font-size: clamp(24px, 3.2vw, 46px);
+}
+
+[data-layout="button"] .playMode {
+  display: block;
+  font-size: 0.32em;
+  font-weight: 700;
+  letter-spacing: 4px;
+  opacity: 0.78;
+}
+
+/* Stacked: the mode on top, PLAY under it, both full width (side columns). */
+[data-layout="stacked"] .playBar {
+  flex-direction: column;
+}
+
+[data-layout="stacked"] .queueWrap,
+[data-layout="stacked"] .queue {
+  flex: none;
+  width: 100%;
+}
+
+[data-layout="stacked"] .playGlow {
+  max-width: none;
+}
+
+[data-layout="stacked"] .picker {
+  right: 0;
+}
+
+/* Pill: rounded mode chip and PLAY, with a soft glow in the Play colour. */
+[data-layout="pill"] .queue {
+  min-width: 180px;
+  padding-inline: var(--space-6);
+  border-radius: var(--radius-pill);
+  clip-path: none;
+}
+
+[data-layout="pill"] .play {
+  border-radius: var(--radius-pill);
+  clip-path: none;
+  box-shadow: 0 10px 32px color-mix(in srgb, var(--play) 42%, transparent);
+  transition:
+    background var(--dur-fast) var(--ease-standard),
+    box-shadow var(--dur-base) var(--ease-standard),
+    transform var(--dur-base) var(--ease-decelerate);
+}
+
+[data-layout="pill"] .play:hover:not(:disabled) {
+  box-shadow: 0 14px 40px color-mix(in srgb, var(--play) 55%, transparent);
+  transform: translateY(-1px);
+}
+
+[data-layout="pill"] .picker {
+  border-radius: var(--radius-lg);
 }

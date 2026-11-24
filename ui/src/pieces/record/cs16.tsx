@@ -8,10 +8,12 @@ import { careerView } from "~/state/views";
 import { relativeDate } from "../career";
 import { nextRankName, outcome, signed, useCountUp, type RecordProps } from "./shared";
 import styles from "./cs16.module.css";
+import { useOpenMatch } from "~/menu/openMatch";
 
 type Tab = "ranked" | "maps";
 
 export function Cs16Record(props: RecordProps) {
+  const { open, rowProps } = useOpenMatch();
   const navigate = useNavigate();
   const [tab, setTab] = createSignal<Tab>("ranked");
   const [picked, setPicked] = createSignal(0);
@@ -119,10 +121,13 @@ export function Cs16Record(props: RecordProps) {
               <For each={props.view.updates}>
                 {(update, index) => (
                   <li
+                    {...rowProps(update.match_id)}
                     class={`${styles.rowItem} ${styles.matchColumns}`}
                     style={{ "--stagger": index() }}
                     data-picked={picked() === index() ? "" : undefined}
+                    title="Double-click to open the match summary"
                     onClick={() => setPicked(index())}
+                    onDblClick={() => open(update.match_id)}
                   >
                     <span>{update.map_name}</span>
                     <span>{relativeDate(update.started_at_ms)}</span>

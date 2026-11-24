@@ -1,0 +1,112 @@
+/* Night City merc database hologram (Agents): the picked agent's portrait washed red with a cyan
+   ghost, flickering, framed by a reticle. Colour tokens (--nc-*) inherit from the screen root in
+   nightcityScreens.module.css; the scan band over it is that file's `.scan`. */
+
+/* The hologram: the portrait washed red, a cyan ghost of it offset, flickering, scanned. */
+.holo {
+  position: relative;
+  min-width: 0;
+  overflow: hidden;
+}
+
+.reticle {
+  position: absolute;
+  inset: 6% 8%;
+  border: 1px solid transparent;
+  background:
+    linear-gradient(var(--nc-cyan), var(--nc-cyan)) top left / 26px 2px no-repeat,
+    linear-gradient(var(--nc-cyan), var(--nc-cyan)) top left / 2px 26px no-repeat,
+    linear-gradient(var(--nc-cyan), var(--nc-cyan)) top right / 26px 2px no-repeat,
+    linear-gradient(var(--nc-cyan), var(--nc-cyan)) top right / 2px 26px no-repeat,
+    linear-gradient(var(--nc-cyan), var(--nc-cyan)) bottom left / 26px 2px no-repeat,
+    linear-gradient(var(--nc-cyan), var(--nc-cyan)) bottom left / 2px 26px no-repeat,
+    linear-gradient(var(--nc-cyan), var(--nc-cyan)) bottom right / 26px 2px no-repeat,
+    linear-gradient(var(--nc-cyan), var(--nc-cyan)) bottom right / 2px 26px no-repeat;
+  opacity: 0.7;
+}
+
+/* Portraits carry wide empty margins around the agent; scaled from the floor they fill the frame. */
+.figure {
+  position: absolute;
+  inset: 2% 0 0;
+  scale: 1.45;
+  transform-origin: 50% 92%;
+  animation: holoFlicker calc(5s * var(--motion-scale, 1)) steps(1, end) infinite;
+}
+
+.figure img {
+  width: 100%;
+  height: 100%;
+  object-fit: contain;
+  object-position: center bottom;
+  filter: grayscale(1) sepia(1) hue-rotate(-30deg) saturate(3.2) brightness(0.95) contrast(1.15);
+  -webkit-mask-image: linear-gradient(to bottom, #000 70%, transparent 98%);
+  mask-image: linear-gradient(to bottom, #000 70%, transparent 98%);
+}
+
+/* The cyan ghost: the same portrait, offset, showing through as a colour fringe. */
+.figure::before {
+  content: "";
+  position: absolute;
+  inset: 0;
+  background: var(--portrait) center bottom / contain no-repeat;
+  filter: grayscale(1) brightness(0.9) sepia(1) hue-rotate(140deg) saturate(4);
+  mix-blend-mode: screen;
+  opacity: 0.35;
+  translate: 6px 0;
+  -webkit-mask-image: linear-gradient(to bottom, #000 70%, transparent 98%);
+  mask-image: linear-gradient(to bottom, #000 70%, transparent 98%);
+}
+
+.holoTag {
+  position: absolute;
+  left: 10%;
+  bottom: 4%;
+  font-family: var(--font-mono);
+  font-size: 11px;
+  letter-spacing: 0.2em;
+  color: var(--nc-cyan);
+}
+
+/* Mostly steady, with two brief drops in signal. */
+@keyframes holoFlicker {
+  0%,
+  100% {
+    opacity: 1;
+  }
+
+  61% {
+    opacity: 0.55;
+  }
+
+  62% {
+    opacity: 1;
+  }
+
+  87% {
+    opacity: 0.7;
+    translate: 3px 0;
+  }
+
+  88% {
+    opacity: 1;
+    translate: 0;
+  }
+}
+
+/* Narrow screens: the hologram goes first, list and dossier keep the room. */
+@container (max-width: 1000px) {
+  .holo {
+    display: none;
+  }
+}
+
+:global(:root[data-motion="reduced"]) .figure {
+  animation: none;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  :global(:root:not([data-motion="full"])) .figure {
+    animation: none;
+  }
+}

@@ -1,0 +1,6 @@
+# Changes to the community look checker and its workflow need the owner's review, so a pull
+# request that adds a look cannot also weaken the check that guards it.
+/community/build_index.py @Soulhackzlol
+/.github/workflows/community.yml @Soulhackzlol
+/community/thumbs/ @Soulhackzlol
+/ui/scripts/look-thumbs.mjs @Soulhackzlol

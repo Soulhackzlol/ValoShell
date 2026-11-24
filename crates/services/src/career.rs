@@ -4,17 +4,21 @@
 use std::sync::{Arc, Mutex, PoisonError};
 use std::time::{Duration, Instant};
 
+use domain::ids::Puuid;
 use domain::static_data::map_by_map_id_path;
+use riot::CachePolicy;
 use riot::api::pd::history::IndexWindow;
 use riot::api::pd::mmr::{
     CompetitiveUpdate, CompetitiveUpdates, MmrPlayer, get_competitive_updates, get_player_mmr,
 };
-use riot::{CachePolicy, Request};
+use riot::api::pd::premier::{
+    PremierPlayer, PremierRoster, get_premier_player, get_premier_roster,
+};
+use riot::session::RiotSession;
 use serde::Serialize;
-use serde::de::DeserializeOwned;
 use ts_rs::TS;
 
-use crate::action::ActionError;
+use crate::action::{ActionError, fetch_json};
 use crate::assets::{AssetIndex, AssetStore, image_url};
 use crate::ctx::Ctx;
 use crate::party::{RankBadge, rank_badge};
@@ -22,6 +26,7 @@ use crate::party::{RankBadge, rank_badge};
 const VIEW_TTL: Duration = Duration::from_secs(90);
 const COMPETITIVE: &str = "competitive";
 const UPDATES_SHOWN: u32 = 20;
+const CAREER_READ: &str = "load your career";
 
 /// RR change of one ranked match.
 #[derive(Debug, Clone, PartialEq, Serialize, TS)]
@@ -41,6 +46,31 @@ pub struct RrUpdate {
     pub afk_penalty: i32,
 }
 
+/// The player's Premier team, as the client's Career page shows it.
+#[derive(Debug, Clone, PartialEq, Eq, Serialize, TS)]
+#[ts(export)]
+pub struct PremierTeam {
+    pub name: String,
+    pub tag: String,
+    pub is_enrolled: bool,
+    pub division: u32,
+    pub wins: u32,
+    pub games: u32,
+}
+
+impl PremierTeam {
+    fn from_roster(roster: PremierRoster) -> Self {
+        Self {
+            name: roster.name,
+            tag: roster.tag,
+            is_enrolled: roster.season.is_enrolled,
+            division: roster.season.division,
+            wins: roster.season.wins,
+            games: roster.season.games_played,
+        }
+    }
+}
+
 /// The career scene.
 #[derive(Debug, Clone, PartialEq, Serialize, TS)]
 #[ts(export)]
@@ -56,6 +86,8 @@ pub struct CareerView {
     /// Ranked games still needed before a rank is shown.
     pub placements_left: u32,
     pub updates: Vec<RrUpdate>,
+    /// None without a team (or when Premier can't be read right now).
+    pub premier: Option<PremierTeam>,
 }
 
 fn rr_update(index: &AssetIndex, update: &CompetitiveUpdate) -> RrUpdate {
@@ -128,7 +160,44 @@ pub fn career_view(
             .iter()
             .map(|update| rr_update(index, update))
             .collect(),
+        premier: None,
     }
+}
+
+/// Premier is decoration on the Career page: a failed read shows "no team" rather than failing
+/// the whole page.
+async fn read_premier(session: &RiotSession) -> Option<PremierTeam> {
+    let player_request = get_premier_player(&session.puuid);
+    let player: PremierPlayer = fetch_optional(session, &player_request, "premier_player").await?;
+    let roster_request = get_premier_roster(player.team()?);
+    let roster: PremierRoster = fetch_optional(session, &roster_request, "premier_roster").await?;
+    Some(PremierTeam::from_roster(roster))
+}
+
+/// HTTP status Riot answers for a player who never opened Premier: an expected "no team".
+const NOT_FOUND: u16 = 404;
+
+/// `endpoint` is a fixed label for the logs: the request path holds the player's puuid.
+async fn fetch_optional<T: serde::de::DeserializeOwned>(
+    session: &RiotSession,
+    request: &riot::http::Request,
+    endpoint: &'static str,
+) -> Option<T> {
+    let fetched = session
+        .gate
+        .fetch(&session.http, request, CachePolicy::Fresh)
+        .await;
+    if !fetched.is_complete {
+        if fetched.status == NOT_FOUND {
+            tracing::debug!(endpoint, "premier_not_found");
+        } else {
+            tracing::warn!(endpoint, status = fetched.status, "premier_unavailable");
+        }
+        return None;
+    }
+    serde_json::from_value(fetched.data)
+        .map_err(|error| tracing::warn!(endpoint, %error, "premier_unreadable"))
+        .ok()
 }
 
 /// Cheap to clone.
@@ -136,7 +205,8 @@ pub fn career_view(
 pub struct CareerService {
     ctx: Ctx,
     assets: AssetStore,
-    last: Arc<Mutex<Option<(Instant, CareerView)>>>,
+    /// Keyed by account: after switching accounts the other one's career is never reused.
+    last: Arc<Mutex<Option<(Instant, Puuid, CareerView)>>>,
 }
 
 impl CareerService {
@@ -150,48 +220,32 @@ impl CareerService {
 
     /// The career, reusing a recent answer unless `is_forced`.
     pub async fn view(&self, is_forced: bool) -> Result<CareerView, ActionError> {
-        if !is_forced
-            && let Some((at, view)) = self
-                .last
-                .lock()
-                .unwrap_or_else(PoisonError::into_inner)
-                .as_ref()
-            && at.elapsed() < VIEW_TTL
-        {
-            return Ok(view.clone());
-        }
         let session = self.ctx.session().ok_or(ActionError::NotConnected)?;
-        let mmr: MmrPlayer = fetch(&session, &get_player_mmr(&session.puuid)).await?;
+        if !is_forced && let Some(view) = self.fresh(&session.puuid) {
+            return Ok(view);
+        }
+        let mmr: MmrPlayer =
+            fetch_json(&session, &get_player_mmr(&session.puuid), CAREER_READ).await?;
         let window = IndexWindow::new(0, UPDATES_SHOWN);
-        let updates: CompetitiveUpdates = fetch(
+        let updates: CompetitiveUpdates = fetch_json(
             &session,
             &get_competitive_updates(&session.puuid, window, Some(COMPETITIVE)),
+            CAREER_READ,
         )
         .await?;
-        let view = career_view(&self.assets.index(), &mmr, &updates);
+        let mut view = career_view(&self.assets.index(), &mmr, &updates);
+        view.premier = read_premier(&session).await;
         *self.last.lock().unwrap_or_else(PoisonError::into_inner) =
-            Some((Instant::now(), view.clone()));
+            Some((Instant::now(), session.puuid.clone(), view.clone()));
         Ok(view)
     }
-}
 
-async fn fetch<T: DeserializeOwned>(
-    session: &riot::session::RiotSession,
-    request: &Request,
-) -> Result<T, ActionError> {
-    let fetched = session
-        .gate
-        .fetch(&session.http, request, CachePolicy::Fresh)
-        .await;
-    if !fetched.is_complete {
-        let reason = match fetched.status {
-            0 => "Riot did not answer in time".to_owned(),
-            status => format!("Riot answered HTTP {status}"),
-        };
-        return Err(ActionError::could_not("load your career", reason));
+    fn fresh(&self, puuid: &Puuid) -> Option<CareerView> {
+        let last = self.last.lock().unwrap_or_else(PoisonError::into_inner);
+        last.as_ref()
+            .filter(|(at, owner, _)| at.elapsed() < VIEW_TTL && owner == puuid)
+            .map(|(_, _, view)| view.clone())
     }
-    serde_json::from_value(fetched.data)
-        .map_err(|error| ActionError::could_not("read your career", error))
 }
 
 #[cfg(test)]
@@ -233,5 +287,20 @@ mod tests {
         assert_eq!(update.map_name, "Ascent");
         assert_eq!(update.rr_earned, -18);
         assert!(!update.is_promotion && !update.is_demotion);
+    }
+
+    #[test]
+    fn a_premier_roster_becomes_the_team_card() {
+        let body = r#"{"name":"SinMira","tag":"SM",
+            "season":{"isEnrolled":true,"division":7,"wins":9,"gamesPlayed":12}}"#;
+        let roster: PremierRoster = serde_json::from_str(body).unwrap();
+
+        let team = PremierTeam::from_roster(roster);
+
+        assert_eq!((team.name.as_str(), team.tag.as_str()), ("SinMira", "SM"));
+        assert_eq!(
+            (team.is_enrolled, team.division, team.wins, team.games),
+            (true, 7, 9, 12)
+        );
     }
 }

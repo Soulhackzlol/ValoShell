@@ -1,0 +1,421 @@
+/* The chat panel (menu/chat) in each style's own clothes, through its data-part hooks: the
+   panel, its conversation rail, the header, the message lines, the compose box and the chip.
+   The panel's layout stays the same everywhere; what changes is the material each game's own
+   chat or social window is made of. Colours come from each style's tokens, so a recoloured
+   style recolours its chat too. Modern keeps the base sheet (menu/chat/chat.module.css). */
+
+/* ---- Glass: a frosted rounded card, like the glass friends list ---- */
+:root[data-skin="glass"] [data-part="chat-panel"] {
+  overflow: hidden;
+  border-radius: 22px;
+  background: color-mix(in srgb, var(--glass-fill, #181a20) 55%, transparent);
+  backdrop-filter: blur(28px) saturate(180%);
+  box-shadow:
+    inset 0 1px 0 color-mix(in srgb, var(--glass-line, #ffffff) 20%, transparent),
+    inset 0 0 0 0.5px color-mix(in srgb, var(--glass-line, #ffffff) 14%, transparent),
+    0 18px 50px rgb(0 0 0 / 0.4);
+}
+
+:root[data-skin="glass"] [data-part="chat-rail"] {
+  border-right: 0;
+  background: color-mix(in srgb, var(--glass-line, #ffffff) 4%, transparent);
+}
+
+:root[data-skin="glass"] [data-part="chat-thread"] {
+  border-radius: 12px;
+}
+
+:root[data-skin="glass"] [data-part="chat-compose"] input {
+  border-radius: 999px;
+}
+
+:root[data-skin="glass"] [data-part="chat-compose"] button {
+  border-radius: 50%;
+}
+
+/* ---- VALORANT (today's client): the client's flat translucent black, DIN caps headings ---- */
+:root[data-skin="current"] [data-part="chat-panel"],
+:root[data-skin="valnow"] [data-part="chat-panel"] {
+  background: rgb(15 25 35 / 0.94);
+  box-shadow: inset 0 0 0 1px rgb(236 232 225 / 0.1), 0 18px 44px rgb(0 0 0 / 0.55);
+}
+
+:root[data-skin="current"] [data-part="chat-head"] b,
+:root[data-skin="valnow"] [data-part="chat-head"] b {
+  font-family: var(--font-din, var(--font-display));
+  font-size: 16px;
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+}
+
+:root[data-skin="current"] [data-part="chat-thread"][aria-current="true"],
+:root[data-skin="valnow"] [data-part="chat-thread"][aria-current="true"] {
+  background: rgb(236 232 225 / 0.08);
+  box-shadow: inset 3px 0 0 var(--accent, #ff4655);
+}
+
+:root[data-skin="valnow"] [data-part="chat-head"] {
+  box-shadow: inset 0 -2px 0 var(--accent, #ff4655);
+}
+
+/* ---- VALORANT beta: the off-white sheet, navy type, hairline frames ---- */
+:root[data-skin="beta"] [data-part="chat-panel"] {
+  color: #0f1923;
+  background: var(--beta-paper, #ece8e1);
+  box-shadow: inset 0 0 0 1px rgb(15 25 35 / 0.3), 0 18px 44px rgb(0 0 0 / 0.45);
+}
+
+:root[data-skin="beta"] [data-part="chat-panel"] :is(b, p, input, span, button) {
+  color: #0f1923;
+}
+
+:root[data-skin="beta"] [data-part="chat-rail"],
+:root[data-skin="beta"] [data-part="chat-head"],
+:root[data-skin="beta"] [data-part="chat-compose"] {
+  border-color: rgb(15 25 35 / 0.2);
+  background: transparent;
+}
+
+:root[data-skin="beta"] [data-part="chat-thread"][aria-current="true"] {
+  background: transparent;
+  box-shadow: inset 0 -2px 0 var(--beta-red, #ff4655);
+}
+
+:root[data-skin="beta"] [data-part="chat-compose"] input {
+  font-family: var(--font-mono);
+  background: transparent;
+  box-shadow: inset 0 0 0 1px rgb(15 25 35 / 0.3);
+}
+
+/* ---- CS:GO: a Panorama grey box under a darker title strip ---- */
+:root[data-skin="csgo"] [data-part="chat-panel"] {
+  border-radius: 0;
+  background: rgb(44 47 51 / 0.97);
+  box-shadow: 0 0 0 1px rgb(0 0 0 / 0.6), 0 18px 44px rgb(0 0 0 / 0.5);
+}
+
+:root[data-skin="csgo"] [data-part="chat-head"] {
+  background: rgb(25 27 30 / 0.95);
+}
+
+:root[data-skin="csgo"] [data-part="chat-head"] b {
+  text-transform: uppercase;
+}
+
+:root[data-skin="csgo"] [data-part="chat-thread"][aria-current="true"] {
+  background: rgb(222 155 53 / 0.18);
+  box-shadow: inset 2px 0 0 var(--csgo-highlight, #de9b35);
+}
+
+:root[data-skin="csgo"] [data-part="chat-line"] header b {
+  color: var(--csgo-highlight, #de9b35);
+}
+
+/* ---- CS2: flat slate, the blue of CS2's buttons ---- */
+:root[data-skin="cs2"] [data-part="chat-panel"] {
+  border-radius: 6px;
+  background: rgb(20 25 32 / 0.97);
+}
+
+:root[data-skin="cs2"] [data-part="chat-thread"][aria-current="true"] {
+  background: rgb(75 105 255 / 0.18);
+  box-shadow: inset 2px 0 0 #4b69ff;
+}
+
+:root[data-skin="cs2"] [data-part="chat-compose"] button:not(:disabled) {
+  color: #ffffff;
+  background: #4b69ff;
+}
+
+/* ---- CS 1.6: an olive VGUI window, bevelled edges, Tahoma ---- */
+:root[data-skin="cs16"] [data-part="chat-panel"] {
+  font-family: Tahoma, Verdana, sans-serif;
+  color: #dedfa6;
+  background: #4c5844;
+  box-shadow: inset 1px 1px 0 #8c9284, inset -1px -1px 0 #292c21, 0 12px 30px rgb(0 0 0 / 0.5);
+}
+
+:root[data-skin="cs16"] [data-part="chat-head"] {
+  background: #3e4637;
+}
+
+:root[data-skin="cs16"] [data-part="chat-rail"] {
+  background: #434c3b;
+}
+
+:root[data-skin="cs16"] [data-part="chat-thread"][aria-current="true"] {
+  color: #ffffff;
+  background: #958831;
+  box-shadow: none;
+}
+
+:root[data-skin="cs16"] [data-part="chat-compose"] input {
+  background: #3e4637;
+  box-shadow: inset 1px 1px 0 #292c21, inset -1px -1px 0 #8c9284;
+}
+
+/* ---- Terminal: black, phosphor mono, dashed panes ---- */
+:root[data-skin="terminal"] [data-part="chat-panel"] {
+  font-family: var(--font-mono);
+  color: var(--terminal-green, #33ff66);
+  background: #000000;
+  box-shadow: 0 0 0 1px currentColor;
+}
+
+:root[data-skin="terminal"] [data-part="chat-panel"] :is(b, p, input, span, button) {
+  font-family: var(--font-mono);
+  color: var(--terminal-green, #33ff66);
+}
+
+:root[data-skin="terminal"] [data-part="chat-rail"],
+:root[data-skin="terminal"] [data-part="chat-head"],
+:root[data-skin="terminal"] [data-part="chat-compose"] {
+  border-style: dashed;
+  border-color: color-mix(in srgb, var(--terminal-green, #33ff66) 40%, transparent);
+  background: transparent;
+}
+
+:root[data-skin="terminal"] [data-part="chat-thread"][aria-current="true"] {
+  background: color-mix(in srgb, var(--terminal-green, #33ff66) 18%, transparent);
+  box-shadow: none;
+}
+
+:root[data-skin="terminal"] [data-part="chat-compose"] input {
+  background: transparent;
+  box-shadow: none;
+}
+
+:root[data-skin="terminal"] [data-part="chat-compose"] input::placeholder {
+  color: color-mix(in srgb, var(--terminal-green, #33ff66) 50%, transparent);
+}
+
+/* ---- Fortnite: rounded navy panels, chunky caps, the yellow button ---- */
+:root[data-skin="fortnite"] [data-part="chat-panel"] {
+  overflow: hidden;
+  border-radius: 14px;
+  background: color-mix(in srgb, var(--fortnite-navy, #081246) 92%, transparent);
+}
+
+:root[data-skin="fortnite"] [data-part="chat-head"] b {
+  font-family: "Anton", var(--font-display);
+  font-size: 18px;
+  text-transform: uppercase;
+}
+
+:root[data-skin="fortnite"] [data-part="chat-thread"] {
+  border-radius: 8px;
+}
+
+:root[data-skin="fortnite"] [data-part="chat-thread"][aria-current="true"] {
+  color: #121212;
+  background: var(--fortnite-yellow, #fbe925);
+  box-shadow: none;
+}
+
+:root[data-skin="fortnite"] [data-part="chat-thread"][aria-current="true"] :is(b, span, small) {
+  color: #121212;
+}
+
+:root[data-skin="fortnite"] [data-part="chat-compose"] input {
+  border-radius: 8px;
+}
+
+:root[data-skin="fortnite"] [data-part="chat-compose"] button:not(:disabled) {
+  border-radius: 8px;
+  color: #121212;
+  background: var(--fortnite-yellow, #fbe925);
+  box-shadow: inset 0 -3px 0 var(--fortnite-yellow-edge, #cdbb0b);
+}
+
+/* ---- Minecraft: the chat itself is white text with a hard shadow on dark glass; the window
+   around it is the grey bevelled GUI ---- */
+:root[data-skin="minecraft"] [data-part="chat-panel"] {
+  font-family: "Pixelify Sans Variable", "Silkscreen", monospace;
+  background: var(--minecraft-panel, #c6c6c6);
+  box-shadow: 0 0 0 2px #000000, inset 3px 3px 0 #ffffff, inset -3px -3px 0 #555555;
+}
+
+:root[data-skin="minecraft"] [data-part="chat-rail"],
+:root[data-skin="minecraft"] [data-part="chat-head"] {
+  border-color: #555555;
+  background: transparent;
+}
+
+:root[data-skin="minecraft"] [data-part="chat-panel"] [data-part="chat-head"] b,
+:root[data-skin="minecraft"] [data-part="chat-rail"] :is(b, span) {
+  color: #404040;
+}
+
+:root[data-skin="minecraft"] [data-part="chat-conversation"] ol {
+  margin: 6px;
+  background: rgb(0 0 0 / 0.55);
+}
+
+:root[data-skin="minecraft"] [data-part="chat-line"] :is(b, p) {
+  color: #ffffff;
+  text-shadow: 2px 2px 0 #3f3f3f;
+}
+
+:root[data-skin="minecraft"] [data-part="chat-thread"][aria-current="true"] {
+  background: var(--minecraft-select, #7b86bd);
+  box-shadow: none;
+}
+
+:root[data-skin="minecraft"] [data-part="chat-compose"] input {
+  color: #ffffff;
+  background: #000000;
+  box-shadow: inset 0 0 0 2px #a0a0a0;
+}
+
+/* ---- Halo: frosted deep blue, a bright top edge, light-blue caps ---- */
+:root[data-skin="halo"] [data-part="chat-panel"] {
+  color: var(--halo-frost, #c7ecff);
+  background: color-mix(in srgb, var(--halo-glass, #0e345c) 88%, transparent);
+  backdrop-filter: blur(16px);
+  box-shadow:
+    inset 0 2px 0 color-mix(in srgb, var(--halo-accent, #6fd4ff) 70%, transparent),
+    0 18px 44px rgb(0 0 0 / 0.5);
+}
+
+:root[data-skin="halo"] [data-part="chat-head"] b {
+  font-family: var(--font-display);
+  font-weight: 400;
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+}
+
+:root[data-skin="halo"] [data-part="chat-thread"][aria-current="true"] {
+  background: color-mix(in srgb, var(--halo-accent, #6fd4ff) 22%, transparent);
+  box-shadow: inset 3px 0 0 var(--halo-accent, #6fd4ff);
+}
+
+/* ---- Pip-Boy: one phosphor green, uppercase mono, faint scanlines ---- */
+:root[data-skin="pipboy"] [data-part="chat-panel"] {
+  font-family: var(--font-mono);
+  color: var(--pipboy-green, #1aff80);
+  background:
+    repeating-linear-gradient(to bottom, rgb(0 0 0 / 0.18) 0 1px, transparent 1px 3px),
+    rgb(4 18 9 / 0.97);
+  box-shadow: inset 0 0 0 1px color-mix(in srgb, var(--pipboy-green, #1aff80) 45%, transparent);
+  text-shadow: 0 0 6px color-mix(in srgb, var(--pipboy-green, #1aff80) 40%, transparent);
+}
+
+:root[data-skin="pipboy"] [data-part="chat-panel"] :is(b, p, input, span, button) {
+  font-family: var(--font-mono);
+  text-transform: uppercase;
+  color: var(--pipboy-green, #1aff80);
+}
+
+:root[data-skin="pipboy"] [data-part="chat-rail"],
+:root[data-skin="pipboy"] [data-part="chat-head"],
+:root[data-skin="pipboy"] [data-part="chat-compose"] {
+  border-color: color-mix(in srgb, var(--pipboy-green, #1aff80) 35%, transparent);
+  background: transparent;
+}
+
+:root[data-skin="pipboy"] [data-part="chat-thread"][aria-current="true"] {
+  background: var(--pipboy-green, #1aff80);
+  box-shadow: none;
+}
+
+:root[data-skin="pipboy"] [data-part="chat-thread"][aria-current="true"] :is(b, span) {
+  color: #021a0c;
+  text-shadow: none;
+}
+
+:root[data-skin="pipboy"] [data-part="chat-compose"] input {
+  background: transparent;
+  box-shadow: inset 0 0 0 1px currentColor;
+}
+
+/* ---- League: the client's deep navy framed in dark gold, Beaufort caps ---- */
+:root[data-skin="league"] [data-part="chat-panel"] {
+  color: #f0e6d2;
+  background: #010a13;
+  box-shadow: inset 0 0 0 1px #463714, 0 0 0 1px #010a13, 0 18px 44px rgb(0 0 0 / 0.6);
+}
+
+:root[data-skin="league"] [data-part="chat-head"] b {
+  font-family: "Beaufort for LOL", "Cinzel Variable", serif;
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+  color: #f0e6d2;
+}
+
+:root[data-skin="league"] [data-part="chat-rail"],
+:root[data-skin="league"] [data-part="chat-head"],
+:root[data-skin="league"] [data-part="chat-compose"] {
+  border-color: #463714;
+}
+
+:root[data-skin="league"] [data-part="chat-thread"][aria-current="true"] {
+  background: #1e2328;
+  box-shadow: inset 2px 0 0 #c8aa6e;
+}
+
+:root[data-skin="league"] [data-part="chat-compose"] input {
+  background: #1e2328;
+  box-shadow: inset 0 0 0 1px #463714;
+}
+
+/* ---- Phantom: ink black, red and white cut-out strips ---- */
+:root[data-skin="phantom"] [data-part="chat-panel"] {
+  color: #ffffff;
+  background: var(--phantom-ink, #0b0b0b);
+  box-shadow: inset 0 0 0 3px var(--phantom-red, #e5191c), 0 18px 44px rgb(0 0 0 / 0.6);
+}
+
+:root[data-skin="phantom"] [data-part="chat-head"] {
+  background: var(--phantom-red, #e5191c);
+}
+
+:root[data-skin="phantom"] [data-part="chat-head"] b {
+  font-family: var(--font-display);
+  font-style: italic;
+  font-size: 18px;
+  text-transform: uppercase;
+}
+
+:root[data-skin="phantom"] [data-part="chat-thread"][aria-current="true"] {
+  background: #ffffff;
+  box-shadow: none;
+  transform: skewX(-6deg);
+}
+
+:root[data-skin="phantom"] [data-part="chat-thread"][aria-current="true"] :is(b, span) {
+  color: #0b0b0b;
+}
+
+:root[data-skin="phantom"] [data-part="chat-line"] header b {
+  color: var(--phantom-red, #e5191c);
+}
+
+/* ---- Night City: black glass, red hairlines, a chamfered corner, cyan readouts ---- */
+:root[data-skin="nightcity"] [data-part="chat-panel"] {
+  font-family: var(--font-display);
+  color: var(--nightcity-cyan, #5ef6ff);
+  background: rgb(5 6 8 / 0.95);
+  box-shadow: inset 0 0 0 1px color-mix(in srgb, var(--nightcity-red, #ff5e57) 55%, transparent);
+  clip-path: polygon(0 0, calc(100% - 16px) 0, 100% 16px, 100% 100%, 0 100%);
+}
+
+:root[data-skin="nightcity"] [data-part="chat-head"] b {
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  color: var(--nightcity-red, #ff5e57);
+}
+
+:root[data-skin="nightcity"] [data-part="chat-rail"],
+:root[data-skin="nightcity"] [data-part="chat-head"],
+:root[data-skin="nightcity"] [data-part="chat-compose"] {
+  border-color: color-mix(in srgb, var(--nightcity-red, #ff5e57) 35%, transparent);
+}
+
+:root[data-skin="nightcity"] [data-part="chat-thread"][aria-current="true"] {
+  background: rgb(94 246 255 / 0.1);
+  box-shadow: inset 2px 0 0 var(--nightcity-cyan, #5ef6ff);
+}
+
+:root[data-skin="nightcity"] [data-part="chat-line"] header b {
+  color: var(--nightcity-yellow, #fcee0a);
+}

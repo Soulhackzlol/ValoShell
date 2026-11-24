@@ -1,0 +1,105 @@
+/* Skin picker layouts and list motion. Inspect (the first option) is the look in
+   collection.module.css; these restyle its parts by data-part hooks, so this sheet needs no
+   class names from that one. The picker root is [data-part="screen-board"]. */
+
+/* Every layout: the owned skins deal in one after another. */
+[data-part="skin-list"] [data-part="skin-row"] {
+  animation: skinRowIn 360ms var(--ease-decelerate) backwards;
+  animation-delay: calc(var(--stagger, 0) * 24ms * var(--motion-scale));
+}
+
+/* Showroom: the weapon on a tall stage on the left; name, upgrades, skins and Equip on the right.
+   Only when the piece is wide enough for two columns; a thinner one keeps the Inspect look. */
+[data-layout="showroom"] {
+  container-type: inline-size;
+}
+
+@container (min-width: 560px) {
+  [data-layout="showroom"] [data-part="screen-board"] {
+    grid-template-columns: minmax(0, 1.5fr) minmax(240px, 1fr);
+    grid-template-rows: auto auto minmax(0, 1fr) auto;
+    column-gap: var(--space-5);
+  }
+
+  [data-layout="showroom"] [data-part="skin-stage"] {
+    grid-column: 1;
+    grid-row: 1 / -1;
+  }
+
+  [data-layout="showroom"] [data-part="skin-head"],
+  [data-layout="showroom"] [data-part="skin-upgrades"],
+  [data-layout="showroom"] [data-part="skin-list"],
+  [data-layout="showroom"] [data-part="screen-board"] > [data-part="play"] {
+    grid-column: 2;
+  }
+
+  [data-layout="showroom"] [data-part="skin-head"] {
+    grid-row: 1;
+  }
+
+  [data-layout="showroom"] [data-part="skin-upgrades"] {
+    grid-row: 2;
+  }
+
+  [data-layout="showroom"] [data-part="skin-list"] {
+    grid-row: 3;
+  }
+
+  [data-layout="showroom"] [data-part="screen-board"] > [data-part="play"] {
+    grid-row: 4;
+  }
+}
+
+/* Carousel: the stage as big as it gets, the skins as one sliding strip under it. */
+[data-layout="carousel"] [data-part="screen-board"] {
+  grid-template-rows: auto minmax(0, 1fr) auto auto auto;
+}
+
+[data-layout="carousel"] [data-part="skin-list"] {
+  grid-template-columns: none;
+  grid-auto-flow: column;
+  grid-auto-columns: 132px;
+  overflow-x: auto;
+  overflow-y: hidden;
+  scroll-snap-type: x proximity;
+  padding-bottom: 4px;
+}
+
+[data-layout="carousel"] [data-part="skin-row"] {
+  scroll-snap-align: start;
+}
+
+/* Compact: a short stage and the skins as a plain list, for a thin column. The list comes
+   first; the upgrade levels are left out (they stay one layout away). */
+[data-layout="compact"] [data-part="screen-board"] {
+  grid-template-rows: auto minmax(72px, 0.4fr) auto minmax(120px, 1fr) auto;
+  gap: var(--space-2);
+}
+
+[data-layout="compact"] [data-part="skin-upgrades"] ol {
+  display: none;
+}
+
+[data-layout="compact"] [data-part="skin-list"] {
+  grid-template-columns: 1fr;
+  gap: 3px;
+}
+
+[data-layout="compact"] [data-part="skin-row"] {
+  grid-template-columns: 72px minmax(0, 1fr);
+  grid-template-rows: 30px;
+  align-items: center;
+  gap: var(--space-2);
+  padding: 4px 8px;
+}
+
+[data-layout="compact"] [data-part="skin-row"] img {
+  height: 30px;
+}
+
+@keyframes skinRowIn {
+  from {
+    opacity: 0;
+    translate: 0 8px;
+  }
+}

@@ -18,6 +18,8 @@ export interface PlayState {
   canStart: () => boolean;
   partySize: () => number;
   maxSize: () => number;
+  /** In a custom lobby, where the owner's PLAY starts the game instead of a search. */
+  isCustom: () => boolean;
   pickQueue: (queue: QueueOption) => void;
   /** PLAY for the owner, ready toggle for the others, cancel while searching. */
   press: () => void;
@@ -47,6 +49,7 @@ export function usePlay(): PlayState {
     canStart: () => party() !== null && !isPartyBusy() && restricted() === 0,
     partySize: () => party()?.members.length ?? 0,
     maxSize: () => party()?.max_size ?? 5,
+    isCustom: () => party()?.is_custom_game ?? false,
     pickQueue: (queue) => {
       if (isPartyBusy() || !isOwner() || party()?.is_queueing || queue.id === party()?.queue.id) return;
       playCue("tab");
@@ -67,15 +70,4 @@ export function usePlay(): PlayState {
       }
     },
   };
-}
-
-/** VALORANT tiers run 3 (Iron 1) to 27 (Radiant); 0-2 are unranked. */
-const FIRST_TIER = 3;
-const TIER_SPAN = 25;
-
-/** 0..1 position on the ladder from tier and RR, for styles that show a single number. */
-export function ladderPosition(tier: number, rr: number): number {
-  if (tier < FIRST_TIER) return 0;
-  const steps = (tier - FIRST_TIER) * 100 + Math.min(100, Math.max(0, rr));
-  return Math.min(1, steps / (TIER_SPAN * 100));
 }

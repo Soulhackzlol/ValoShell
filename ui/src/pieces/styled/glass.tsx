@@ -1,21 +1,22 @@
 // Glass style pieces: a calm greeting, the party as rounded cards with readiness rings, the
 // mode control with a gliding thumb above a capsule PLAY button, and a frosted friends list.
 // Colours come from --glass-* variables that each piece's props can override; the motion
-// (tilt, glare, magnetic pull, ripples, rolls) comes from ./glassMotion.
+// (glare, ripples, rolls) comes from ./glassMotion.
 import { For, Index, Show, createEffect, createMemo, createSignal, on, onCleanup, onMount } from "solid-js";
 import { Check, ChevronDown, Crown, Plus, Search, UserPlus, X } from "lucide-solid";
 import type { FriendView } from "~/bindings/FriendView";
 import type { MemberView } from "~/bindings/MemberView";
 import type { PieceProps } from "~/studio/registry";
 import { playCue } from "~/menu/sound";
-import { useLineupSlots } from "~/pieces/home";
+import { artUrl, useLineupSlots } from "~/pieces/home";
 import { friendActivity, friends, isElsewhere, productName, setDrawerOpen } from "~/state/friends";
 import { party, partyActions } from "~/state/party";
 import { isConnected, ownRiotId } from "~/state/session";
 import { careerView } from "~/state/views";
 import { Art } from "~/ui/Art";
-import { magnetic, pointerGlow, pop, ripple, roll, stretch } from "./glassMotion";
+import { pointerGlow, pop, ripple, roll, stretch } from "./glassMotion";
 import { usePlay } from "./usePlay";
+import { slideOnWheel } from "~/ui/sideScroll";
 import styles from "./glass.module.css";
 
 function textOf(props: PieceProps, key: string, fallback: string): string {
@@ -151,8 +152,16 @@ function ReadyRing(props: { isReady: boolean }) {
 function PartyCard(props: { member: MemberView }) {
   const canKick = () => (party()?.is_owner ?? false) && !props.member.is_self;
   return (
-    <article ref={(element) => pointerGlow(element, 9)} class={styles.card} data-self={props.member.is_self ? "" : undefined}>
-      <div class={styles.cardArt} style={{ "--art": props.member.card_tall ? `url("${props.member.card_tall}")` : "none" }} />
+    <article ref={(element) => pointerGlow(element)} class={styles.card} data-self={props.member.is_self ? "" : undefined}>
+      {/* Layouts pick the art that fits their shape: banners the wide card, portraits and strip the small. */}
+      <div
+        class={styles.cardArt}
+        style={{
+          "--art": artUrl(props.member.card_tall),
+          "--art-wide": artUrl(props.member.card_wide ?? props.member.card_tall),
+          "--art-small": artUrl(props.member.card_small ?? props.member.card_tall),
+        }}
+      />
       <span class={styles.glare} aria-hidden="true" />
       <Show when={props.member.is_owner}>
         <span class={styles.crown} title="Party owner">
@@ -191,7 +200,7 @@ function InviteCard(props: { isCenter: boolean }) {
   return (
     <button
       ref={(element) => {
-        pointerGlow(element, 6);
+        pointerGlow(element);
         ripple(element, styles.ripple ?? "");
       }}
       class={styles.invite}
@@ -204,7 +213,7 @@ function InviteCard(props: { isCenter: boolean }) {
     >
       <span class={styles.glare} aria-hidden="true" />
       <span class={styles.inviteRing} aria-hidden="true" />
-      <span ref={(element) => magnetic(element, 0.35)} class={styles.inviteIcon}>
+      <span class={styles.inviteIcon}>
         <Plus size={22} />
       </span>
       <span class={styles.inviteLabel}>{props.isCenter ? (isConnected() ? "Loading" : "Offline") : "Invite"}</span>
@@ -276,7 +285,8 @@ export function GlassPlay(props: PieceProps) {
   };
   createEffect(on([index, queues], () => requestAnimationFrame(() => measure(true))));
   onMount(() => {
-    const observer = new ResizeObserver(() => measure(false));
+    // A resized window can push the picked mode out of view, so it is scrolled back in.
+    const observer = new ResizeObserver(() => measure(true));
     if (strip) observer.observe(strip);
     void document.fonts?.ready.then(() => measure(false));
     onCleanup(() => observer.disconnect());
@@ -292,11 +302,7 @@ export function GlassPlay(props: PieceProps) {
             ref={strip}
             class={styles.modes}
             onScroll={updateEdges}
-            onWheel={(event) => {
-              if (!strip || Math.abs(event.deltaX) > Math.abs(event.deltaY)) return;
-              event.preventDefault();
-              strip.scrollLeft += event.deltaY;
-            }}
+            onWheel={slideOnWheel}
           >
             <span ref={thumb} class={styles.modeThumb} style={{ "--x": `${box().x}px`, "--w": `${box().w}px` }} />
             <For each={queues()}>
@@ -316,7 +322,7 @@ export function GlassPlay(props: PieceProps) {
           </div>
         </div>
       </Show>
-      <div ref={(element) => magnetic(element, 0.12)} class={styles.playMagnet}>
+      <div class={styles.playHolder}>
         <button
           ref={(element) => ripple(element, styles.ripple ?? "")}
           class={styles.playButton}

@@ -11,4 +11,8 @@ act_level: number,
 /**
  * Never resets; the number on the Agents page diamond.
  */
-lifetime_level: number, };
+lifetime_level: number, 
+/**
+ * Mastery points toward the next level; orders agents on the same level.
+ */
+points: number, };

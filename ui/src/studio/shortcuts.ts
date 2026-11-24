@@ -7,9 +7,11 @@ import { replayIntro } from "~/menu/Intro";
 import { playCue } from "~/menu/sound";
 import { isTyping } from "~/menu/typing";
 import { pushToast } from "~/state/toasts";
+import { isModalOpen } from "~/ui/modal";
 import { addFromImageFile, addFromUrl, currentStage, deleteSelected, duplicatePiece, nudgeSelected } from "./actions";
 import { pasteLook } from "./looks";
-import { SKINS, applySkin } from "./skins";
+import { SKINS } from "./skins";
+import { switchStyle } from "./styleSwitch";
 import { doc, isEditing, mutate, redo, restack, selectedId, setEditMode, setSelectedId, undo } from "./store";
 import { animateChange } from "./transitions";
 
@@ -19,7 +21,7 @@ function stepSkin(direction: 1 | -1): void {
   const next = SKINS[(index + direction + SKINS.length) % SKINS.length];
   if (!next) return;
   playCue("confirm");
-  animateChange(() => mutate((draft) => applySkin(draft, next)), "build");
+  animateChange(() => mutate((draft) => switchStyle(draft, next)), "build");
   pushToast("info", next.label, "F8 next style · Shift+F8 previous · F9 intro", "style");
 }
 
@@ -28,7 +30,7 @@ export function switchSkin(id: string): void {
   const next = SKINS.find((skin) => skin.id === id);
   if (!next || next.id === doc.theme.skin) return;
   playCue("confirm");
-  animateChange(() => mutate((draft) => applySkin(draft, next)), "build");
+  animateChange(() => mutate((draft) => switchStyle(draft, next)), "build");
 }
 
 function stageSize(): { w: number; h: number } {
@@ -83,7 +85,8 @@ function onEditKey(event: KeyboardEvent): boolean {
 }
 
 function onKeyDown(event: KeyboardEvent): void {
-  if (isTyping(event.target)) return;
+  // A dialog owns the keyboard: no style switch, Studio or intro under it.
+  if (isTyping(event.target) || isModalOpen()) return;
   const isToggle = event.key === "F2" || ((event.ctrlKey || event.metaKey) && event.key.toLowerCase() === "e");
   if (isToggle) {
     event.preventDefault();

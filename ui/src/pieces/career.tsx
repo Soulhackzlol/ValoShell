@@ -9,6 +9,8 @@ import { Art } from "~/ui/Art";
 import { Empty } from "~/ui/controls";
 import { rankColor } from "./home";
 import styles from "./career.module.css";
+import { useOpenMatch } from "~/menu/openMatch";
+import { ViewStatus } from "~/ui/ViewStatus";
 
 export function useCareer(): void {
   onMount(() => {
@@ -17,14 +19,7 @@ export function useCareer(): void {
 }
 
 export function Status(props: { what: string }) {
-  return (
-    <Show
-      when={careerView.error()}
-      fallback={<Empty title={props.what}>{careerView.isLoading() ? "Loading your career…" : "Connect to VALORANT to see your rank."}</Empty>}
-    >
-      {(error) => <Empty title={props.what}>{error()}</Empty>}
-    </Show>
-  );
+  return <ViewStatus view={careerView} title={props.what} loading="Loading your career…" idle="Connect to VALORANT to see your rank." />;
 }
 
 export function RankCard(_props: PieceProps) {
@@ -116,6 +111,7 @@ export function relativeDate(ms: number): string {
 }
 
 export function RrHistory(_props: PieceProps) {
+  const { rowProps } = useOpenMatch();
   useCareer();
   return (
     <Show when={careerView.value()} fallback={<Status what="Ranked history" />}>
@@ -132,7 +128,7 @@ export function RrHistory(_props: PieceProps) {
             <ol class={styles.matches}>
               <For each={view().updates}>
                 {(update, index) => (
-                  <li class={styles.match} style={{ "--stagger": index() }} data-result={update.rr_earned >= 0 ? "up" : "down"}>
+                  <li {...rowProps(update.match_id)} class={styles.match} style={{ "--stagger": index() }} data-result={update.rr_earned >= 0 ? "up" : "down"}>
                     <span class={styles.mapThumb}>
                       <Art src={update.map_image} fallback={<span />} />
                     </span>

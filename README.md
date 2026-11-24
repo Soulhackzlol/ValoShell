@@ -49,7 +49,7 @@ Every style is a complete menu, not a colour swap: its own navigation, panels, f
   <tr>
     <td><img src=".github/assets/style-pip-boy.webp" alt="ValoShell Pip-Boy style"><p align="center"><b>Pip-Boy</b></p></td>
     <td><img src=".github/assets/style-terminal.webp" alt="ValoShell Terminal style"><p align="center"><b>Terminal</b></p></td>
-    <td align="center"><b>+ 3 more</b><br><sub>VALORANT Beta, VALORANT 2022<br>and the League client</sub></td>
+    <td align="center"><b>+ 5 more</b><br><sub>VALORANT Beta, VALORANT 2022, the League client,<br>Phantom (Persona 5) and Night City (Cyberpunk 2077)</sub></td>
   </tr>
 </table>
 
@@ -109,8 +109,8 @@ back when it ends.
 - **Nothing to log in to.** Your session comes from the Riot Client.
 - **Nothing touches the game.** No injection, no memory reading, no input automation.
 - **No unfair extras.** No instalock, and streamer mode only ever hides names.
-- **Opt-in extras.** Enemy ranks during agent select are off by default and never requested
-  unless you turn them on.
+- **Only what the game shows.** Enemy ranks appear once the match starts, as on the in-game
+  scoreboard; agent select never has them (Riot only sends your own team there).
 
 ## Download
 
@@ -119,6 +119,10 @@ start VALORANT's Riot Client, then open ValoShell.
 
 The build isn't code-signed, so Windows may say *"Windows protected your PC"*: click **More info**,
 then **Run anyway**. Each release lists the file's SHA-256 in `SHA256SUMS.txt`.
+
+ValoShell checks GitHub for a newer release now and then and offers it in the menu. It only
+installs when you click **Update and restart**, after checking the download against that SHA-256.
+You can turn the check off in **Settings → ValoShell**.
 
 ## Build from source
 

@@ -1,0 +1,66 @@
+/* Terminal home panes: the console's pane and prompt, one answer per line. The PLAY line is
+   the command itself, inverted on hover like the picked line elsewhere. */
+
+.pane {
+  composes: pane from "./terminalScreens.module.css";
+  gap: 2px;
+  width: 100%;
+  height: 100%;
+  font-family: var(--font-mono);
+  font-size: 14px;
+  line-height: 1.55;
+  white-space: pre;
+  color: var(--accent);
+}
+
+.dim {
+  color: color-mix(in srgb, var(--accent) 60%, transparent);
+}
+
+.warn {
+  color: var(--negative, #ff5c5c);
+}
+
+.bar {
+  letter-spacing: 1px;
+}
+
+.run {
+  display: flex;
+  align-items: center;
+  margin-top: auto;
+  padding: 4px 6px;
+  border: 0;
+  font: inherit;
+  font-weight: 700;
+  text-align: left;
+  color: var(--theme-play, var(--accent));
+  background: none;
+  cursor: pointer;
+}
+
+.run:hover:not(:disabled),
+.run:focus-visible {
+  outline: none;
+  color: #000;
+  background: var(--theme-play, var(--accent));
+}
+
+.run:disabled {
+  opacity: 0.45;
+  cursor: default;
+}
+
+.caret {
+  width: 0.6em;
+  height: 1.1em;
+  margin-left: 4px;
+  background: currentColor;
+  animation: blink 1.1s steps(1) infinite;
+}
+
+@keyframes blink {
+  50% {
+    opacity: 0;
+  }
+}

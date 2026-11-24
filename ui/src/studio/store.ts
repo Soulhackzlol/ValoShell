@@ -5,7 +5,7 @@ import { createSignal } from "solid-js";
 import { createStore, produce, reconcile, unwrap } from "solid-js/store";
 import { emit, listen } from "@tauri-apps/api/event";
 import { call } from "~/ipc/commands";
-import { isTauri } from "~/ipc/runtime";
+import { isLookPreview, isTauri } from "~/ipc/runtime";
 import { pushToast } from "~/state/toasts";
 import { defaultDoc, defaultStage, normalizeDoc } from "./defaults";
 import { refreshLayouts } from "./skins";
@@ -86,12 +86,28 @@ function hasOverlayPieces(): boolean {
   return (doc.stages.ingame ?? []).some((piece) => !piece.isHidden);
 }
 
+let hasPendingSave = false;
+
 function scheduleSave(): void {
+  // A gallery preview shows a look it was handed; it never writes over anything.
+  if (isLookPreview) return;
   window.clearTimeout(saveTimer);
+  hasPendingSave = true;
   saveTimer = window.setTimeout(() => void save(), SAVE_DELAY_MS);
 }
 
+/** Save now if an edit is still waiting for its delayed save (before quitting). */
+export async function flushSave(): Promise<void> {
+  if (!hasPendingSave) return;
+  window.clearTimeout(saveTimer);
+  await save();
+}
+
+// Closing the page (the browser preview, a reload) must not drop the last edit.
+window.addEventListener("pagehide", () => void flushSave());
+
 async function save(): Promise<void> {
+  hasPendingSave = false;
   const document = unwrap(doc);
   try {
     await call("save_ui_document", { kind: "layouts", name: DOCUMENT_NAME, document });
@@ -118,6 +134,11 @@ export async function loadStudio(): Promise<void> {
   } finally {
     setLoaded(true);
   }
+}
+
+/** The gallery's preview frame: show `next` as it is, unsaved (scheduleSave is off there). */
+export function showPreviewDoc(next: StudioDoc): void {
+  setDoc(reconcile(next));
 }
 
 /** Overlay window: follow the main window's edits live. */

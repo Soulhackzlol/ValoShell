@@ -1,18 +1,34 @@
 // The party lobby and its actions. Mutations go to the backend; the new party arrives as an
 // event, so the UI never guesses the result.
-import { createSignal } from "solid-js";
+import { createMemo, createRoot, createSignal } from "solid-js";
 import type { PartyView } from "~/bindings/PartyView";
+import type { RankBadge } from "~/bindings/RankBadge";
 import { call } from "~/ipc/commands";
 import { onAppEvent } from "~/ipc/events";
 import { playCue } from "~/menu/sound";
 import { preloadArt } from "~/ui/Art";
+import { refreshPenalties } from "./penalties";
 import { attempt, pushToast } from "./toasts";
+import { careerView } from "./views";
 
-const [party, setPartyView] = createSignal<PartyView | null>(null);
+/**
+ * Riot's party record carries a member's rank in ranked queues only (tier 0 in Swiftplay,
+ * Unrated...), so your own badge comes from your career when the party has none for you.
+ */
+export function withOwnRank(view: PartyView | null, own: RankBadge | undefined): PartyView | null {
+  if (!view || !own || own.tier === 0) return view;
+  const members = view.members.map((member) => (member.is_self && member.rank.tier === 0 ? { ...member, rank: own } : member));
+  return { ...view, members };
+}
+
+const [partyView, setPartyView] = createSignal<PartyView | null>(null);
+const party = createRoot(() => createMemo(() => withOwnRank(partyView(), careerView.value()?.rank)));
 /** Card art starts downloading as soon as the party arrives, not when a banner mounts. */
 const setParty = (next: PartyView | null) => {
   preloadArt(next?.members.flatMap((member) => [member.card_tall, member.card_small, member.card_wide]) ?? []);
   setPartyView(next);
+  const self = next?.members.find((member) => member.is_self);
+  if (self?.rank.tier === 0 && !careerView.value() && !careerView.isLoading()) void careerView.load();
 };
 const [pending, setPending] = createSignal(0);
 const isBusy = () => pending() > 0;
@@ -21,12 +37,15 @@ const BUSY_LIMIT_MS = 12_000;
 /** Riot's party record trails the return to the menus; read it again after this. */
 const SETTLE_AFTER_MATCH_MS = 3_000;
 
+/** Background refreshes fail quietly for the player (the next event retries) but not for the log. */
+const logFailure = (what: string) => (error: unknown) => console.warn(`${what}_failed`, error);
+
 onAppEvent("party", (next) => setParty(next));
 onAppEvent("connection", (status) => {
-  if (status.state === "connected") void call("party_refresh", {}).then(setParty, () => undefined);
+  if (status.state === "connected") void call("party_refresh", {}).then(setParty, logFailure("party_refresh"));
   else setParty(null);
 });
-void call("get_party", {}).then((current) => current && setParty(current), () => undefined);
+void call("get_party", {}).then((current) => current && setParty(current), logFailure("get_party"));
 
 // Back from a match: ask for the party now and again once Riot has caught up, so a stale
 // "searching" party or an old party id never outlives the game.
@@ -34,7 +53,7 @@ let lastPhase: string | undefined;
 onAppEvent("game_state", (snapshot) => {
   const phase = snapshot?.phase;
   if (phase === "menus" && lastPhase !== undefined && lastPhase !== "menus") {
-    const refresh = () => void call("party_refresh", {}).then(setParty, () => undefined);
+    const refresh = () => void call("party_refresh", {}).then(setParty, logFailure("party_refresh"));
     refresh();
     window.setTimeout(refresh, SETTLE_AFTER_MATCH_MS);
   }
@@ -64,7 +83,10 @@ export const partyActions = {
   changeQueue: (queueId: string) => run(() => call("party_change_queue", { queueId }), "Queue not changed"),
   async startQueue() {
     playCue("confirm");
-    return run(() => call("party_start_queue", {}), "Could not start the queue");
+    const isStarted = await run(() => call("party_start_queue", {}), "Could not start the queue");
+    // A queue ban is the usual reason; the restriction notice then says until when.
+    if (!isStarted) void refreshPenalties();
+    return isStarted;
   },
   async stopQueue() {
     playCue("back");
@@ -84,6 +106,16 @@ export const partyActions = {
   changeTeam: (team: "attackers" | "defenders" | "spectators", puuid: string) =>
     run(() => call("party_change_team", { team, puuid }), "Could not change team"),
   startCustom: () => run(() => call("party_start_custom", {}), "Could not start the game"),
+  /**
+   * The owner's PLAY: the custom game in a custom lobby, otherwise the search. Riot refuses
+   * matchmaking while the party is in custom setup ("cannot enter matchmaking with party's
+   * current state", HTTP 400).
+   */
+  async start() {
+    if (!party()?.is_custom_game) return partyActions.startQueue();
+    playCue("confirm");
+    return partyActions.startCustom();
+  },
 };
 
 /** Seconds since the search started, or null when not queueing. */

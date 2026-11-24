@@ -13,15 +13,19 @@ mod shell;
 use commands::documents::DocumentDirs;
 use services::agents::AgentsService;
 use services::career::CareerService;
+use services::chat::ChatService;
 use services::collection::CollectionService;
 use services::history::HistoryService;
+use services::leaderboard::LeaderboardService;
 use services::lobby::LobbyService;
 use services::names::NameBook;
 use services::party::PartyService;
 use services::post_match::PostMatchService;
 use services::pregame::{PregameDeps, PregameService};
+use services::progress::ProgressService;
 use services::social::SocialService;
 use services::storefront::StoreService;
+use services::update::UpdateService;
 use services::wallet::WalletService;
 use services::{AssetStore, Ctx};
 use store::{DataPaths, SettingsStore};
@@ -34,6 +38,11 @@ const DEFAULT_LOG_FILTER: &str = "info,app=debug,services=debug,riot=debug,store
 
 fn main() {
     init_tracing();
+    // Before the single-instance guard: right after an update the copy it replaced may still
+    // be closing, and the guard would hand this launch to it.
+    if let Ok(exe) = std::env::current_exe() {
+        services::update::finish_previous_update(&exe);
+    }
     let shortcuts = tauri_plugin_global_shortcut::Builder::new()
         .with_handler(shell::on_hotkey)
         .build();
@@ -46,6 +55,10 @@ fn main() {
         .invoke_handler(invoke_handler())
         .setup(|app| {
             start_services(app.handle())?;
+            apply_ui_scale(app.handle());
+            if let Some(window) = app.get_webview_window(MAIN_WINDOW) {
+                game_window::place_menu(&window);
+            }
             shell::register_hotkeys(app.handle());
             if let Err(error) = shell::create_tray(app.handle()) {
                 tracing::warn!(%error, "tray_create_failed");
@@ -81,7 +94,11 @@ fn invoke_handler() -> impl Fn(tauri::ipc::Invoke) -> bool + Send + Sync + 'stat
         commands::core::quit_app,
         commands::career::get_store,
         commands::career::get_career,
+        commands::career::get_progress,
+        commands::career::get_leaderboard,
         commands::career::get_match_history,
+        commands::career::get_match_summary,
+        commands::career::get_stats,
         commands::career::get_lobby,
         commands::career::get_post_match,
         commands::career::dismiss_post_match,
@@ -89,9 +106,25 @@ fn invoke_handler() -> impl Fn(tauri::ipc::Invoke) -> bool + Send + Sync + 'stat
         commands::career::get_collection,
         commands::career::get_skin_options,
         commands::career::equip_skin,
+        commands::career::get_identity,
+        commands::career::get_cosmetic_options,
+        commands::career::equip_identity,
+        commands::career::search_store_skins,
+        commands::career::get_skin_cards,
         commands::career::get_agent_progress,
         commands::party::get_party,
         commands::party::party_refresh,
+        commands::party::get_penalties,
+        commands::social::get_friend_requests,
+        commands::social::friend_request_accept,
+        commands::social::friend_request_remove,
+        commands::social::friend_request_send,
+        commands::game_info::get_service_status,
+        commands::game_info::get_agent_store,
+        commands::game_info::get_favorite_skins,
+        commands::party::get_chat,
+        commands::party::chat_send,
+        commands::party::chat_send_direct,
         commands::party::party_change_queue,
         commands::party::party_start_queue,
         commands::party::party_stop_queue,
@@ -112,10 +145,21 @@ fn invoke_handler() -> impl Fn(tauri::ipc::Invoke) -> bool + Send + Sync + 'stat
         commands::documents::load_ui_document,
         commands::documents::save_ui_document,
         commands::documents::delete_ui_document,
+        commands::documents::community_looks,
+        commands::documents::community_look,
+        commands::documents::community_thumb,
+        commands::documents::open_looks_folder,
+        commands::documents::reveal_look,
+        commands::documents::save_loadout_preset,
+        commands::documents::apply_loadout_preset,
         commands::documents::set_overlay_enabled,
+        commands::documents::set_window_mode,
         commands::documents::set_overlay_preview,
         commands::instant_clone::instant_clone_state,
         commands::instant_clone::instant_clone_send,
+        commands::update::get_update,
+        commands::update::check_for_update,
+        commands::update::install_update,
     ]
 }
 
@@ -173,18 +217,23 @@ fn start_features(app: &tauri::AppHandle, ctx: &Ctx, assets: &AssetStore) {
     tauri::async_runtime::spawn(social.clone().run(stop.clone()));
     app.manage(social);
     tauri::async_runtime::spawn(pregame.clone().run(stop.clone()));
+    let chat = ChatService::new(ctx.clone(), party.clone(), pregame.clone());
+    tauri::async_runtime::spawn(chat.clone().run(stop.clone()));
+    app.manage(chat);
     tauri::async_runtime::spawn(wallet.clone().run(stop));
     app.manage(party);
     app.manage(pregame);
     app.manage(wallet);
     start_career(app, ctx, assets, lobby.clone());
+    start_updates(app, ctx);
     app.manage(lobby);
     app.manage(StoreService::new(ctx.clone(), assets.clone()));
     app.manage(CollectionService::new(ctx.clone(), assets.clone()));
     app.manage(AgentsService::new(ctx.clone(), assets.clone()));
+    app.manage(ProgressService::new(ctx.clone(), assets.clone()));
 }
 
-/// Career, match history and the post-match summary (both read RR changes through the career).
+/// Career, match history, leaderboard and the post-match summary (all read the career).
 fn start_career(app: &tauri::AppHandle, ctx: &Ctx, assets: &AssetStore, lobby: LobbyService) {
     let stop = app.state::<CancellationToken>().inner().clone();
     let career = CareerService::new(ctx.clone(), assets.clone());
@@ -196,7 +245,39 @@ fn start_career(app: &tauri::AppHandle, ctx: &Ctx, assets: &AssetStore, lobby: L
         assets.clone(),
         career.clone(),
     ));
+    app.manage(LeaderboardService::new(
+        ctx.clone(),
+        assets.clone(),
+        career.clone(),
+    ));
     app.manage(career);
+}
+
+/// Update checks (GitHub releases); installing waits for the player.
+fn start_updates(app: &tauri::AppHandle, ctx: &Ctx) {
+    let stop = app.state::<CancellationToken>().inner().clone();
+    let exe = std::env::current_exe()
+        .inspect_err(|error| tracing::warn!(%error, "update_exe_path_unknown"))
+        .ok();
+    // Past the single-instance guard: no other copy is downloading into this file now.
+    if let Some(exe) = &exe {
+        services::update::discard_stale_download(exe);
+    }
+    let updates = UpdateService::new(ctx, exe);
+    tauri::async_runtime::spawn(updates.clone().run(stop));
+    app.manage(updates);
+}
+
+/// The saved interface size, set before the window is first shown so it never jumps; the UI
+/// applies later changes itself.
+fn apply_ui_scale(app: &tauri::AppHandle) {
+    let scale = app.state::<Ctx>().settings.get().interface.ui_scale;
+    let Some(window) = app.get_webview_window(MAIN_WINDOW) else {
+        return;
+    };
+    if let Err(error) = window.set_zoom(scale) {
+        tracing::warn!(%error, "ui_scale_failed");
+    }
 }
 
 /// A second launch (or the tray) brings the running window forward.
@@ -204,6 +285,7 @@ pub(crate) fn focus_main_window(app: &tauri::AppHandle) {
     let Some(window) = app.get_webview_window(MAIN_WINDOW) else {
         return;
     };
+    game_window::place_menu(&window);
     if let Err(error) = window.show().and_then(|()| window.set_focus()) {
         tracing::warn!(%error, "focus_main_window_failed");
     }

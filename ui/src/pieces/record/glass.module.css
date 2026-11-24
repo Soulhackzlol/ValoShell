@@ -1,0 +1,376 @@
+/* Glass career: dark Apple Fitness. Frosted cards with a bright top hairline, SF-like type with
+   tight tracking on big numbers, the rank's own colour as the one accent, tabular figures. */
+
+.record {
+  --g-fill: var(--glass-fill, #181a20);
+  --g-text: var(--glass-text, #f5f5f7);
+  --g-bright: var(--glass-bright, #ffffff);
+  --g-line: var(--glass-line, #ffffff);
+  --g-soft: color-mix(in srgb, var(--g-text) 58%, transparent);
+  --g-settle: cubic-bezier(0.2, 1, 0.3, 1);
+  container-type: size;
+  display: grid;
+  grid-template-columns: minmax(260px, 0.8fr) minmax(0, 1.5fr);
+  grid-template-rows: minmax(0, 1fr) minmax(0, 1.2fr) auto;
+  grid-template-areas:
+    "hero trend"
+    "hero list"
+    "tiles list";
+  gap: 16px;
+  width: 100%;
+  height: 100%;
+  font-family: "Inter Variable", "Segoe UI", sans-serif;
+  font-variant-numeric: tabular-nums;
+  color: var(--g-text);
+}
+
+.card {
+  position: relative;
+  min-height: 0;
+  padding: 18px 20px;
+  background: color-mix(in srgb, var(--g-fill) 52%, transparent);
+  backdrop-filter: blur(28px) saturate(180%);
+  border-radius: 22px;
+  box-shadow:
+    inset 0 1px 0 color-mix(in srgb, var(--g-line) 18%, transparent),
+    inset 0 0 0 0.5px color-mix(in srgb, var(--g-line) 12%, transparent),
+    0 18px 50px rgb(0 0 0 / 0.32);
+}
+
+.cardHead {
+  display: flex;
+  align-items: baseline;
+  justify-content: space-between;
+  gap: 12px;
+}
+
+.cardHead h3 {
+  font-size: 17px;
+  font-weight: 650;
+  letter-spacing: -0.01em;
+  color: var(--g-bright);
+}
+
+.cardHead span {
+  font-size: 13px;
+  color: var(--g-soft);
+}
+
+/* ---- the rank ---- */
+.hero {
+  grid-area: hero;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 6px;
+  text-align: center;
+}
+
+.ring {
+  position: relative;
+  display: grid;
+  place-items: center;
+  width: min(62cqh, 74%, 240px);
+  aspect-ratio: 1;
+}
+
+.ring svg {
+  position: absolute;
+  inset: 0;
+  rotate: -90deg;
+}
+
+.ringTrack,
+.ringFill {
+  fill: none;
+  stroke-width: 7;
+}
+
+.ringTrack {
+  stroke: color-mix(in srgb, var(--rank) 18%, transparent);
+}
+
+.ringFill {
+  stroke: var(--rank);
+  stroke-linecap: round;
+  animation: ringIn 1100ms var(--g-settle) 200ms backwards;
+}
+
+.emblem {
+  width: 58%;
+  height: 58%;
+  object-fit: contain;
+  filter: drop-shadow(0 8px 20px rgb(0 0 0 / 0.35));
+}
+
+.emblemInitial {
+  font-size: 56px;
+  font-weight: 700;
+  color: var(--rank);
+}
+
+.rankName {
+  margin-top: 8px;
+  font-size: clamp(24px, 4.6cqh, 34px);
+  font-weight: 700;
+  letter-spacing: -0.025em;
+  line-height: 1.1;
+  color: var(--g-bright);
+}
+
+.sub {
+  font-size: 14px;
+  color: var(--g-soft);
+}
+
+.rr {
+  font-weight: 650;
+  color: var(--g-bright);
+}
+
+/* ---- highlight tiles ---- */
+.tiles {
+  grid-area: tiles;
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 12px;
+}
+
+.tile {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+  padding: 12px 16px;
+  background: color-mix(in srgb, var(--g-fill) 52%, transparent);
+  backdrop-filter: blur(28px) saturate(180%);
+  border-radius: 18px;
+  box-shadow:
+    inset 0 1px 0 color-mix(in srgb, var(--g-line) 16%, transparent),
+    inset 0 0 0 0.5px color-mix(in srgb, var(--g-line) 10%, transparent);
+}
+
+.tile span {
+  font-size: 12px;
+  font-weight: 600;
+  color: var(--g-soft);
+}
+
+.tile b {
+  overflow: hidden;
+  font-size: 24px;
+  font-weight: 650;
+  letter-spacing: -0.02em;
+  white-space: nowrap;
+  text-overflow: ellipsis;
+  color: var(--g-bright);
+}
+
+.tile b[data-sign="pos"] {
+  color: #30d158;
+}
+
+.tile b[data-sign="neg"] {
+  color: #ff453a;
+}
+
+/* ---- the climb ---- */
+.trend {
+  grid-area: trend;
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+}
+
+.chartBox {
+  position: relative;
+  flex: 1;
+  min-height: 60px;
+}
+
+.chart {
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+  overflow: visible;
+}
+
+.line {
+  fill: none;
+  stroke: var(--rank);
+  stroke-width: 2.5;
+  stroke-linejoin: round;
+  stroke-linecap: round;
+  vector-effect: non-scaling-stroke;
+  stroke-dasharray: 1;
+  animation: lineIn 1200ms var(--g-settle) 250ms backwards;
+}
+
+.area {
+  animation: areaIn 900ms ease 700ms backwards;
+}
+
+.dot {
+  position: absolute;
+  width: 10px;
+  height: 10px;
+  translate: -50% -50%;
+  background: var(--rank);
+  border-radius: 50%;
+  box-shadow: 0 0 0 4px color-mix(in srgb, var(--rank) 25%, transparent);
+  animation: areaIn 400ms ease 1300ms backwards;
+}
+
+/* ---- recent games: an inset grouped list ---- */
+.list {
+  grid-area: list;
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+}
+
+.rows {
+  flex: 1;
+  min-height: 0;
+  margin: 0 -8px;
+  padding: 0;
+  overflow: hidden auto;
+  list-style: none;
+  scrollbar-width: thin;
+}
+
+.row {
+  display: grid;
+  grid-template-columns: 52px minmax(0, 1fr) auto;
+  align-items: center;
+  gap: 12px;
+  padding: 8px;
+  border-radius: 12px;
+  transition: background 160ms ease;
+}
+
+/* Hairline separators inset past the thumbnail, as grouped lists draw them. */
+.row + .row {
+  position: relative;
+}
+
+.row + .row::before {
+  content: "";
+  position: absolute;
+  top: 0;
+  left: 72px;
+  right: 8px;
+  height: 0.5px;
+  background: color-mix(in srgb, var(--g-line) 12%, transparent);
+}
+
+.row:hover {
+  background: color-mix(in srgb, var(--g-line) 6%, transparent);
+}
+
+.row:active {
+  background: color-mix(in srgb, var(--g-line) 10%, transparent);
+}
+
+.map {
+  width: 52px;
+  height: 34px;
+  object-fit: cover;
+  border-radius: 8px;
+  background: color-mix(in srgb, var(--g-line) 10%, transparent);
+}
+
+.rowText {
+  display: flex;
+  flex-direction: column;
+  min-width: 0;
+  line-height: 1.3;
+}
+
+.rowText b {
+  font-size: 15px;
+  font-weight: 600;
+  color: var(--g-bright);
+}
+
+.rowText small {
+  overflow: hidden;
+  font-size: 12.5px;
+  white-space: nowrap;
+  text-overflow: ellipsis;
+  color: var(--g-soft);
+}
+
+.delta {
+  min-width: 52px;
+  padding: 3px 10px;
+  font-size: 13px;
+  font-weight: 650;
+  text-align: center;
+  border-radius: 999px;
+  color: var(--g-soft);
+  background: color-mix(in srgb, var(--g-line) 8%, transparent);
+}
+
+.row[data-result="win"] .delta {
+  color: #30d158;
+  background: rgb(48 209 88 / 0.14);
+}
+
+.row[data-result="loss"] .delta {
+  color: #ff453a;
+  background: rgb(255 69 58 / 0.14);
+}
+
+@keyframes ringIn {
+  from {
+    stroke-dashoffset: var(--ring-length);
+  }
+}
+
+@keyframes lineIn {
+  from {
+    stroke-dashoffset: 1;
+  }
+}
+
+@keyframes areaIn {
+  from {
+    opacity: 0;
+  }
+}
+
+/* Narrow: one column, the chart steps aside for the games. */
+@container (max-width: 760px) {
+  .record {
+    grid-template-columns: minmax(0, 1fr);
+    grid-template-rows: auto auto minmax(0, 1fr);
+    grid-template-areas:
+      "hero"
+      "tiles"
+      "list";
+  }
+
+  .trend {
+    display: none;
+  }
+
+  .ring {
+    width: 120px;
+  }
+}
+
+/* Short: the tiles go, the ring and the games stay. */
+@container (max-height: 420px) {
+  .tiles {
+    display: none;
+  }
+
+  .record {
+    grid-template-areas:
+      "hero trend"
+      "hero list"
+      "hero list";
+  }
+}

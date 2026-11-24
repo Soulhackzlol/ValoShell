@@ -1,0 +1,145 @@
+/* VALORANT closed beta (2020): the off-white sheet with navy type and 1 px line frames, red
+   only for what is picked, tall condensed caps; modes as the beta's plain text tabs. */
+
+.card,
+.modes {
+  --paper: var(--beta-paper, #ece8e1);
+  --navy: var(--beta-navy, #0f1923);
+  --red: var(--beta-red, #ff4655);
+  --line: color-mix(in srgb, var(--navy) 28%, transparent);
+  container-type: size;
+  width: 100%;
+  height: 100%;
+  font-family: var(--font-din, var(--font-display));
+  color: var(--navy);
+  background: var(--paper);
+  box-shadow: inset 0 0 0 1px var(--line);
+}
+
+.card {
+  display: flex;
+  align-items: center;
+  gap: 16px;
+  padding: 14px 18px;
+}
+
+.emblem {
+  flex: none;
+  width: clamp(52px, 62cqh, 112px);
+  aspect-ratio: 1;
+  object-fit: contain;
+  padding: 6px;
+  box-shadow: inset 0 0 0 1px var(--line);
+}
+
+.body {
+  display: flex;
+  flex: 1;
+  flex-direction: column;
+  gap: 4px;
+  min-width: 0;
+}
+
+.small {
+  font-family: var(--font-mono);
+  font-size: 11px;
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+  opacity: 0.7;
+}
+
+.name {
+  overflow: hidden;
+  font-size: clamp(20px, 24cqh, 34px);
+  font-stretch: 75%;
+  letter-spacing: 0.02em;
+  white-space: nowrap;
+  text-overflow: ellipsis;
+  text-transform: uppercase;
+}
+
+.bar {
+  height: 6px;
+  background: linear-gradient(90deg, var(--red) calc(var(--progress) * 100%), transparent 0);
+  box-shadow: inset 0 0 0 1px var(--line);
+}
+
+/* ---- modes: text tabs on the sheet, the picked one underlined in red, its art below ---- */
+
+.modes {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+  padding: 14px 18px;
+}
+
+.tabs {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 4px 18px;
+}
+
+.mode {
+  padding: 4px 0;
+  border: 0;
+  font: inherit;
+  font-size: clamp(15px, 5cqh, 22px);
+  font-stretch: 75%;
+  text-transform: uppercase;
+  color: color-mix(in srgb, var(--navy) 55%, transparent);
+  background: none;
+  box-shadow: inset 0 -2px 0 transparent;
+  cursor: pointer;
+}
+
+.mode:hover:not(:disabled) {
+  color: var(--navy);
+}
+
+.mode[data-active] {
+  color: var(--navy);
+  box-shadow: inset 0 -3px 0 var(--red);
+}
+
+.mode:disabled:not([data-active]) {
+  cursor: default;
+  opacity: 0.6;
+}
+
+/* The beta printed text on paper strips over a muted picture. */
+.detail {
+  position: relative;
+  flex: 1;
+  min-height: 0;
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+  justify-content: flex-end;
+  gap: 4px;
+  padding: 14px;
+  overflow: hidden;
+  box-shadow: inset 0 0 0 1px var(--line);
+}
+
+.detailArt {
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  filter: grayscale(0.6);
+}
+
+.detailName,
+.detail > .small {
+  position: relative;
+  padding: 2px 8px;
+  background: var(--paper);
+}
+
+.detailName {
+  font-size: clamp(22px, 11cqh, 44px);
+  font-stretch: 75%;
+  text-transform: uppercase;
+  color: var(--navy);
+}

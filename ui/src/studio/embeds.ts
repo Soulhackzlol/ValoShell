@@ -15,18 +15,23 @@ function parse(raw: string): URL | null {
   }
 }
 
+/** True when `host` is `domain` itself or one of its subdomains (not `evil-domain.com`). */
+export function isDomain(host: string, domain: string): boolean {
+  return host === domain || host.endsWith(`.${domain}`);
+}
+
 /** Which widget a pasted url belongs in. */
 export function kindForUrl(raw: string): EmbedKind | null {
   const url = parse(raw);
   if (!url) return null;
-  if (IMAGE_EXTENSIONS.test(url.pathname) || url.hostname.endsWith("giphy.com")) return "image";
+  if (IMAGE_EXTENSIONS.test(url.pathname) || isDomain(url.hostname, "giphy.com")) return "image";
   if (VIDEO_EXTENSIONS.test(url.pathname)) return "video";
   return "web";
 }
 
 function youtubeId(url: URL): string | null {
   if (url.hostname === "youtu.be") return url.pathname.slice(1) || null;
-  if (!url.hostname.endsWith("youtube.com")) return null;
+  if (!isDomain(url.hostname, "youtube.com")) return null;
   if (url.pathname.startsWith("/shorts/") || url.pathname.startsWith("/embed/")) {
     return url.pathname.split("/")[2] ?? null;
   }
@@ -38,7 +43,7 @@ export function embedUrl(raw: string, parentHost = window.location.hostname || "
   const url = parse(raw);
   if (!url) return "";
   const host = url.hostname.replace(/^www\./, "");
-  if (host.endsWith("tiktok.com")) {
+  if (isDomain(host, "tiktok.com")) {
     const id = /\/video\/(\d+)/.exec(url.pathname)?.[1];
     return id ? `https://www.tiktok.com/player/v1/${id}?autoplay=1&loop=1&music_info=0&description=0` : raw;
   }
@@ -61,10 +66,10 @@ export function embedSource(raw: string): string {
   const url = parse(raw);
   if (!url) return "Web";
   const host = url.hostname.replace(/^www\./, "");
-  if (host.endsWith("tiktok.com")) return "TikTok";
-  if (host.endsWith("youtube.com") || host === "youtu.be") return "YouTube";
-  if (host.endsWith("twitch.tv")) return "Twitch";
-  if (host.endsWith("spotify.com")) return "Spotify";
+  if (isDomain(host, "tiktok.com")) return "TikTok";
+  if (isDomain(host, "youtube.com") || host === "youtu.be") return "YouTube";
+  if (isDomain(host, "twitch.tv")) return "Twitch";
+  if (isDomain(host, "spotify.com")) return "Spotify";
   return host;
 }
 
@@ -76,7 +81,7 @@ export function isShortLink(raw: string): boolean {
   const url = parse(raw);
   if (!url || url.protocol !== "https:") return false;
   const host = url.hostname;
-  return host === "vm.tiktok.com" || host === "vt.tiktok.com" || (host.endsWith("tiktok.com") && url.pathname.startsWith("/t/"));
+  return host === "vm.tiktok.com" || host === "vt.tiktok.com" || (isDomain(host, "tiktok.com") && url.pathname.startsWith("/t/"));
 }
 
 /** Why a link cannot show in the widget, or null when it can. */
@@ -84,10 +89,10 @@ export function blockedReason(raw: string): string | null {
   const url = parse(raw);
   if (!url) return null;
   const host = url.hostname.replace(/^www\./, "");
-  if (host.endsWith("tiktok.com") && !isShortLink(raw) && !/\/video\/\d+/.test(url.pathname) && !url.pathname.startsWith("/player/") && !url.pathname.startsWith("/embed/")) {
+  if (isDomain(host, "tiktok.com") && !isShortLink(raw) && !/\/video\/\d+/.test(url.pathname) && !url.pathname.startsWith("/player/") && !url.pathname.startsWith("/embed/")) {
     return "TikTok only lets single videos play inside other apps. Paste a video link (Share > Copy link on a video).";
   }
-  if (FRAME_BLOCKING_HOSTS.some((blocked) => host === blocked || host.endsWith(`.${blocked}`))) {
+  if (FRAME_BLOCKING_HOSTS.some((blocked) => isDomain(host, blocked))) {
     return `${host} does not allow itself to be shown inside other apps.`;
   }
   return null;

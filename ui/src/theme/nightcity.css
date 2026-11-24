@@ -1,0 +1,59 @@
+/* Night City: Cyberpunk 2077's in-game menus over the whole menu. Shared pieces sit in
+   salmon-red hairline frames with a cut corner, titles go red and wide in a squared tech face,
+   what is picked turns cyan, and faint scanlines run over the screen. */
+:root[data-skin="nightcity"] {
+  --nav-top: 64px;
+  --panel: color-mix(in srgb, var(--nightcity-panel, #0e0b10) 88%, transparent);
+  --panel-strong: color-mix(in srgb, var(--nightcity-panel, #0e0b10) 96%, transparent);
+  --surface-raised: color-mix(in srgb, var(--nightcity-panel, #0e0b10) 92%, transparent);
+  --surface-popup: var(--nightcity-panel, #0e0b10);
+  --border-subtle: color-mix(in srgb, var(--nightcity-red, #ff5e57) 18%, transparent);
+  --border-default: color-mix(in srgb, var(--nightcity-red, #ff5e57) 40%, transparent);
+  --border-strong: var(--nightcity-red, #ff5e57);
+  --play: var(--nightcity-yellow, #fcee0a);
+  --play-hover: #fff35a;
+  --play-pressed: #d6c800;
+  --on-play: #000000;
+  --text-2: color-mix(in srgb, var(--nightcity-red, #ff5e57) 45%, #f2e9e4);
+  --radius-xs: 0px;
+  --radius-sm: 0px;
+  --radius-md: 0px;
+  --radius-lg: 0px;
+  --radius-outer: 0px;
+}
+
+:root[data-skin="nightcity"] [data-part="piece"]:not([data-kind^="nc-"]) > [data-part="piece-content"] > :not([data-own-frame]) {
+  border-radius: 0;
+  box-shadow: inset 0 0 0 1px color-mix(in srgb, var(--nightcity-red, #ff5e57) 45%, transparent);
+  clip-path: polygon(0 0, calc(100% - 18px) 0, 100% 18px, 100% 100%, 0 100%);
+}
+
+:root[data-skin="nightcity"] [data-part="piece"][data-kind="queue-picker"] > [data-part="piece-content"] > * {
+  /* The mode cards fill their piece edge to edge; inside the frame they need room off its line. */
+  padding: 16px 22px 16px 16px;
+}
+
+:root[data-skin="nightcity"] [data-part="piece"]:not([data-kind^="nc-"]) :is(h1, h2, h3) {
+  font-family: var(--font-display);
+  font-weight: 700;
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+  color: var(--nightcity-red, #ff5e57);
+}
+
+:root[data-skin="nightcity"] [data-part="piece"]:not([data-kind^="nc-"]) [data-part="play"] {
+  font-family: var(--font-display);
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  clip-path: polygon(0 0, calc(100% - 14px) 0, 100% 14px, 100% 100%, 14px 100%, 0 calc(100% - 14px));
+}
+
+/* Scanlines: a fine dark line every third pixel, over everything but never in the way. */
+:root[data-skin="nightcity"] body::after {
+  content: "";
+  position: fixed;
+  inset: 0;
+  z-index: 2147483000;
+  pointer-events: none;
+  background: repeating-linear-gradient(to bottom, transparent 0 2px, rgb(0 0 0 / 0.16) 2px 3px);
+}

@@ -8,6 +8,7 @@ import { rankColor } from "../home";
 import { relativeDate } from "../career";
 import { identity, nextRankName, signed, useCountUp, type RecordProps } from "./shared";
 import styles from "./fortnite.module.css";
+import { useOpenMatch } from "~/menu/openMatch";
 
 type Rarity = "legendary" | "epic" | "rare" | "uncommon" | "common";
 
@@ -20,6 +21,7 @@ function rarity(update: RrUpdate): Rarity {
 }
 
 export function FortniteRecord(props: RecordProps) {
+  const { rowProps } = useOpenMatch();
   const level = () => identity().level ?? props.view.rank.tier;
   const shownLevel = useCountUp(level, 150, 1100);
   const rr = useCountUp(() => props.view.rr, 400, 900);
@@ -83,7 +85,7 @@ export function FortniteRecord(props: RecordProps) {
       <div class={styles.tiles}>
         <For each={props.view.updates}>
           {(update, index) => (
-            <div class={styles.tile} data-rarity={rarity(update)} style={{ "--stagger": index() }}>
+            <div {...rowProps(update.match_id)} class={styles.tile} data-rarity={rarity(update)} style={{ "--stagger": index() }}>
               <span class={styles.rays} />
               <span class={styles.tileDelta}>{signed(update.rr_earned)}</span>
               <span class={styles.tileStrip}>

@@ -1,0 +1,221 @@
+/* League client home looks: Beaufort-style serif caps in cream and gold, dark blue-black
+   panels framed by the gold gradient rim, teal for live states, a gold level ring. */
+
+.play,
+.modes,
+.rank,
+.profile {
+  --gold: var(--league-gold, #c8aa6e);
+  --cream: var(--league-cream, #f0e6d2);
+  --serif: "Beaufort for LOL", "Cinzel Variable", Georgia, serif;
+  container-type: size;
+  width: 100%;
+  height: 100%;
+  color: var(--cream);
+}
+
+.caption {
+  font-size: 13px;
+  color: var(--league-grey, #a09b8c);
+}
+
+.warn {
+  font-size: 13px;
+  color: #e84057;
+}
+
+.heading,
+.division,
+.name {
+  font-family: var(--serif);
+  font-weight: 700;
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+}
+
+/* ---- PLAY: the client's top-left button, gold rim on the dark blue fill ---- */
+
+.play {
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  gap: 6px;
+}
+
+.playButton {
+  height: clamp(40px, 56cqh, 64px);
+  border: 2px solid transparent;
+  border-image: linear-gradient(to bottom, var(--theme-play, var(--gold)), var(--league-gold-dark, #785a28)) 1;
+  font-family: var(--serif);
+  font-size: clamp(16px, 26cqh, 24px);
+  font-weight: 700;
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+  color: var(--cream);
+  background: linear-gradient(to bottom, #1e2328, #0f1d2a);
+  cursor: pointer;
+  transition: opacity 140ms ease;
+}
+
+.playButton:hover:not(:disabled),
+.playButton:focus-visible {
+  outline: none;
+  color: #ffffff;
+  background: linear-gradient(to bottom, #233343, #12263a);
+}
+
+.playButton:disabled {
+  opacity: 0.5;
+  cursor: default;
+}
+
+/* ---- game modes: tall tiles, the picked one framed in gold ---- */
+
+.modes {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+}
+
+.heading {
+  font-size: 14px;
+  color: var(--gold);
+}
+
+.tiles {
+  display: grid;
+  flex: 1;
+  grid-template-columns: repeat(auto-fill, minmax(120px, 1fr));
+  grid-auto-rows: minmax(120px, 1fr);
+  gap: 8px;
+  min-height: 0;
+  overflow: hidden auto;
+  scrollbar-width: thin;
+}
+
+.tile {
+  position: relative;
+  display: flex;
+  align-items: flex-end;
+  padding: 8px;
+  overflow: hidden;
+  border: 2px solid #3c3c41;
+  background: #010a13;
+  cursor: pointer;
+}
+
+.tile[data-active] {
+  border-color: var(--gold);
+}
+
+.tile:disabled:not([data-active]) {
+  opacity: 0.55;
+  cursor: default;
+}
+
+.tileArt {
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  opacity: 0.55;
+  transition: opacity 140ms ease;
+}
+
+.tile:hover:not(:disabled) .tileArt,
+.tile[data-active] .tileArt {
+  opacity: 0.85;
+}
+
+.tileName {
+  position: relative;
+  font-family: var(--serif);
+  font-size: 13px;
+  font-weight: 700;
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+  text-shadow: 0 1px 4px #000;
+}
+
+/* ---- ranked crest ---- */
+
+.rank {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 4px;
+  text-align: center;
+}
+
+.crest {
+  width: clamp(48px, 46cqh, 140px);
+  aspect-ratio: 1;
+  object-fit: contain;
+}
+
+.division {
+  font-size: clamp(14px, 12cqh, 22px);
+  color: var(--gold);
+}
+
+.points {
+  width: min(80%, 220px);
+  height: 4px;
+  background: linear-gradient(90deg, var(--league-teal, #0ac8b9) calc(var(--progress) * 100%), #1e2328 0);
+}
+
+/* ---- summoner icon in its level ring ---- */
+
+.profile {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+}
+
+.icon {
+  position: relative;
+  flex: none;
+  width: clamp(48px, 62cqh, 96px);
+  aspect-ratio: 1;
+}
+
+.iconArt {
+  width: 100%;
+  height: 100%;
+  border-radius: 50%;
+  object-fit: cover;
+  box-shadow: 0 0 0 2px var(--gold), 0 0 0 4px #010a13;
+}
+
+.levelBadge {
+  position: absolute;
+  bottom: -6px;
+  left: 50%;
+  padding: 0 6px;
+  font-size: 11px;
+  color: var(--cream);
+  background: #010a13;
+  border: 1px solid var(--gold);
+  border-radius: 8px;
+  transform: translateX(-50%);
+}
+
+.who {
+  display: flex;
+  flex-direction: column;
+  min-width: 0;
+}
+
+.name {
+  overflow: hidden;
+  font-size: 16px;
+  white-space: nowrap;
+  text-overflow: ellipsis;
+}
+
+.status {
+  font-size: 12px;
+  color: #0acf83;
+}

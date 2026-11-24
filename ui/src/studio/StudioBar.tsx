@@ -47,7 +47,11 @@ export function StudioBar() {
   };
 
   return (
-    <div class={`${styles.bar} ${controls.glass}`} onPointerDown={(event) => event.stopPropagation()}>
+    <div
+      class={`${styles.bar} ${controls.glass}`}
+      data-part="studio-bar"
+      onPointerDown={(event) => event.stopPropagation()}
+    >
       <span class={styles.barStage}>
         <span class="overline">Editing</span>
         <b>{STAGE_LABELS[currentStage()] ?? currentStage()}</b>

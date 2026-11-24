@@ -65,6 +65,10 @@ pub struct PostMatchPlayer {
     pub assists: u32,
     pub score: u32,
     pub acs: f64,
+    /// Players queued together: 1 solo, 2 a duo, 3 a trio...
+    pub stack_size: u32,
+    /// Same number for members of the same stack (for colour), `None` when solo.
+    pub stack_group: Option<u32>,
 }
 
 /// The post-match screen.
@@ -169,11 +173,33 @@ fn shown_name(row: &ScoreboardRow, known: Option<&KnownPlayer>) -> (RiotName, bo
     (name, false)
 }
 
+/// Stack size and group number per puuid, from the party ids Riot puts in the match itself.
+/// Groups are numbered in roster order so the colours stay put between reads.
+fn party_stacks(rows: &[ScoreboardRow]) -> HashMap<String, (u32, u32)> {
+    let mut sizes: HashMap<&str, u32> = HashMap::new();
+    for row in rows.iter().filter(|row| !row.party_id.is_empty()) {
+        *sizes.entry(row.party_id.as_str()).or_default() += 1;
+    }
+    let mut groups: HashMap<&str, u32> = HashMap::new();
+    let mut stacks = HashMap::new();
+    for row in rows {
+        let Some(&size) = sizes.get(row.party_id.as_str()).filter(|size| **size > 1) else {
+            continue;
+        };
+        let next = u32::try_from(groups.len()).unwrap_or(u32::MAX);
+        let group = *groups.entry(row.party_id.as_str()).or_insert(next);
+        stacks.insert(row.puuid.clone(), (size, group));
+    }
+    stacks
+}
+
 fn player_line(
     row: &ScoreboardRow,
     own_team: &str,
     inputs: &PostMatchInputs<'_>,
+    stacks: &HashMap<String, (u32, u32)>,
 ) -> PostMatchPlayer {
+    let stack = stacks.get(&row.puuid).copied();
     let puuid = Puuid::new(&row.puuid);
     let (name, is_incognito) = shown_name(row, inputs.known.get(&puuid));
     let agent = inputs.index.agent(&row.agent_id);
@@ -192,6 +218,8 @@ fn player_line(
         assists: count(row.assists),
         score: count(row.score),
         acs: per_round(row.score, row.rounds),
+        stack_size: stack.map_or(1, |(size, _)| size),
+        stack_group: stack.map(|(_, group)| group),
     }
 }
 
@@ -202,9 +230,10 @@ fn scoreboard(detail: &Value, inputs: &PostMatchInputs<'_>) -> Vec<PostMatchPlay
         .find(|row| Puuid::new(&row.puuid) == *inputs.own)
         .map(|row| row.team_id.clone())
         .unwrap_or_default();
+    let stacks = party_stacks(&rows);
     let mut players: Vec<PostMatchPlayer> = rows
         .iter()
-        .map(|row| player_line(row, &own_team, inputs))
+        .map(|row| player_line(row, &own_team, inputs, &stacks))
         .collect();
     players.sort_by(|a, b| b.score.cmp(&a.score).then(b.kills.cmp(&a.kills)));
     players

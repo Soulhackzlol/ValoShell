@@ -6,7 +6,8 @@ import type { FriendStatus } from "./FriendStatus";
  */
 export type FriendView = { puuid: string, game_name: string, tag_line: string, status: FriendStatus, 
 /**
- * "Ascent 7-5", "Party of 3"...; empty when there is nothing to add.
+ * "Ascent 7-5" in a match; empty otherwise. The party is `party_size`, which every friends
+ * look prints its own way ("Duo", "Trio").
  */
 detail: string, party_size: number, note: string, 
 /**

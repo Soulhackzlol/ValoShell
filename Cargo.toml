@@ -3,7 +3,7 @@ resolver = "3"
 members = ["crates/domain", "crates/riot", "crates/store", "crates/services", "app"]
 
 [workspace.package]
-version = "0.1.0"
+version = "0.2.0"
 edition = "2024"
 rust-version = "1.96"
 publish = false
@@ -30,6 +30,7 @@ rustls = { version = "0.23", default-features = false, features = ["ring", "std"
 futures-util = "0.3"
 arc-swap = "1"
 base64 = "0.23"
+sha2 = "0.10"
 ts-rs = { version = "12", features = ["serde-json-impl", "no-serde-warnings"] }
 
 [workspace.lints.rust]

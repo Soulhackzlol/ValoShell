@@ -1,0 +1,135 @@
+/* CS 1.6 VGUI: the olive window with bevelled edges and the amber text.
+   Layout comes from matchBase.module.css (screenBase / resultsBase for the other screens);
+   these rules are this style's material. */
+
+.pick {
+  composes: pick from "./matchBase.module.css";
+}
+
+.head {
+  composes: head from "./matchBase.module.css";
+}
+
+.hero {
+  composes: hero from "./matchBase.module.css";
+}
+
+.heroArt {
+  composes: heroArt from "./matchBase.module.css";
+}
+
+.heroName {
+  composes: heroName from "./matchBase.module.css";
+}
+
+.heroRole {
+  composes: heroRole from "./matchBase.module.css";
+}
+
+.roster {
+  composes: roster from "./matchBase.module.css";
+}
+
+.group {
+  composes: group from "./matchBase.module.css";
+}
+
+.groupName {
+  composes: groupName from "./matchBase.module.css";
+}
+
+.tile {
+  composes: tile from "./matchBase.module.css";
+}
+
+.tileArt {
+  composes: tileArt from "./matchBase.module.css";
+}
+
+.bar {
+  composes: bar from "./matchBase.module.css";
+}
+
+.dodge {
+  composes: dodge from "./matchBase.module.css";
+}
+
+.timer {
+  composes: timer from "./matchBase.module.css";
+}
+
+.lock {
+  composes: lock from "./matchBase.module.css";
+}
+
+.empty {
+  composes: empty from "./matchBase.module.css";
+}
+
+.lobby {
+  composes: lobby from "./matchBase.module.css";
+}
+
+.teams {
+  composes: teams from "./matchBase.module.css";
+}
+
+.team {
+  composes: team from "./matchBase.module.css";
+}
+
+.teamHead {
+  composes: teamHead from "./matchBase.module.css";
+}
+
+.lines {
+  composes: lines from "./matchBase.module.css";
+}
+
+.line {
+  composes: line from "./matchBase.module.css";
+}
+
+.lineAgent {
+  composes: lineAgent from "./matchBase.module.css";
+}
+
+.lineName {
+  composes: lineName from "./matchBase.module.css";
+}
+
+.stack {
+  composes: stack from "./matchBase.module.css";
+}
+
+.lineRank {
+  composes: lineRank from "./matchBase.module.css";
+}
+
+.rankIcon {
+  composes: rankIcon from "./matchBase.module.css";
+}
+
+/* ---- material ---- */
+.pick, .lobby { color: #dedfa6; background: #4c5844; box-shadow: inset 1px 1px 0 #8c9284, inset -1px -1px 0 #292c21; font-family: Tahoma, Verdana, sans-serif; font-size: 13px; }
+.head { margin: -14px -16px 0; padding: 4px 16px; font-weight: 700; color: #ffffff; background: #3e4637; }
+.hero { background: #3e4637; box-shadow: inset 1px 1px 0 #292c21, inset -1px -1px 0 #8c9284; }
+.heroName { font-size: 18px; font-weight: 700; color: #c4b550; }
+.heroRole, .groupName, .teamHead > span { color: #a0aa95; }
+.tile { border: 0; background: #3e4637; box-shadow: inset 1px 1px 0 #8c9284, inset -1px -1px 0 #292c21; }
+.tile[data-own] { box-shadow: inset 1px 1px 0 #292c21, inset -1px -1px 0 #8c9284; background: #958831; }
+.dodge, .lock { height: 28px; padding: 0 14px; border: 0; color: #dedfa6; background: #4c5844; box-shadow: inset 1px 1px 0 #8c9284, inset -1px -1px 0 #292c21; font: inherit; }
+.lock[data-locked] { color: #c4b550; box-shadow: inset 1px 1px 0 #292c21, inset -1px -1px 0 #8c9284; }
+.timer { font-weight: 700; color: #c4b550; }
+.teamHead { font-weight: 700; }
+.line { background: #3e4637; box-shadow: inset 3px 0 0 var(--stack); }
+.line[data-self] { background: #958831; color: #ffffff; }
+
+/* ---- News, Progress and Chat (styledScreens.tsx) ---- */
+.meter { --meter-fill: #958831; --meter-track: #292c21; }
+.field { color: #dedfa6; background: #3e4637; box-shadow: inset 1px 1px 0 #292c21, inset -1px -1px 0 #8c9284; font-family: Tahoma, Verdana, sans-serif; font-size: 13px; }
+
+/* ---- Results (styledResults.tsx) ---- */
+/* The 1.6 HUD's centre message, not a poster: modest and yellow-white. */
+.resultTitle { font-family: Tahoma, Verdana, sans-serif; font-size: clamp(20px, 4cqi, 32px); font-weight: 700; color: #ffd75a; }
+.mvp { --mvp-fill: #958831; --mvp-text: #ffffff; }

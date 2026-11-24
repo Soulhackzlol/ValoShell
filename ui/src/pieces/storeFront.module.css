@@ -325,7 +325,7 @@
   animation: rise 420ms var(--ease-decelerate) both;
   animation-delay: calc(var(--stagger, 0) * 55ms + 120ms);
   transition:
-    translate 260ms cubic-bezier(0.34, 1.4, 0.64, 1),
+    translate 260ms var(--ease-settle),
     box-shadow var(--dur-base) var(--ease-standard),
     filter var(--dur-base) var(--ease-standard);
 }
@@ -743,7 +743,7 @@
 .vgRows {
   flex: 1;
   min-height: 0;
-  overflow: auto;
+  overflow: hidden auto;
   padding: 2px 1px;
   scrollbar-color: #8c9284 #3e4637;
 }
@@ -907,7 +907,7 @@
   min-width: 0;
   margin: 0;
   padding: 14px 18px;
-  overflow: auto;
+  overflow: hidden auto;
   font: inherit;
   white-space: pre;
   scrollbar-width: none;
@@ -1060,7 +1060,7 @@
   flex-direction: column;
   gap: 12px;
   min-height: 0;
-  overflow: auto;
+  overflow: hidden auto;
   scrollbar-width: thin;
   scrollbar-color: rgb(111 212 255 / 0.4) transparent;
 }
@@ -1297,44 +1297,88 @@
   gap: 18px;
 }
 
+/* A bracket of two 1 px arms that grow from 10 to 22 px on hover. Each arm scales along its own
+   length, so the line stays 1 px (scaling the whole box would thicken it). */
 .corner {
+  --arm: calc(10 / 22);
   position: absolute;
   z-index: 2;
-  width: 10px;
-  height: 10px;
+  width: 22px;
+  height: 22px;
   pointer-events: none;
-  border: 0 solid var(--bt-yellow);
-  transition: width var(--dur-base) var(--ease-standard), height var(--dur-base) var(--ease-standard);
+}
+
+.corner::before,
+.corner::after {
+  content: "";
+  position: absolute;
+  background: var(--bt-yellow);
+  transition: transform var(--dur-base) var(--ease-standard);
+}
+
+.corner::before {
+  width: 100%;
+  height: 1px;
+  transform: scaleX(var(--arm));
+}
+
+.corner::after {
+  width: 1px;
+  height: 100%;
+  transform: scaleY(var(--arm));
 }
 
 .corner[data-at="tl"] {
   top: -1px;
   left: -1px;
-  border-width: 1px 0 0 1px;
 }
 
 .corner[data-at="tr"] {
   top: -1px;
   right: -1px;
-  border-width: 1px 1px 0 0;
 }
 
 .corner[data-at="bl"] {
   bottom: -1px;
   left: -1px;
-  border-width: 0 0 1px 1px;
 }
 
 .corner[data-at="br"] {
   right: -1px;
   bottom: -1px;
-  border-width: 0 1px 1px 0;
+}
+
+.corner[data-at="tl"]::before,
+.corner[data-at="tl"]::after {
+  top: 0;
+  left: 0;
+  transform-origin: top left;
+}
+
+.corner[data-at="tr"]::before,
+.corner[data-at="tr"]::after {
+  top: 0;
+  right: 0;
+  transform-origin: top right;
+}
+
+.corner[data-at="bl"]::before,
+.corner[data-at="bl"]::after {
+  bottom: 0;
+  left: 0;
+  transform-origin: bottom left;
+}
+
+.corner[data-at="br"]::before,
+.corner[data-at="br"]::after {
+  right: 0;
+  bottom: 0;
+  transform-origin: bottom right;
 }
 
 .btFeature:hover .corner,
 .btCard:hover .corner {
-  width: 22px;
-  height: 22px;
+  --arm: 1;
 }
 
 .btFeature {
@@ -1432,7 +1476,7 @@
   flex-direction: column;
   gap: 16px;
   min-height: 0;
-  overflow: auto;
+  overflow: hidden auto;
   scrollbar-width: none;
 }
 
@@ -1803,7 +1847,7 @@
   animation: rise 440ms var(--ease-decelerate) both;
   animation-delay: calc(var(--stagger, 0) * 60ms + 140ms);
   transition:
-    translate 280ms cubic-bezier(0.34, 1.4, 0.64, 1),
+    translate 280ms var(--ease-settle),
     box-shadow var(--dur-base) var(--ease-standard);
 }
 
@@ -1914,4 +1958,53 @@
 
 :root[data-motion="reduced"] :is(.go, .c2, .tty, .halo, .bt, .vn, .go *, .c2 *, .tty *, .halo *, .bt *, .vn *) {
   animation: none !important;
+}
+
+/* ---- Night City over the CS2 front: red-framed chamfered cards on warm glass, red labels in
+   the squared tech face, cyan prices and sale tags, the rarity glow kept along the bottom. ---- */
+:global(:root[data-skin="nightcity"]) :is(.c2Title, .c2HeroName, .c2Name, .c2Label) {
+  font-family: "Rajdhani", var(--font-display);
+  font-weight: 700;
+  letter-spacing: 0.06em;
+}
+
+:global(:root[data-skin="nightcity"]) :is(.c2Title, .c2Label, .c2Kicker) {
+  color: var(--nightcity-red, #ff5e57);
+}
+
+:global(:root[data-skin="nightcity"]) .c2Title {
+  text-shadow: 0 0 18px color-mix(in srgb, var(--nightcity-red, #ff5e57) 45%, transparent);
+}
+
+:global(:root[data-skin="nightcity"]) .c2Timer {
+  color: color-mix(in srgb, var(--nightcity-red, #ff5e57) 70%, transparent);
+}
+
+:global(:root[data-skin="nightcity"]) :is(.c2Card, .c2Hero) {
+  background:
+    linear-gradient(to top, color-mix(in srgb, var(--grade, #ff5e57) 18%, transparent), transparent 50%),
+    color-mix(in srgb, var(--nightcity-panel, #0e0b10) 92%, transparent);
+  box-shadow:
+    inset 0 0 0 1px color-mix(in srgb, var(--nightcity-red, #ff5e57) 35%, transparent),
+    inset 0 -2px 0 var(--grade, var(--nightcity-red, #ff5e57));
+  clip-path: polygon(0 0, calc(100% - 14px) 0, 100% 14px, 100% 100%, 0 100%);
+}
+
+:global(:root[data-skin="nightcity"]) .c2Card:hover {
+  box-shadow:
+    inset 0 0 0 1px var(--nightcity-cyan, #5ef6ff),
+    inset 0 -2px 0 var(--nightcity-cyan, #5ef6ff);
+}
+
+:global(:root[data-skin="nightcity"]) .c2Card:hover .c2Name {
+  color: var(--nightcity-cyan, #5ef6ff);
+}
+
+:global(:root[data-skin="nightcity"]) :is(.c2Price, .c2CardPrice, .c2Price b) {
+  color: var(--nightcity-cyan, #5ef6ff);
+}
+
+:global(:root[data-skin="nightcity"]) .c2Sale {
+  color: #0a0a0d;
+  background: var(--nightcity-cyan, #5ef6ff);
 }

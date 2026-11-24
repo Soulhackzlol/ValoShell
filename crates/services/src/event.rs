@@ -45,6 +45,12 @@ pub enum AppEvent {
     Friends(Vec<crate::social::FriendView>),
     /// The summary of the match just played (again with the RR change, and once seen).
     PostMatch(Option<crate::post_match::PostMatchView>),
+    /// Party and agent-select chat; `None` while disconnected.
+    Chat(Option<crate::chat::ChatView>),
+    /// A newer ValoShell, and how far its install has got.
+    Update(crate::update::UpdateView),
+    /// Settings as just saved, so every window (the in-game overlay too) follows them live.
+    Settings(store::Settings),
 }
 
 /// Cheap to clone; every service holds one.

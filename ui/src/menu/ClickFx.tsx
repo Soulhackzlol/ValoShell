@@ -155,6 +155,16 @@ const BURSTS: Record<Skin, (burst: Burst) => void> = {
     // A thin gold hextech ring.
     ring(burst, styles.ring ?? "", 44, 380);
   },
+  phantom: (burst) => {
+    // A comic-book hit: a fat ring and sharp shards flying out.
+    ring(burst, styles.fatRing ?? "", 50, 340);
+    shards(burst, styles.spark ?? "", 8, [28, 60], 380, 160);
+  },
+  nightcity: (burst) => {
+    // A data burst: a hairline ring and hex glyphs scattering.
+    ring(burst, styles.thinRing ?? "", 38, 280);
+    glyphs(burst, styles.glyph ?? "", 5);
+  },
 };
 
 export function ClickFx() {

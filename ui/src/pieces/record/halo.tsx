@@ -6,6 +6,7 @@ import { rankColor } from "../home";
 import { relativeDate } from "../career";
 import { division, groupIndex, identity, nextRankName, outcome, signed, useCountUp, type RecordProps } from "./shared";
 import styles from "./halo.module.css";
+import { useOpenMatch } from "~/menu/openMatch";
 
 /** A Halo-style emblem: a dark tile, a hexagon in the rank colour and a white chevron. */
 function Emblem(props: { color: string }) {
@@ -52,6 +53,7 @@ function Insignia(props: { tier: number; color: string }) {
 }
 
 export function HaloRecord(props: RecordProps) {
+  const { rowProps } = useOpenMatch();
   const me = identity;
   const color = () => rankColor(props.view.rank.color);
   const rr = useCountUp(() => props.view.rr, 300);
@@ -142,7 +144,7 @@ export function HaloRecord(props: RecordProps) {
           <ol class={styles.list}>
             <For each={props.view.updates}>
               {(update, index) => (
-                <li class={styles.row} data-result={outcome(update)} style={{ "--stagger": index() }}>
+                <li {...rowProps(update.match_id)} class={styles.row} data-result={outcome(update)} style={{ "--stagger": index() }}>
                   <span class={styles.map}>
                     {update.map_name}
                     <Show when={update.is_promotion || update.is_demotion}>

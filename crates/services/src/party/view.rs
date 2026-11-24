@@ -114,8 +114,28 @@ pub fn queue_option(index: &AssetIndex, queue_id: &str) -> QueueOption {
             .and_then(|queue| queue.list_view_icon_tall.as_deref().map(image_url)),
         icon: queue
             .as_ref()
-            .and_then(|queue| queue.display_icon.as_deref().map(image_url)),
+            .and_then(|queue| queue.display_icon.clone())
+            .or_else(|| mode_icon(index, queue_id))
+            .as_deref()
+            .map(image_url),
     }
+}
+
+/// Queues Riot ships without an icon of their own, with the game mode whose icon the client
+/// shows for them (its folder under `GameModes/`).
+const QUEUE_MODES: [(&str, &str); 3] = [
+    ("unrated", "Bomb"),
+    ("custom", "Bomb"),
+    ("deathmatch", "Deathmatch"),
+];
+
+/// The icon of the queue's game mode, for a queue with none of its own.
+fn mode_icon(index: &AssetIndex, queue_id: &str) -> Option<String> {
+    let (_, folder) = QUEUE_MODES.iter().find(|(id, _)| *id == queue_id)?;
+    index
+        .game_mode_by_path(&format!("GameModes/{folder}/"))?
+        .display_icon
+        .clone()
 }
 
 fn queue_rank(queue_id: &str) -> usize {
@@ -372,5 +392,20 @@ mod tests {
         assert!(!party.is_queueing);
         assert!(party.queue_entry_time.is_none());
         assert!(party.invite_code.is_none());
+    }
+
+    #[test]
+    fn queues_without_an_icon_take_their_game_modes() {
+        let index = AssetIndex::from_documents(
+            &crate::assets::fixtures::documents(),
+            crate::assets::AssetSource::Cache,
+        );
+
+        for queue in ["unrated", "custom", "deathmatch"] {
+            assert!(
+                queue_option(&index, queue).icon.is_some(),
+                "{queue} has no icon"
+            );
+        }
     }
 }

@@ -1,0 +1,186 @@
+/* Minecraft agents: the inventory GUI drawn as the game draws it. A light grey panel with a
+   3px pixel bevel and black outline, sunken slots, dark grey labels, a white wash on the picked
+   slot, and the item tooltip: near-black with a purple border and a white name. */
+
+.gui {
+  --mc-panel: var(--minecraft-panel, #c6c6c6);
+  --mc-slot: var(--minecraft-slot, #8b8b8b);
+  --mc-label: var(--minecraft-label, #404040);
+  container-type: size;
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+  width: 100%;
+  height: 100%;
+  padding: 14px;
+  color: var(--mc-label);
+  background: var(--mc-panel);
+  box-shadow:
+    inset 3px 3px 0 #ffffff,
+    inset -3px -3px 0 #555555,
+    0 0 0 3px #000000;
+  image-rendering: pixelated;
+}
+
+.top {
+  display: grid;
+  grid-template-columns: minmax(140px, 26%) minmax(0, 1fr);
+  gap: 14px;
+  min-height: 0;
+  height: 46%;
+}
+
+/* The player box: black, sunken, the agent standing in it. */
+.playerBox {
+  min-height: 0;
+  overflow: hidden;
+  background: #000000;
+  box-shadow: inset 3px 3px 0 #373737, inset -3px -3px 0 #ffffff;
+}
+
+.player {
+  width: 100%;
+  height: 100%;
+  object-fit: contain;
+  object-position: center bottom;
+  scale: 1.3;
+  transform-origin: 50% 100%;
+}
+
+.about {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+  min-height: 0;
+}
+
+.label {
+  font-size: 22px;
+}
+
+.role {
+  font-size: 15px;
+  color: #6b6b6b;
+}
+
+.hotbar {
+  display: flex;
+  gap: 2px;
+}
+
+.text {
+  flex: 1;
+  min-height: 0;
+  margin: 0;
+  padding: 8px 10px;
+  overflow: hidden auto;
+  font-size: 14px;
+  line-height: 1.5;
+  color: #ffffff;
+  text-shadow: 2px 2px 0 #3f3f3f;
+  background: rgb(0 0 0 / 0.55);
+  scrollbar-width: thin;
+}
+
+.tabs {
+  display: flex;
+  gap: 4px;
+}
+
+/* Stone buttons, blue-violet when pointed at, as the game's buttons are. */
+.tab {
+  padding: 4px 12px;
+  font-size: 14px;
+  color: #ffffff;
+  text-shadow: 2px 2px 0 #3f3f3f;
+  background: #6f6f6f;
+  box-shadow: inset 2px 2px 0 #a8a8a8, inset -2px -2px 0 #3c3c3c, 0 0 0 2px #000000;
+}
+
+.tab:hover {
+  background: var(--minecraft-select, #7b86bd);
+}
+
+.tab[data-on] {
+  color: var(--minecraft-hover, #ffffa0);
+}
+
+.grid {
+  flex: 1;
+  min-height: 0;
+  display: grid;
+  grid-template-columns: repeat(auto-fill, 54px);
+  grid-auto-rows: 54px;
+  align-content: start;
+  gap: 2px;
+  padding: 2px;
+  overflow: hidden auto;
+  scrollbar-width: thin;
+}
+
+/* A sunken slot; the picked one washed white, a locked one greyed. */
+.slot {
+  position: relative;
+  display: grid;
+  place-items: center;
+  width: 54px;
+  height: 54px;
+  background: var(--mc-slot);
+  box-shadow: inset 3px 3px 0 #373737, inset -3px -3px 0 #ffffff;
+}
+
+.slot:hover {
+  background: #a5a5a5;
+}
+
+.slot[data-on] {
+  background: #c5c5c5;
+  box-shadow: inset 3px 3px 0 #373737, inset -3px -3px 0 #ffffff, 0 0 0 3px #ffffff;
+}
+
+.slot[data-locked] .icon {
+  filter: grayscale(1) brightness(0.5);
+}
+
+.icon {
+  width: 40px;
+  height: 40px;
+  object-fit: cover;
+}
+
+.count {
+  position: absolute;
+  right: 4px;
+  bottom: 1px;
+  font-size: 13px;
+  color: #ffffff;
+  text-shadow: 2px 2px 0 #3f3f3f;
+}
+
+/* The item tooltip, shown while the slot is pointed at. */
+.tooltip {
+  position: absolute;
+  left: 60%;
+  top: -6px;
+  z-index: 5;
+  display: none;
+  flex-direction: column;
+  padding: 4px 8px;
+  white-space: nowrap;
+  font-size: 15px;
+  color: #ffffff;
+  text-shadow: 2px 2px 0 #3f3f3f;
+  background: rgb(16 0 16 / 0.94);
+  box-shadow: inset 0 0 0 2px #2d0a63, 0 0 0 2px rgb(16 0 16 / 0.94);
+  pointer-events: none;
+}
+
+.tooltip small {
+  font-size: 13px;
+  color: #a0a0a0;
+}
+
+.slot:hover .tooltip,
+.slot:focus-visible .tooltip {
+  display: flex;
+}

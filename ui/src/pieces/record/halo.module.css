@@ -313,7 +313,7 @@
   flex-direction: column;
   margin: 0;
   padding: 0;
-  overflow: auto;
+  overflow: hidden auto;
   list-style: none;
 }
 
@@ -396,11 +396,11 @@
 .delta {
   font-family: var(--font-display);
   font-size: 19px;
-  color: #8fe9ff;
+  color: var(--win, #8fe9ff);
 }
 
 .row[data-result="loss"] .delta {
-  color: #ff9a7a;
+  color: var(--loss, #ff9a7a);
 }
 
 @keyframes panelIn {
@@ -427,5 +427,33 @@
 @keyframes fill {
   from {
     transform: scaleX(0);
+  }
+}
+
+/* Small windows: dates stay on one line, the promotion tag gives way to the map name, and the
+   totals shrink so the bottom row of tiles fits. */
+.dim {
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+@container (max-width: 820px) {
+  .map em {
+    display: none;
+  }
+
+  .row {
+    font-size: 13px;
+  }
+
+  .map {
+    font-size: 15px;
+  }
+}
+
+@container (max-height: 600px) {
+  .statValue {
+    font-size: clamp(20px, 6cqh, 40px);
   }
 }

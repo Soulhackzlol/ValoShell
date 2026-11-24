@@ -9,6 +9,156 @@
   letter-spacing: 0.01em;
   white-space: pre-wrap;
   overflow-wrap: anywhere;
+  color: var(--ink);
+}
+
+/* ---- Text effects (the Effect field). The colour is --ink, so each effect paints with it.
+   Endless ones are slow and small, and Reduced motion stills them like every animation. */
+.text[data-effect="outline"] {
+  color: transparent;
+  -webkit-text-stroke: max(1px, 0.035em) var(--ink);
+}
+
+.text[data-effect="gradient"] > span {
+  color: transparent;
+  background: linear-gradient(90deg, var(--accent), var(--accent-2, var(--ink)), var(--ink), var(--accent)) 0 0 /
+    300% 100%;
+  -webkit-background-clip: text;
+  background-clip: text;
+  animation: gradientSlide 8s linear infinite;
+}
+
+/* Over the glow the shadow toggle would fight it, so neon replaces the shadow. */
+.text[data-effect="neon"] {
+  text-shadow:
+    0 0 0.04em var(--ink),
+    0 0 0.18em var(--ink),
+    0 0 0.5em color-mix(in srgb, var(--ink) 60%, transparent) !important;
+  animation: flicker 5s linear infinite;
+}
+
+/* Two offset copies (red and cyan) slice across the text in steps. */
+.text[data-effect="glitch"] > span {
+  position: relative;
+}
+
+.text[data-effect="glitch"] > span::before,
+.text[data-effect="glitch"] > span::after {
+  content: attr(data-text);
+  position: absolute;
+  inset: 0;
+  pointer-events: none;
+}
+
+.text[data-effect="glitch"] > span::before {
+  color: #ff2a6d;
+  animation: glitchA 2.6s steps(1) infinite;
+}
+
+.text[data-effect="glitch"] > span::after {
+  color: #05d9e8;
+  animation: glitchB 2.6s steps(1) infinite;
+}
+
+/* Typed out letter by letter (--chars), then a blinking caret; kept on one line so it types across. */
+.text[data-effect="typewriter"] > span {
+  white-space: nowrap;
+  clip-path: inset(0 100% 0 0);
+  animation: type calc(var(--chars) * 70ms) steps(var(--chars)) calc(300ms * var(--motion-scale)) forwards;
+}
+
+.text[data-effect="typewriter"]::after {
+  content: "";
+  align-self: stretch;
+  width: 0.08em;
+  margin: 0.1em 0 0.1em 0.06em;
+  background: var(--ink);
+  animation: caret 1s steps(1) infinite;
+}
+
+.letter {
+  display: inline-block;
+  white-space: pre;
+}
+
+.text[data-effect="wave"] .letter {
+  animation: wave 1.8s ease-in-out infinite;
+  animation-delay: calc(var(--i) * 90ms);
+}
+
+@keyframes gradientSlide {
+  to {
+    background-position: 300% 0;
+  }
+}
+
+@keyframes flicker {
+  0%,
+  93%,
+  97%,
+  100% {
+    opacity: 1;
+  }
+  95% {
+    opacity: 0.55;
+  }
+}
+
+@keyframes glitchA {
+  0%,
+  86%,
+  100% {
+    clip-path: inset(0 0 100% 0);
+    translate: 0;
+  }
+  88% {
+    clip-path: inset(10% 0 60% 0);
+    translate: -0.04em 0;
+  }
+  92% {
+    clip-path: inset(55% 0 20% 0);
+    translate: 0.03em 0;
+  }
+}
+
+@keyframes glitchB {
+  0%,
+  88%,
+  100% {
+    clip-path: inset(0 0 100% 0);
+    translate: 0;
+  }
+  90% {
+    clip-path: inset(40% 0 35% 0);
+    translate: 0.04em 0;
+  }
+  94% {
+    clip-path: inset(75% 0 5% 0);
+    translate: -0.03em 0;
+  }
+}
+
+@keyframes type {
+  to {
+    clip-path: inset(0 0 0 0);
+  }
+}
+
+@keyframes caret {
+  50% {
+    opacity: 0;
+  }
+}
+
+@keyframes wave {
+  0%,
+  60%,
+  100% {
+    translate: 0 0;
+  }
+  30% {
+    translate: 0 -0.12em;
+  }
 }
 
 /* ---- Clock. Stack: time over date. Row: date beside the time. Compact: time only.
@@ -22,8 +172,10 @@
   line-height: 1;
 }
 
+/* Fitted: the time fills the box across, less its side padding. 0.66em per character covers
+   the widest display faces (Tahoma, Anton) so no style clips the last digit. */
 .clock[data-fitted] {
-  font-size: min(calc(92cqw / (var(--chars, 5) * 0.6)), 62cqh);
+  font-size: min(calc((100cqw - 2 * clamp(0px, 4cqw, 16px)) / (var(--chars, 5) * 0.66)), 62cqh);
 }
 
 .clockTime {
@@ -64,6 +216,11 @@
 }
 
 .clock[data-layout="compact"] .clockDate {
+  display: none;
+}
+
+/* A tiny piece (a corner badge) has room for the time alone, whatever layout was picked. */
+:global([data-size="tiny"]) .clockDate {
   display: none;
 }
 

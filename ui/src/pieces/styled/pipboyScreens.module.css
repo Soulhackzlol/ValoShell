@@ -1,0 +1,263 @@
+/* Pip-Boy screens: INV (Agents) and DATA > QUESTS (Play). The wrist computer's one language:
+   phosphor green on near black, uppercase mono, 2px rules, the selected row a solid green bar
+   with dark type, a ▶ cursor, art drawn in green with the darks dropped out. */
+
+.screen {
+  container-type: size;
+  display: grid;
+  grid-template-rows: auto minmax(0, 1fr);
+  gap: 2cqh;
+  width: 100%;
+  height: 100%;
+  color: var(--accent);
+  text-shadow: 0 0 6px color-mix(in srgb, var(--accent) 55%, transparent);
+}
+
+.subTabs {
+  display: flex;
+  justify-content: center;
+  gap: 28px;
+  padding-bottom: 8px;
+  border-bottom: 2px solid color-mix(in srgb, var(--accent) 70%, transparent);
+}
+
+.subTabs button {
+  font-size: 19px;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  opacity: 0.5;
+  transition: opacity 120ms ease;
+}
+
+.subTabs button:hover {
+  opacity: 0.85;
+}
+
+.subTabs [data-on] {
+  opacity: 1;
+}
+
+.split {
+  display: grid;
+  grid-template-columns: minmax(220px, 38%) minmax(0, 1fr);
+  gap: 3cqw;
+  min-height: 0;
+}
+
+.list {
+  display: grid;
+  align-content: start;
+  gap: 2px;
+  margin: 0;
+  padding: 0;
+  overflow: hidden auto;
+  list-style: none;
+  scrollbar-width: none;
+}
+
+.row {
+  display: grid;
+  grid-template-columns: 22px minmax(0, 1fr) auto;
+  align-items: center;
+  width: 100%;
+  padding: 3px 10px 3px 4px;
+  font-size: 18px;
+  letter-spacing: 0.06em;
+  text-align: left;
+  text-transform: uppercase;
+}
+
+.row:hover {
+  background: color-mix(in srgb, var(--accent) 14%, transparent);
+}
+
+/* Selected: the solid green bar with the screen's dark as its type. */
+.row[data-picked] {
+  color: var(--ground, #031208);
+  text-shadow: none;
+  background: var(--accent);
+}
+
+.cursor {
+  font-size: 13px;
+}
+
+.label {
+  overflow: hidden;
+  white-space: nowrap;
+  text-overflow: ellipsis;
+}
+
+.mark {
+  font-size: 12px;
+  opacity: 0.75;
+}
+
+.detail {
+  display: flex;
+  flex-direction: column;
+  gap: 1.4cqh;
+  min-height: 0;
+  overflow: hidden auto;
+  scrollbar-width: none;
+}
+
+/* The agent in one green, the shading crushed, the darks dropped out. */
+.figure {
+  flex: 1;
+  min-height: 120px;
+  width: 100%;
+  object-fit: contain;
+  object-position: center bottom;
+  filter: grayscale(1) contrast(1.5) brightness(1.15) sepia(1) hue-rotate(78deg) saturate(4.5);
+  mix-blend-mode: screen;
+  -webkit-mask-image: linear-gradient(to bottom, #000 75%, transparent);
+  mask-image: linear-gradient(to bottom, #000 75%, transparent);
+  /* Fitted whole (contain), never zoomed: a zoom to fill the portrait's empty margins pushed
+     the head out of a shorter panel. */
+  animation: flickerIn 600ms linear both;
+}
+
+.table {
+  display: grid;
+  gap: 2px;
+  margin: 0;
+}
+
+.table > div {
+  display: flex;
+  justify-content: space-between;
+  gap: 12px;
+  padding: 3px 10px;
+  font-size: 16px;
+  text-transform: uppercase;
+  background: color-mix(in srgb, var(--accent) 10%, transparent);
+}
+
+.table dt {
+  opacity: 0.75;
+}
+
+.table dd {
+  margin: 0;
+}
+
+.abilityRow {
+  cursor: pointer;
+}
+
+.abilityRow:hover {
+  background: color-mix(in srgb, var(--accent) 22%, transparent);
+}
+
+.abilityRow[data-open] {
+  color: var(--ground, #031208);
+  text-shadow: none;
+  background: var(--accent);
+}
+
+.text {
+  margin: 0;
+  font-size: 15px;
+  line-height: 1.5;
+  opacity: 0.9;
+}
+
+.questArt {
+  flex: 1;
+  min-height: 120px;
+  width: 100%;
+  object-fit: cover;
+  filter: grayscale(1) contrast(1.4) sepia(1) hue-rotate(78deg) saturate(3.5) brightness(0.9);
+  border: 2px solid color-mix(in srgb, var(--accent) 60%, transparent);
+  animation: flickerIn 600ms linear both;
+}
+
+.questName {
+  margin: 0;
+  font-size: clamp(22px, 5cqh, 38px);
+  font-weight: 400;
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+}
+
+/* Objectives as the quest log lists them: a box, ticked once done. */
+.objectives {
+  display: grid;
+  gap: 4px;
+  margin: 0;
+  padding: 0;
+  list-style: none;
+  font-size: 16px;
+  text-transform: uppercase;
+}
+
+.objectives li::before {
+  content: "□ ";
+}
+
+.objectives li[data-done] {
+  opacity: 0.6;
+}
+
+.objectives li[data-done]::before {
+  content: "■ ";
+}
+
+.action {
+  align-self: start;
+  padding: 6px 18px;
+  font-size: 18px;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  color: var(--accent);
+  border: 2px solid var(--accent);
+}
+
+.action:hover:not(:disabled) {
+  color: var(--ground, #031208);
+  text-shadow: none;
+  background: var(--accent);
+}
+
+.action:disabled {
+  cursor: default;
+  opacity: 0.6;
+}
+
+/* A tube warming: a flash, two stutters, steady. */
+@keyframes flickerIn {
+  0% {
+    opacity: 0;
+  }
+
+  15% {
+    opacity: 0.9;
+  }
+
+  25% {
+    opacity: 0.2;
+  }
+
+  40% {
+    opacity: 0.8;
+  }
+
+  50% {
+    opacity: 0.4;
+  }
+
+  100% {
+    opacity: 1;
+  }
+}
+
+:global(:root[data-motion="reduced"]) :is(.figure, .questArt) {
+  animation: none;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  :global(:root:not([data-motion="full"])) :is(.figure, .questArt) {
+    animation: none;
+  }
+}

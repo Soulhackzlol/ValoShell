@@ -1,0 +1,201 @@
+/* League store: near-black blue panels in thin gold rims, gold serif caps for tabs and titles,
+   the picked tab underlined in gold, cards whose rim brightens under the pointer. */
+
+.store {
+  --lol-gold: var(--league-gold, #c8aa6e);
+  --lol-gold-dark: var(--league-gold-dark, #785a28);
+  --lol-navy: var(--league-navy, #0a1428);
+  --lol-text: #f0e6d2;
+  --lol-grey: #a09b8c;
+  container-type: size;
+  display: flex;
+  flex-direction: column;
+  width: 100%;
+  height: 100%;
+  font-family: var(--lol-sans, var(--font-text));
+  color: var(--lol-text);
+  background: linear-gradient(to bottom, rgb(1 10 19 / 0.94), color-mix(in srgb, var(--lol-navy) 94%, transparent));
+  box-shadow: inset 0 0 0 1px var(--lol-gold-dark);
+}
+
+.tabs {
+  display: flex;
+  align-items: center;
+  gap: 4px;
+  padding: 0 20px;
+  border-bottom: 1px solid color-mix(in srgb, var(--lol-gold-dark) 70%, transparent);
+}
+
+.tab {
+  position: relative;
+  padding: 16px 14px 14px;
+  font-family: var(--lol-serif, var(--font-display));
+  font-size: 15px;
+  font-weight: 700;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  color: var(--lol-grey);
+  transition: color 140ms ease;
+}
+
+.tab:hover {
+  color: var(--lol-text);
+}
+
+.tab[data-on] {
+  color: var(--lol-text);
+}
+
+.tab[data-on]::after {
+  content: "";
+  position: absolute;
+  left: 14px;
+  right: 14px;
+  bottom: -1px;
+  height: 2px;
+  background: linear-gradient(to right, transparent, var(--lol-gold), transparent);
+}
+
+.timer {
+  margin-left: auto;
+  font-size: 13px;
+  color: var(--lol-grey);
+}
+
+.body {
+  flex: 1;
+  min-height: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+  padding: 18px 20px 20px;
+  overflow: hidden auto;
+  scrollbar-width: thin;
+}
+
+/* ---- the featured banner ---- */
+.banner {
+  position: relative;
+  flex: none;
+  height: clamp(160px, 38cqh, 320px);
+  overflow: hidden;
+  box-shadow: inset 0 0 0 1px var(--lol-gold-dark);
+  outline: 1px solid color-mix(in srgb, var(--lol-gold) 40%, transparent);
+  outline-offset: 3px;
+}
+
+.bannerArt {
+  display: block;
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+}
+
+.bannerText {
+  position: absolute;
+  inset: auto 0 0;
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+  padding: 40px 22px 16px;
+  background: linear-gradient(to top, rgb(1 10 19 / 0.92), transparent);
+}
+
+.kicker {
+  font-size: 12px;
+  font-weight: 700;
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+  color: var(--lol-gold);
+}
+
+.bannerText h3 {
+  font-family: var(--lol-serif, var(--font-display));
+  font-size: 28px;
+  font-weight: 700;
+  letter-spacing: 0.04em;
+  text-transform: uppercase;
+}
+
+/* ---- item cards ---- */
+.grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(170px, 1fr));
+  gap: 14px;
+}
+
+.card {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+  padding-bottom: 8px;
+}
+
+.cardArt {
+  display: grid;
+  place-items: center;
+  aspect-ratio: 3 / 4;
+  padding: 14px;
+  background:
+    radial-gradient(70% 50% at 50% 45%, color-mix(in srgb, var(--lol-gold) 12%, transparent), transparent 75%),
+    var(--lol-navy);
+  box-shadow: inset 0 0 0 1px var(--lol-gold-dark);
+  transition: box-shadow 160ms ease;
+}
+
+.card:hover .cardArt {
+  box-shadow: inset 0 0 0 2px var(--lol-gold), 0 0 18px color-mix(in srgb, var(--lol-gold) 22%, transparent);
+}
+
+.cardImage {
+  width: 100%;
+  height: 100%;
+  object-fit: contain;
+}
+
+.cardName {
+  overflow: hidden;
+  font-size: 14px;
+  font-weight: 600;
+  white-space: nowrap;
+  text-overflow: ellipsis;
+}
+
+.cardMeta {
+  display: flex;
+  justify-content: space-between;
+  gap: 8px;
+  font-size: 12px;
+  color: var(--lol-grey);
+}
+
+.price {
+  display: inline-flex;
+  align-items: center;
+  gap: 5px;
+  font-size: 14px;
+  font-variant-numeric: tabular-nums;
+  color: var(--lol-text);
+}
+
+.price s {
+  font-size: 12px;
+  color: var(--lol-grey);
+}
+
+.price b {
+  font-weight: 700;
+}
+
+/* A small coin, like RP: a teal-gold disc; Kingdom Credits a plain gold one. */
+.coin {
+  width: 13px;
+  height: 13px;
+  border-radius: 50%;
+  background: radial-gradient(circle at 40% 35%, #cdfafa, #0ac8b9 50%, #005a82);
+  box-shadow: 0 0 0 1px var(--lol-gold-dark);
+}
+
+.coin[data-currency="kc"] {
+  background: radial-gradient(circle at 40% 35%, #f0e6d2, var(--lol-gold) 55%, var(--lol-gold-dark));
+}

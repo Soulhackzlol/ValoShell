@@ -1,0 +1,232 @@
+/* Layout of every style's News, Progress and Chat (styledScreens.tsx). The material comes from
+   the style's Match sheet (panel, rows, buttons) plus its .meter and .field rules. Rows reuse
+   the lobby's .line, so the overrides here are scoped under their screen (two classes) to win
+   over it whatever order the sheets load in. */
+
+.screen {
+  gap: 10px;
+}
+
+.push {
+  margin-left: auto;
+}
+
+/* ---- news ---- */
+
+.stories {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+
+.stories .story {
+  grid-template-columns: clamp(64px, 18cqi, 120px) minmax(0, 1fr) auto;
+  width: 100%;
+  min-height: 56px;
+  border: 0;
+  font: inherit;
+  color: inherit;
+  text-align: left;
+  cursor: pointer;
+}
+
+.stories .story:disabled {
+  cursor: default;
+}
+
+.storyArt {
+  width: 100%;
+  aspect-ratio: 16 / 9;
+  object-fit: cover;
+}
+
+.storyText {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+  min-width: 0;
+}
+
+.storyText > b {
+  white-space: normal;
+  display: -webkit-box;
+  -webkit-box-orient: vertical;
+  -webkit-line-clamp: 2;
+  line-clamp: 2;
+}
+
+.storySummary {
+  overflow: hidden;
+  white-space: nowrap;
+  text-overflow: ellipsis;
+  opacity: 0.7;
+}
+
+@container (max-width: 340px) {
+  .storySummary {
+    display: none;
+  }
+}
+
+/* ---- progress: the pass card on the left (its next reward large), missions on the right ---- */
+
+.progress {
+  display: grid;
+  grid-template-columns: minmax(220px, 0.9fr) minmax(0, 1.1fr);
+  gap: 16px;
+  flex: 1;
+  min-height: 0;
+}
+
+.pass {
+  min-height: 0;
+}
+
+.pass .reward {
+  display: flex;
+  flex-direction: column;
+  align-items: stretch;
+  flex: 1;
+  min-height: 0;
+  gap: 6px;
+  padding: 12px;
+}
+
+/* The reward is the card's headline, whatever size the style gives its row names. */
+.pass .reward > b {
+  font-size: 1.35em;
+  white-space: normal;
+}
+
+.rewardArt {
+  flex: 1;
+  width: 100%;
+  min-height: 72px;
+  object-fit: contain;
+}
+
+.missionLists {
+  display: flex;
+  flex-direction: column;
+  gap: 14px;
+  min-height: 0;
+  overflow: hidden auto;
+  scrollbar-width: thin;
+}
+
+.missionLists .mission {
+  grid-template-columns: minmax(0, 1fr) auto;
+  row-gap: 6px;
+  padding: 8px 10px;
+}
+
+.missionLists .mission[data-done] {
+  opacity: 0.55;
+}
+
+.missionLists .mission > .meter {
+  grid-column: 1 / -1;
+}
+
+@container (max-width: 560px) {
+  .progress {
+    grid-template-columns: minmax(0, 1fr);
+    overflow: hidden auto;
+  }
+
+  .rewardArt {
+    flex: none;
+    height: 96px;
+  }
+}
+
+.meter {
+  grid-column: 1 / -1;
+}
+
+/* Beside the reward picture, under its name and tier. */
+.pass .reward > .meter {
+  grid-column: 2;
+}
+
+.meter {
+  display: block;
+  height: 6px;
+  overflow: hidden;
+  /* A style's .meter sets these two; the sheets load in no fixed order, so no rule competes. */
+  background: var(--meter-track, rgb(127 127 127 / 0.25));
+}
+
+.meter > i {
+  display: block;
+  width: 100%;
+  height: 100%;
+  transform: scaleX(var(--fill, 0));
+  transform-origin: left;
+  background: var(--meter-fill, currentColor);
+}
+
+/* ---- chat ---- */
+
+.chat {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  width: 100%;
+  height: 100%;
+  min-height: 28px;
+  padding: 0 10px;
+}
+
+.chatLabel {
+  flex: none;
+  white-space: nowrap;
+}
+
+.chatInput {
+  flex: 1;
+  min-width: 0;
+  height: 100%;
+  padding: 0;
+  border: 0;
+  outline: none;
+  font: inherit;
+  color: inherit;
+  background: none;
+}
+
+.chatInput::placeholder {
+  color: inherit;
+  opacity: 0.5;
+}
+
+/* The line's chat icon opens the full chat panel (history, whispers): with a chat line on the
+   screen, the menu's floating chat button steps aside. */
+.chatOpen {
+  position: relative;
+  display: grid;
+  flex: none;
+  place-items: center;
+  padding: 0;
+  border: 0;
+  color: inherit;
+  background: none;
+  cursor: pointer;
+  opacity: 0.75;
+  transition: opacity 120ms ease;
+}
+
+.chatOpen:hover,
+.chatOpen:focus-visible {
+  opacity: 1;
+}
+
+/* A small icon, a comfortable target. */
+.chatOpen::before {
+  content: "";
+  position: absolute;
+  inset: -8px;
+}

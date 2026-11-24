@@ -1,8 +1,23 @@
 // Default theme, theme presets and the default layout of every stage. A stage missing from a
 // saved document falls back to these, so new scenes appear without resetting anything.
+import { isShowWhen } from "~/state/momentRules";
+import { isDrawablePiece, isFiniteNumber, isHex, isOneOf, repairTheme, safeLayouts } from "./docSafety";
+import { ENTER_IDS, HOVER_IDS, IDLE_IDS, clampDelay } from "./motion";
 import type { Piece, PieceStyle, PropValue, Rect, StageId, StudioDoc, Theme } from "./types";
 
-export const DEFAULT_STYLE: PieceStyle = { opacity: 1, radius: 0, surface: "none", isGlowing: false };
+export const DEFAULT_STYLE: PieceStyle = {
+  opacity: 1,
+  radius: 0,
+  surface: "none",
+  isGlowing: false,
+  scale: 1,
+  density: "comfortable",
+  accent: "",
+  enter: "auto",
+  idle: "none",
+  hover: "none",
+  delay: 0,
+};
 
 export interface ThemePreset {
   id: string;
@@ -35,6 +50,8 @@ export const DEFAULT_THEME: Theme = {
     url: "",
     agentUuid: "",
     mapId: "Ascent",
+    pick: "fixed",
+    isNameOn: false,
     gameVideo: "",
     shader: "flow",
     isAscii: false,
@@ -52,16 +69,21 @@ export const DEFAULT_THEME: Theme = {
     figureX: 0,
     figureY: 0,
     figureScale: 1,
+    figureLook: "plain",
+    isFigureMirrored: false,
   },
   isGrainy: true,
   vignette: 0.7,
-  parallax: 14,
+  // The scene holds still unless asked: a backdrop drifting after the pointer read as unsteady.
+  parallax: 0,
   cut: 18,
   displayFont: "saira",
   sound: { pack: "auto", volume: 1, isHoverOn: true, useFiles: true },
   transition: { kind: "auto", speed: 1 },
   fx: { isIntroOn: true, isCursorOn: true, isClickFxOn: true },
   language: "auto",
+  palette: {},
+  play: "",
 };
 
 let sequence = 0;
@@ -83,6 +105,7 @@ export function piece(kind: string, rect: Rect, z: number, props: Record<string,
     isLocked: false,
     style: { ...DEFAULT_STYLE },
     props,
+    showWhen: "always",
   };
 }
 
@@ -99,11 +122,14 @@ const DEFAULT_STAGES: Record<StageId, () => Piece[]> = {
   agents: () => [piece("val-agents", { x: 0, y: 0, w: 1, h: 1 }, 1)],
   collection: () => [
     piece("weapon-wall", { x: 0.03, y: 0.03, w: 0.6, h: 0.94 }, 1),
-    piece("skin-picker", { x: 0.66, y: 0.03, w: 0.31, h: 0.94 }, 2),
+    piece("skin-picker", { x: 0.66, y: 0.03, w: 0.31, h: 0.5 }, 2),
+    piece("identity", { x: 0.66, y: 0.56, w: 0.31, h: 0.41 }, 3),
   ],
   career: () => [
     piece("rank-card", { x: 0.04, y: 0.04, w: 0.5, h: 0.4 }, 1),
-    piece("rr-history", { x: 0.58, y: 0.04, w: 0.38, h: 0.9 }, 2),
+    piece("rr-history", { x: 0.58, y: 0.04, w: 0.38, h: 0.47 }, 2),
+    piece("stats", { x: 0.58, y: 0.54, w: 0.38, h: 0.4 }, 4),
+    piece("leaderboard", { x: 0.04, y: 0.48, w: 0.5, h: 0.46 }, 3),
   ],
   store: () => [
     piece("store-bundle", { x: 0.03, y: 0.03, w: 0.52, h: 0.6 }, 1),
@@ -132,7 +158,36 @@ export function defaultDoc(): StudioDoc {
   return { version: 1, theme: structuredClone(DEFAULT_THEME), stages: {} };
 }
 
-/** Fill gaps in a loaded document (older versions, hand edits) without dropping its data. */
+/** A piece's style with defaults for anything missing or not of the right type. */
+function safeStyle(raw: unknown): PieceStyle {
+  const style: PieceStyle = { ...DEFAULT_STYLE, ...(raw && typeof raw === "object" ? raw : {}) };
+  for (const key of ["opacity", "radius", "scale"] as const) {
+    if (!isFiniteNumber(style[key])) style[key] = DEFAULT_STYLE[key];
+  }
+  if (!isHex(style.accent)) style.accent = "";
+  if (!isOneOf(ENTER_IDS, style.enter)) style.enter = DEFAULT_STYLE.enter;
+  if (!isOneOf(IDLE_IDS, style.idle)) style.idle = DEFAULT_STYLE.idle;
+  if (!isOneOf(HOVER_IDS, style.hover)) style.hover = DEFAULT_STYLE.hover;
+  style.delay = isFiniteNumber(style.delay) ? clampDelay(style.delay) : DEFAULT_STYLE.delay;
+  return style;
+}
+
+/** A stage's drawable pieces, each with a full style and its own props object. */
+function safePieces(raw: unknown): Piece[] {
+  if (!Array.isArray(raw)) return [];
+  return raw.filter(isDrawablePiece).map((entry) => ({
+    ...entry,
+    z: isFiniteNumber(entry.z) ? entry.z : 0,
+    style: safeStyle(entry.style),
+    props: entry.props && typeof entry.props === "object" ? { ...entry.props } : {},
+    showWhen: isShowWhen(entry.showWhen) ? entry.showWhen : "always",
+  }));
+}
+
+/**
+ * Fill gaps in a loaded document (older versions, hand edits) without dropping its data, and
+ * make a document from outside safe to apply (docSafety.ts): a look someone shared is input.
+ */
 export function normalizeDoc(raw: unknown): StudioDoc {
   const base = defaultDoc();
   if (!raw || typeof raw !== "object") return base;
@@ -142,15 +197,12 @@ export function normalizeDoc(raw: unknown): StudioDoc {
   theme.sound = { ...base.theme.sound, ...(doc.theme?.sound ?? {}) };
   theme.transition = { ...base.theme.transition, ...(doc.theme?.transition ?? {}) };
   theme.fx = { ...base.theme.fx, ...(doc.theme?.fx ?? {}) };
+  repairTheme(theme, base.theme);
   const stages: StudioDoc["stages"] = {};
   for (const [id, pieces] of Object.entries(doc.stages ?? {})) {
-    if (Array.isArray(pieces)) {
-      stages[id as StageId] = pieces.map((entry: Piece) => ({
-        ...entry,
-        style: { ...DEFAULT_STYLE, ...(entry.style ?? {}) },
-        props: { ...(entry.props ?? {}) },
-      }));
-    }
+    // Only real stages: a shared file's own keys (even `__proto__`) never become one.
+    if (Object.hasOwn(DEFAULT_STAGES, id) && Array.isArray(pieces)) stages[id as StageId] = safePieces(pieces);
   }
-  return { version: 1, theme, stages, ...(doc.layouts ? { layouts: { ...doc.layouts } } : {}) };
+  const layouts = safeLayouts(doc.layouts);
+  return { version: 1, theme, stages, ...(layouts ? { layouts } : {}) };
 }

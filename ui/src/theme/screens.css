@@ -236,14 +236,15 @@
 }
 
 /* ======================================================================================
-   Fortnite: the Locker. Rarity-gradient tiles with a dark name strip, a fat yellow outline
-   on the chosen one, tiles that pop on hover, a slanted yellow LOCK IN.
+   Fortnite: the Locker. Rounded rarity-gradient tiles with a dark name strip, a fat yellow
+   outline on the chosen one, tiles that pop on hover, a rounded yellow LOCK IN.
    ====================================================================================== */
 :root[data-skin="fortnite"] [data-part="weapon-card"],
 :root[data-skin="fortnite"] [data-part="skin-row"],
 :root[data-skin="fortnite"] [data-part="map-tile"] {
   --rarity: var(--edition, #2f8cff);
   clip-path: none;
+  border-radius: 10px;
   background:
     radial-gradient(circle at 50% 35%, color-mix(in oklch, var(--rarity) 55%, white), var(--rarity) 45%, color-mix(in oklch, var(--rarity) 60%, black) 100%);
   box-shadow: inset 0 0 0 2px rgb(255 255 255 / 0.25);
@@ -258,6 +259,7 @@
 /* Agents read as Epic. */
 :root[data-skin="fortnite"] [data-part="agent-tile"] {
   clip-path: none;
+  border-radius: 10px;
   background: radial-gradient(circle at 50% 35%, #d39cff, #9d4dea 45%, #4d1a8a 100%);
   box-shadow: inset 0 0 0 2px rgb(255 255 255 / 0.25);
   transition: transform 180ms cubic-bezier(0.34, 1.56, 0.64, 1);
@@ -279,10 +281,12 @@
 }
 
 :root[data-skin="fortnite"] [data-part="category-name"] {
-  font-family: "Oswald Variable", var(--font-display);
+  font-family: "Anton", "Oswald Variable", var(--font-display);
   font-size: 18px;
-  font-style: italic;
-  font-weight: 700;
+  font-weight: 400;
+  letter-spacing: 0.03em;
+  /* Anton's caps sit higher than the body face's; the default line clips their tops. */
+  line-height: 1.25;
   color: #ffffff;
 }
 
@@ -295,13 +299,61 @@
 :root[data-skin="fortnite"] [data-part="lock"],
 :root[data-skin="fortnite"] [data-part="screen-board"] [data-part="play"] {
   clip-path: none;
-  font-family: "Oswald Variable", var(--font-display);
-  font-style: italic;
-  font-weight: 700;
+  font-family: "Anton", "Oswald Variable", var(--font-display);
+  font-weight: 400;
+  letter-spacing: 0.03em;
   color: #121212;
   background: #fbe925;
+  border-radius: 10px;
   box-shadow: inset 0 -5px 0 #cdbb0b;
-  transform: skewX(-6deg);
+}
+
+/* ======================================================================================
+   Night City: inventory rows and tiles in red hairline frames with a red edge on warm glass;
+   what is pointed at or chosen turns cyan, as a selected item does in the game.
+   ====================================================================================== */
+:root[data-skin="nightcity"] [data-part="weapon-card"],
+:root[data-skin="nightcity"] [data-part="skin-row"],
+:root[data-skin="nightcity"] [data-part="agent-tile"],
+:root[data-skin="nightcity"] [data-part="map-tile"] {
+  font-family: "Rajdhani", var(--font-display);
+  background: linear-gradient(90deg, color-mix(in srgb, var(--nightcity-red, #ff5e57) 10%, transparent), transparent 70%);
+  box-shadow:
+    inset 2px 0 0 var(--nightcity-red, #ff5e57),
+    inset 0 0 0 1px color-mix(in srgb, var(--nightcity-red, #ff5e57) 18%, transparent);
+  transition: background 120ms ease, box-shadow 120ms ease;
+}
+
+:root[data-skin="nightcity"] [data-part="weapon-card"]:hover,
+:root[data-skin="nightcity"] [data-part="skin-row"]:hover,
+:root[data-skin="nightcity"] [data-part="map-tile"]:hover,
+:root[data-skin="nightcity"] [data-part="agent-tile"]:hover:not(:disabled),
+:root[data-skin="nightcity"] [data-part="weapon-card"][data-selected],
+:root[data-skin="nightcity"] [data-part="skin-row"][data-picked],
+:root[data-skin="nightcity"] [data-part="agent-tile"][data-active],
+:root[data-skin="nightcity"] [data-part="map-tile"][data-selected] {
+  --text-1: var(--nightcity-cyan, #5ef6ff);
+  background: linear-gradient(90deg, color-mix(in srgb, var(--nightcity-cyan, #5ef6ff) 16%, transparent), transparent 75%);
+  box-shadow:
+    inset 2px 0 0 var(--nightcity-cyan, #5ef6ff),
+    inset 0 0 0 1px color-mix(in srgb, var(--nightcity-cyan, #5ef6ff) 45%, transparent);
+}
+
+:root[data-skin="nightcity"] [data-part="category-name"] {
+  font-family: "Rajdhani", var(--font-display);
+  font-weight: 700;
+  letter-spacing: 0.12em;
+  color: var(--nightcity-red, #ff5e57);
+}
+
+:root[data-skin="nightcity"] [data-part="lock"],
+:root[data-skin="nightcity"] [data-part="screen-board"] [data-part="play"] {
+  font-family: "Rajdhani", var(--font-display);
+  font-weight: 700;
+  letter-spacing: 0.1em;
+  color: #000000;
+  background: var(--nightcity-yellow, #fcee0a);
+  clip-path: polygon(0 0, calc(100% - 12px) 0, 100% 12px, 100% 100%, 12px 100%, 0 calc(100% - 12px));
 }
 
 /* ======================================================================================

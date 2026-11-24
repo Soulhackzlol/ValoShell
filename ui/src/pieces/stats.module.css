@@ -1,0 +1,201 @@
+/* Same panel language as the rank card and ranked history (career.module.css). */
+.stats {
+  container-type: inline-size;
+  display: grid;
+  grid-template-rows: auto auto auto minmax(0, 1fr);
+  gap: var(--space-3);
+  width: 100%;
+  height: 100%;
+  min-height: 0;
+  padding: var(--space-5);
+  background: var(--panel);
+  box-shadow: inset 0 0 0 1px var(--border-subtle);
+}
+
+.header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: var(--space-3);
+}
+
+.title {
+  font-family: var(--font-display);
+  font-stretch: calc(118% * var(--stretch, 1));
+  font-size: clamp(18px, 1.6vw, 26px);
+  font-weight: 800;
+  letter-spacing: 1px;
+  text-transform: uppercase;
+}
+
+.subtitle {
+  font-size: var(--text-caption);
+  color: var(--text-3);
+}
+
+.refresh {
+  display: grid;
+  place-items: center;
+  width: 28px;
+  height: 28px;
+  border-radius: 3px;
+  color: var(--text-3);
+}
+
+.refresh:hover:not(:disabled) {
+  color: var(--text-1);
+  background: rgb(255 255 255 / 0.08);
+}
+
+.tiles {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(72px, 1fr));
+  gap: var(--space-2);
+}
+
+/* A narrow panel keeps the five tiles on one row (a second row pushed the breakdown out of a
+   short panel); their labels shorten instead. */
+@container (max-width: 520px) {
+  .tiles {
+    grid-template-columns: repeat(5, minmax(0, 1fr));
+  }
+
+  .tile {
+    padding-inline: var(--space-2);
+  }
+}
+
+.tile {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+  padding: var(--space-2) var(--space-3);
+  background: rgb(255 255 255 / 0.04);
+  box-shadow: inset 0 -2px 0 var(--accent-border);
+}
+
+.tileValue {
+  font-size: 20px;
+  font-weight: 700;
+}
+
+.tileLabel {
+  overflow: hidden;
+  font-size: var(--text-caption);
+  letter-spacing: 1px;
+  text-overflow: ellipsis;
+  text-transform: uppercase;
+  white-space: nowrap;
+  color: var(--text-3);
+}
+
+.switch {
+  display: flex;
+  gap: 4px;
+}
+
+.switch button {
+  padding: 4px var(--space-3);
+  font-size: var(--text-caption);
+  font-weight: 700;
+  letter-spacing: 1px;
+  text-transform: uppercase;
+  color: var(--text-3);
+  background: rgb(255 255 255 / 0.04);
+}
+
+.switch button[aria-selected="true"] {
+  color: var(--text-1);
+  background: var(--accent-soft);
+  box-shadow: inset 0 -2px 0 var(--accent);
+}
+
+.tableWrap {
+  min-height: 0;
+  overflow: hidden auto;
+}
+
+.table {
+  width: 100%;
+  border-collapse: collapse;
+  font-size: var(--text-caption);
+}
+
+.table th {
+  position: sticky;
+  top: 0;
+  padding: 6px 8px;
+  text-align: right;
+  font-weight: 600;
+  letter-spacing: 1px;
+  text-transform: uppercase;
+  color: var(--text-3);
+  background: var(--panel);
+}
+
+.table th:first-child {
+  text-align: left;
+}
+
+.table td {
+  padding: 6px 8px;
+  text-align: right;
+  border-top: 1px solid var(--border-subtle);
+}
+
+.table .nameCell {
+  display: flex;
+  align-items: center;
+  gap: var(--space-2);
+  text-align: left;
+  font-weight: 600;
+}
+
+.agentIcon,
+.iconEmpty {
+  width: 26px;
+  height: 26px;
+  object-fit: contain;
+}
+
+.mapIcon {
+  width: 44px;
+  height: 24px;
+  object-fit: cover;
+}
+
+/* ---- layouts (Studio > Look > Layout; studio/pieceLayout.ts); "full" is the look above ---- */
+
+/* Only the headline numbers, spread over the piece. */
+[data-layout="tiles"] .stats {
+  grid-template-rows: auto minmax(0, 1fr);
+}
+
+[data-layout="tiles"] .tiles {
+  align-content: center;
+}
+
+[data-layout="tiles"] .switch,
+[data-layout="tiles"] .tableWrap {
+  display: none;
+}
+
+/* Only the per-agent / per-map table. */
+[data-layout="table"] .stats {
+  grid-template-rows: auto auto minmax(0, 1fr);
+}
+
+[data-layout="table"] .tiles {
+  display: none;
+}
+
+/* Small and tiny: the three numbers that matter most, big enough to read; the line under the
+   title goes, since the room is for the numbers. */
+:global(:is([data-size="small"], [data-size="tiny"])) .tiles {
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+}
+
+:global(:is([data-size="small"], [data-size="tiny"])) .tile:nth-child(n + 4),
+:global(:is([data-size="small"], [data-size="tiny"])) .subtitle {
+  display: none;
+}

@@ -1,0 +1,127 @@
+/* The dock sits in MenuShell's bottom-left stack on the Store scene; the dialog frame comes
+   from identity.module.css. */
+.dock {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  max-width: min(520px, calc(100vw - 40px));
+  padding: 8px 14px;
+  overflow: hidden;
+  white-space: nowrap;
+  text-overflow: ellipsis;
+  font-size: var(--text-caption);
+  font-weight: 600;
+  color: var(--text-2);
+  background: var(--panel);
+  box-shadow: inset 0 0 0 1px var(--border-default), 0 12px 30px rgb(0 0 0 / 0.45);
+}
+
+.dock span {
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.dock:hover {
+  color: var(--text-1);
+}
+
+/* With nothing on sale it folds to its heart, like the chat chip; a wish in your store stays
+   spelled out, since that is news. */
+.dock:not([data-on-sale]) {
+  gap: 0;
+  transition: gap 260ms var(--ease-decelerate);
+}
+
+.dock:not([data-on-sale]) > span {
+  max-width: 0;
+  opacity: 0;
+  transition: max-width 320ms var(--ease-decelerate), opacity 200ms var(--ease-standard);
+}
+
+.dock:not([data-on-sale]):is(:hover, :focus-visible) {
+  gap: 8px;
+}
+
+.dock:not([data-on-sale]):is(:hover, :focus-visible) > span {
+  max-width: 160px;
+  opacity: 1;
+}
+
+.dock[data-on-sale] {
+  color: var(--text-1);
+  box-shadow: inset 0 0 0 1px var(--positive), 0 12px 30px rgb(0 0 0 / 0.45);
+}
+
+.dock[data-on-sale] svg {
+  color: var(--positive);
+  fill: currentColor;
+}
+
+.body {
+  min-height: 0;
+  padding: var(--space-4);
+  overflow: hidden auto;
+}
+
+.list {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+  padding: 0;
+  list-style: none;
+}
+
+.row {
+  display: grid;
+  grid-template-columns: 120px minmax(0, 1fr) auto;
+  align-items: center;
+  gap: var(--space-3);
+  padding: var(--space-2) var(--space-3);
+  background: rgb(255 255 255 / 0.04);
+  box-shadow: inset 0 0 0 1px var(--border-subtle);
+}
+
+.row img {
+  width: 120px;
+  height: 40px;
+  object-fit: contain;
+}
+
+.name {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+  overflow: hidden;
+  font-weight: 600;
+}
+
+.name em {
+  font-style: normal;
+  font-size: var(--text-caption);
+  color: var(--positive);
+}
+
+.heart {
+  display: grid;
+  place-items: center;
+  width: 34px;
+  height: 34px;
+  color: var(--text-3);
+}
+
+.heart:hover {
+  color: var(--text-1);
+  background: rgb(255 255 255 / 0.08);
+}
+
+.heart[data-on] {
+  color: var(--red-500);
+}
+
+.heart[data-on] svg {
+  fill: currentColor;
+}
+
+.none {
+  color: var(--text-3);
+}

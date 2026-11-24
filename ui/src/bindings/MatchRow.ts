@@ -19,6 +19,10 @@ placement: number | null, mvp: Mvp | null,
  */
 rr_change: number | null, 
 /**
+ * Your party that match: 1 solo, 2 a duo, 3 a trio...
+ */
+party_size: number, 
+/**
  * Epoch ms.
  */
 started_at_ms: number, };

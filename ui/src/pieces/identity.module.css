@@ -1,0 +1,319 @@
+/* ---- identity piece: card banner, title, wheel and buddies in one compact panel ---- */
+
+.identity {
+  display: grid;
+  grid-template-rows: auto auto auto auto minmax(0, 1fr);
+  gap: var(--space-3);
+  width: 100%;
+  height: 100%;
+  min-height: 0;
+  padding: var(--space-4);
+  background: var(--panel);
+  box-shadow: inset 0 0 0 1px var(--border-subtle);
+}
+
+.presets {
+  display: inline-flex;
+  align-items: center;
+  justify-self: start;
+  gap: 6px;
+  padding: 4px var(--space-2);
+  font-size: var(--text-caption);
+  font-weight: 700;
+  letter-spacing: 1px;
+  text-transform: uppercase;
+  color: var(--text-2);
+  background: rgb(255 255 255 / 0.05);
+  box-shadow: inset 0 0 0 1px var(--border-subtle);
+}
+
+.presets:hover {
+  color: var(--text-1);
+  box-shadow: inset 0 0 0 1px var(--accent);
+}
+
+.card {
+  position: relative;
+  display: grid;
+  height: 64px;
+  overflow: hidden;
+  text-align: left;
+  background: rgb(255 255 255 / 0.05);
+}
+
+.cardArt {
+  width: 100%;
+  height: 64px;
+  object-fit: cover;
+}
+
+.cardText {
+  position: absolute;
+  inset: auto 0 0;
+  padding: var(--space-2) var(--space-3);
+  background: linear-gradient(transparent, rgb(0 0 0 / 0.7));
+  font-family: var(--font-display);
+  font-weight: 700;
+  letter-spacing: 1px;
+  text-transform: uppercase;
+}
+
+.title {
+  padding: var(--space-2) var(--space-3);
+  text-align: left;
+  font-weight: 600;
+  color: var(--text-2);
+  background: rgb(255 255 255 / 0.04);
+  box-shadow: inset 0 0 0 1px var(--border-subtle);
+}
+
+.card:hover,
+.title:hover,
+.slot:hover,
+.buddy:hover {
+  color: var(--text-1);
+  box-shadow: inset 0 0 0 1px var(--accent);
+}
+
+.wheel {
+  display: flex;
+  gap: var(--space-2);
+}
+
+.slot {
+  display: grid;
+  place-items: center;
+  width: 52px;
+  height: 52px;
+  background: rgb(255 255 255 / 0.05);
+  box-shadow: inset 0 0 0 1px var(--border-subtle);
+}
+
+.slot img {
+  width: 44px;
+  height: 44px;
+  object-fit: contain;
+}
+
+.slotEmpty {
+  color: var(--text-3);
+  font-size: 18px;
+}
+
+.buddies {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(96px, 1fr));
+  align-content: start;
+  gap: 4px;
+  min-height: 0;
+  padding: 0;
+  overflow: hidden auto;
+  list-style: none;
+}
+
+.buddy {
+  display: grid;
+  grid-template-columns: 28px minmax(0, 1fr);
+  align-items: center;
+  gap: var(--space-2);
+  width: 100%;
+  padding: 4px var(--space-2);
+  text-align: left;
+  font-size: var(--text-caption);
+  color: var(--text-2);
+  background: rgb(255 255 255 / 0.035);
+}
+
+.buddy img,
+.buddy .slotEmpty {
+  width: 28px;
+  height: 28px;
+  object-fit: contain;
+  text-align: center;
+}
+
+.buddy span:last-child {
+  overflow: hidden;
+  white-space: nowrap;
+  text-overflow: ellipsis;
+}
+
+/* ---- picker: a centred dialog over a dimmed scene, shared by every style ---- */
+
+.scrim {
+  position: fixed;
+  inset: 0;
+  z-index: 70;
+  background: rgb(0 0 0 / 0.55);
+}
+
+.picker {
+  position: fixed;
+  inset: 8vh 50% auto auto;
+  z-index: 71;
+  display: grid;
+  grid-template-rows: auto minmax(0, 1fr);
+  width: min(880px, calc(100vw - 48px));
+  height: min(640px, 84vh);
+  transform: translateX(50%);
+  background: var(--surface-overlay);
+  box-shadow: inset 0 0 0 1px var(--border-default), 0 24px 60px rgb(0 0 0 / 0.6);
+}
+
+.picker[data-busy] {
+  cursor: progress;
+}
+
+.picker[data-busy] .grid {
+  pointer-events: none;
+  opacity: 0.6;
+}
+
+.head {
+  display: grid;
+  grid-template-columns: auto minmax(0, 1fr) auto;
+  align-items: center;
+  gap: var(--space-3);
+  padding: var(--space-4);
+  border-bottom: 1px solid var(--border-subtle);
+}
+
+.head h2 {
+  font-family: var(--font-display);
+  font-stretch: calc(112% * var(--stretch, 1));
+  font-weight: 800;
+  letter-spacing: 1px;
+  text-transform: uppercase;
+}
+
+.search {
+  position: relative;
+  display: flex;
+  align-items: center;
+  justify-self: end;
+  width: min(280px, 100%);
+}
+
+.search svg {
+  position: absolute;
+  left: 10px;
+  color: var(--text-3);
+}
+
+.search input {
+  padding-left: 30px;
+}
+
+.close {
+  display: grid;
+  place-items: center;
+  width: 30px;
+  height: 30px;
+  color: var(--text-3);
+}
+
+.close:hover {
+  color: var(--text-1);
+  background: rgb(255 255 255 / 0.08);
+}
+
+.grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(120px, 1fr));
+  /* Rows as tall as their tiles: with auto rows, a list taller than the box shrinks every row
+     to the tiles' minimum (0), and the pictures and names spill over the next row. */
+  grid-auto-rows: max-content;
+  align-content: start;
+  gap: var(--space-2);
+  min-height: 0;
+  padding: var(--space-4);
+  overflow: hidden auto;
+}
+
+.grid[data-kind="card"] {
+  grid-template-columns: repeat(auto-fill, minmax(220px, 1fr));
+}
+
+.grid[data-kind="title"] {
+  grid-template-columns: repeat(auto-fill, minmax(180px, 1fr));
+}
+
+.option {
+  display: grid;
+  grid-template-rows: minmax(0, 1fr) auto;
+  gap: 4px;
+  min-height: 0;
+  padding: var(--space-2);
+  text-align: left;
+  color: var(--text-2);
+  background: rgb(255 255 255 / 0.04);
+  box-shadow: inset 0 0 0 1px var(--border-subtle);
+}
+
+.option img {
+  width: 100%;
+  height: 84px;
+  object-fit: contain;
+}
+
+.grid[data-kind="card"] .option img {
+  height: 64px;
+  object-fit: cover;
+}
+
+.option:hover {
+  color: var(--text-1);
+  background: rgb(255 255 255 / 0.08);
+}
+
+.option[data-current] {
+  box-shadow: inset 0 0 0 2px var(--positive);
+}
+
+.option[data-remove] {
+  place-items: center;
+  color: var(--negative);
+}
+
+.optionName {
+  overflow: hidden;
+  white-space: nowrap;
+  text-overflow: ellipsis;
+  font-size: var(--text-caption);
+}
+
+.optionText {
+  padding: var(--space-2) 0;
+  font-weight: 600;
+}
+
+.none {
+  color: var(--text-3);
+}
+
+/* ---- layouts (Studio > Look > Layout; studio/pieceLayout.ts); "full" is the look above ---- */
+
+/* Card & title: the player card fills the piece, nothing else. */
+[data-layout="card"] .identity {
+  grid-template-rows: auto minmax(0, 1fr) auto;
+}
+
+[data-layout="card"] .card,
+[data-layout="card"] .cardArt {
+  height: 100%;
+}
+
+[data-layout="card"] .wheel,
+[data-layout="card"] .buddies {
+  display: none;
+}
+
+/* Sprays & buddies: the flex wheel and every gun's buddy, without the card and title. */
+[data-layout="gear"] .identity {
+  grid-template-rows: auto auto minmax(0, 1fr);
+}
+
+[data-layout="gear"] .card,
+[data-layout="gear"] .title {
+  display: none;
+}

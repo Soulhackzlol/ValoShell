@@ -7,6 +7,7 @@ import { rankColor } from "../home";
 import { relativeDate } from "../career";
 import { outcome, signed, useCountUp, type RecordProps } from "./shared";
 import styles from "./valnow.module.css";
+import { useOpenMatch } from "~/menu/openMatch";
 
 const ROWS = 7;
 const SIDE = 10;
@@ -59,6 +60,7 @@ function RankEmblem(props: { color: string }) {
 }
 
 export function ValnowRecord(props: RecordProps) {
+  const { rowProps } = useOpenMatch();
   const color = () => rankColor(props.view.rank.color);
   const rr = useCountUp(() => props.view.rr, 300, 900);
   const filled = createMemo(() => Math.min(PIPS.length, props.view.wins));
@@ -159,7 +161,7 @@ export function ValnowRecord(props: RecordProps) {
         <ol class={styles.matches}>
           <For each={props.view.updates}>
             {(update, index) => (
-              <li class={styles.match} data-result={outcome(update)} style={{ "--stagger": index() }}>
+              <li {...rowProps(update.match_id)} class={styles.match} data-result={outcome(update)} style={{ "--stagger": index() }}>
                 <span class={styles.mapArt}>
                   <Art src={update.map_image} fallback={<span class={styles.mapInitial}>{update.map_name.slice(0, 2)}</span>} />
                 </span>

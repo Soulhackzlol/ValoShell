@@ -9,13 +9,12 @@ use std::time::Duration;
 
 use domain::ids::{PartyId, Puuid};
 use domain::phase::Phase;
+use riot::Request;
 use riot::api::glz::party::{self, Accessibility};
 use riot::api::glz::party_dto::{Party, PartyPlayer};
 use riot::api::glz::{custom_game, matchmaking, party_member};
 use riot::api::local::events::UriKind;
 use riot::session::RiotSession;
-use riot::{CachePolicy, Request};
-use serde::de::DeserializeOwned;
 use tokio::sync::broadcast::error::RecvError;
 use tokio_util::sync::CancellationToken;
 
@@ -23,7 +22,7 @@ pub use custom::{CustomLobbyView, LobbyTeam};
 pub use view::{MemberView, PartyView, QueueOption, RankBadge, queue_option, rank_badge};
 use view::{ViewContext, party_view};
 
-use crate::action::{ActionError, send_ok};
+use crate::action::{ActionError, fetch_json, send_ok};
 use crate::assets::AssetStore;
 use crate::ctx::Ctx;
 use crate::event::AppEvent;
@@ -157,10 +156,12 @@ impl PartyService {
     }
 
     async fn apply(&self, session: &RiotSession, party: &Party) -> Option<PartyView> {
-        let members = party
+        let members: Vec<_> = party
             .members
             .iter()
-            .filter_map(|member| member.subject.clone());
+            .filter_map(|member| member.subject.clone())
+            .collect();
+        self.inner.names.set_party(members.iter().cloned());
         self.inner.names.learn(session, members).await;
         let index = self.inner.assets.index();
         let names = self.inner.names.snapshot();
@@ -182,6 +183,7 @@ impl PartyService {
         }
         if view.is_none() {
             state.party_id = None;
+            self.inner.names.set_party([]);
         }
         state.view.clone_from(&view);
         drop(state);
@@ -362,24 +364,4 @@ impl PartyService {
         self.mutate(party::join_by_code(code), "join with that code")
             .await
     }
-}
-
-/// Paced, uncached read decoded into `T`.
-async fn fetch_json<T: DeserializeOwned>(
-    session: &RiotSession,
-    request: &Request,
-    what: &str,
-) -> Result<T, ActionError> {
-    let fetched = session
-        .gate
-        .fetch(&session.http, request, CachePolicy::Fresh)
-        .await;
-    if !fetched.is_complete {
-        let reason = match fetched.status {
-            0 => "Riot did not answer in time".to_owned(),
-            status => format!("Riot answered HTTP {status}"),
-        };
-        return Err(ActionError::could_not(what, reason));
-    }
-    serde_json::from_value(fetched.data).map_err(|error| ActionError::could_not(what, error))
 }

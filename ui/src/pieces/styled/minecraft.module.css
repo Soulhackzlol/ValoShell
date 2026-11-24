@@ -5,8 +5,8 @@
 .title,
 .panel {
   --mc-font: "Pixelify Sans Variable", "Silkscreen", monospace;
-  --mc-panel: #c6c6c6;
-  --mc-slot: #8b8b8b;
+  --mc-panel: var(--minecraft-panel, #c6c6c6);
+  --mc-slot: var(--minecraft-slot, #8b8b8b);
   font-family: var(--mc-font);
 }
 
@@ -18,26 +18,32 @@
   height: 40px;
   font-family: var(--mc-font);
   font-size: 17px;
-  color: #ffffff;
+  color: var(--minecraft-text, #ffffff);
   text-shadow: 2px 2px 0 #3f3f3f;
   /* The game's stone button: speckled grey pixels at twice their size, lit top-left. */
   background: url("./mc/button.png") 0 0 / 64px 32px repeat #6f6f6f;
-  box-shadow: 0 0 0 2px #000000, inset 2px 2px 0 #a5a5a5, inset -2px -4px 0 #4c4c4c;
+  box-shadow:
+    0 0 0 2px #000000,
+    inset 2px 2px 0 #a5a5a5,
+    inset -2px -4px 0 #4c4c4c;
   image-rendering: pixelated;
 }
 
 .button:hover:not(:disabled),
 .button:focus-visible {
-  color: #ffffa0;
+  color: var(--minecraft-hover, #ffffa0);
   text-shadow: 2px 2px 0 #3f3f28;
-  background: url("./mc/button-hover.png") 0 0 / 64px 32px repeat #7b86bd;
-  box-shadow: 0 0 0 2px #000000, inset 2px 2px 0 #bdc6f5, inset -2px -4px 0 #59628f;
+  background: url("./mc/button-hover.png") 0 0 / 64px 32px repeat var(--minecraft-select, #7b86bd);
+  box-shadow:
+    0 0 0 2px #000000,
+    inset 2px 2px 0 #bdc6f5,
+    inset -2px -4px 0 #59628f;
   outline: none;
 }
 
 .button:disabled {
   cursor: default;
-  color: #a0a0a0;
+  color: var(--minecraft-muted, #a0a0a0);
   text-shadow: none;
   background: url("./mc/button-disabled.png") 0 0 / 64px 32px repeat #2f2f2f;
   box-shadow: 0 0 0 2px #000000;
@@ -73,17 +79,12 @@
   background:
     repeating-conic-gradient(rgb(0 0 0 / 0.14) 0 25%, transparent 0 50%) 0 0 / 8px 8px,
     repeating-conic-gradient(rgb(255 255 255 / 0.1) 0 25%, transparent 0 50%) 4px 4px / 12px 12px,
-    linear-gradient(to bottom, #f2f2f2 0 26%, #c6c6c6 26% 58%, #8e8e8e 58% 100%);
+    linear-gradient(to bottom, #f2f2f2 0 26%, var(--minecraft-panel, #c6c6c6) 26% 58%, #8e8e8e 58% 100%);
   -webkit-background-clip: text;
   background-clip: text;
   -webkit-text-fill-color: transparent;
-  filter:
-    drop-shadow(0 -2px 0 #000000)
-    drop-shadow(-2px 0 0 #000000)
-    drop-shadow(2px 2px 0 #4c4c4c)
-    drop-shadow(2px 2px 0 #3a3a3a)
-    drop-shadow(2px 2px 0 #222222)
-    drop-shadow(1px 1px 0 #000000);
+  filter: drop-shadow(0 -2px 0 #000000) drop-shadow(-2px 0 0 #000000) drop-shadow(2px 2px 0 #4c4c4c)
+    drop-shadow(2px 2px 0 #3a3a3a) drop-shadow(2px 2px 0 #222222) drop-shadow(1px 1px 0 #000000);
 }
 
 .splash {
@@ -92,7 +93,7 @@
   bottom: -10%;
   font-size: clamp(14px, 2.2cqw, 24px);
   white-space: nowrap;
-  color: #ffff00;
+  color: var(--minecraft-yellow, #ffff00);
   text-shadow: 2px 2px 0 #3f3f00;
   transform: rotate(-20deg);
   animation: splash 450ms ease-in-out infinite alternate;
@@ -117,7 +118,7 @@
   align-self: stretch;
   margin-top: auto;
   font-size: 14px;
-  color: #ffffff;
+  color: var(--minecraft-text, #ffffff);
   text-shadow: 2px 2px 0 #3f3f3f;
 }
 
@@ -131,14 +132,17 @@
   height: 100%;
   padding: 12px 14px;
   overflow: visible;
-  color: #404040;
+  color: var(--minecraft-label, #404040);
   background: var(--mc-panel);
-  box-shadow: 0 0 0 2px #000000, inset 3px 3px 0 #ffffff, inset -3px -3px 0 #555555;
+  box-shadow:
+    0 0 0 2px #000000,
+    inset 3px 3px 0 #ffffff,
+    inset -3px -3px 0 #555555;
 }
 
 .panelTitle {
   font-size: 16px;
-  color: #404040;
+  color: var(--minecraft-label, #404040);
 }
 
 .panelTitle small {
@@ -169,7 +173,9 @@
   max-width: 100%;
   aspect-ratio: 1;
   background: var(--mc-slot);
-  box-shadow: inset 2px 2px 0 #373737, inset -2px -2px 0 #ffffff;
+  box-shadow:
+    inset 2px 2px 0 #373737,
+    inset -2px -2px 0 #ffffff;
 }
 
 .slot[data-big] {
@@ -184,7 +190,10 @@ div.slot:focus-visible {
 }
 
 .slot[data-self] {
-  box-shadow: inset 2px 2px 0 #373737, inset -2px -2px 0 #ffffff, 0 0 0 2px #ffffa0;
+  box-shadow:
+    inset 2px 2px 0 #373737,
+    inset -2px -2px 0 #ffffff,
+    0 0 0 2px var(--minecraft-hover, #ffffa0);
 }
 
 .slotItem {
@@ -197,7 +206,7 @@ div.slot:focus-visible {
 
 .slotLetter {
   font-size: 18px;
-  color: #ffffff;
+  color: var(--minecraft-text, #ffffff);
   text-shadow: 2px 2px 0 #3f3f3f;
   text-transform: uppercase;
 }
@@ -208,12 +217,12 @@ div.slot:focus-visible {
 
 .slot[data-status="queueing"] .slotLetter,
 .slot[data-status="agent_select"] .slotLetter {
-  color: #ffff55;
+  color: var(--minecraft-yellow, #ffff55);
 }
 
 .slotPlus {
   font-size: 26px;
-  color: #c6c6c6;
+  color: var(--minecraft-muted, #c6c6c6);
 }
 
 .count {
@@ -221,7 +230,7 @@ div.slot:focus-visible {
   right: 3px;
   bottom: 1px;
   font-size: 16px;
-  color: #ffffff;
+  color: var(--minecraft-text, #ffffff);
   text-shadow: 2px 2px 0 #3f3f3f;
 }
 
@@ -236,10 +245,12 @@ div.slot:focus-visible {
   padding: 6px 8px;
   white-space: nowrap;
   font-size: 14px;
-  color: #ffffff;
+  color: var(--minecraft-text, #ffffff);
   text-shadow: 2px 2px 0 #3f3f3f;
   background: rgb(16 0 16 / 0.94);
-  box-shadow: inset 0 0 0 2px #2d0a63, 0 0 0 1px #100010;
+  box-shadow:
+    inset 0 0 0 2px #2d0a63,
+    0 0 0 1px #100010;
   pointer-events: none;
 }
 
@@ -250,11 +261,11 @@ div.slot:focus-visible {
 
 .tooltip small {
   font-size: 12px;
-  color: #aaaaaa;
+  color: var(--minecraft-muted, #aaaaaa);
 }
 
 .tooltip small[data-ready] {
-  color: #55ff55;
+  color: var(--win, #55ff55);
 }
 
 .trade {
@@ -271,15 +282,17 @@ div.slot:focus-visible {
   gap: 2px;
   margin: 0;
   padding: 2px;
-  overflow: auto;
+  overflow: hidden auto;
   list-style: none;
   background: var(--mc-slot);
-  box-shadow: inset 2px 2px 0 #373737, inset -2px -2px 0 #ffffff;
+  box-shadow:
+    inset 2px 2px 0 #373737,
+    inset -2px -2px 0 #ffffff;
 }
 
 .tradeEmpty {
   padding: 8px;
-  color: #ffffff;
+  color: var(--minecraft-text, #ffffff);
 }
 
 .tradeRow {
@@ -291,16 +304,18 @@ div.slot:focus-visible {
   padding: 3px 6px;
   font-family: var(--mc-font);
   font-size: 17px;
-  color: #ffffff;
+  color: var(--minecraft-text, #ffffff);
   text-shadow: 2px 2px 0 #3f3f3f;
   background: #6f6f6f;
-  box-shadow: inset 2px 2px 0 #a8a8a8, inset -2px -2px 0 #4a4a4a;
+  box-shadow:
+    inset 2px 2px 0 #a8a8a8,
+    inset -2px -2px 0 #4a4a4a;
 }
 
 .tradeRow:hover,
 .tradeRow[data-active] {
-  color: #ffffa0;
-  background: #7b86bd;
+  color: var(--minecraft-hover, #ffffa0);
+  background: var(--minecraft-select, #7b86bd);
 }
 
 .vp {
@@ -309,7 +324,7 @@ div.slot:focus-visible {
   width: 26px;
   height: 26px;
   font-size: 11px;
-  color: #ffffff;
+  color: var(--minecraft-text, #ffffff);
   text-shadow: 1px 1px 0 #3f3f3f;
   background: linear-gradient(135deg, #ff6d7a, #b5202f);
   clip-path: polygon(50% 0, 100% 50%, 50% 100%, 0 50%);
@@ -331,7 +346,7 @@ div.slot:focus-visible {
 .bigArrow {
   width: 34px;
   height: 22px;
-  background: #8b8b8b;
+  background: var(--minecraft-slot, #8b8b8b);
 }
 
 .tradeIcon {
@@ -339,6 +354,111 @@ div.slot:focus-visible {
   width: 52px;
   height: 26px;
   object-fit: contain;
+}
+
+/* ---- shelf tabs: the creative inventory's tabs, the open one lit and joined to the panel ---- */
+.tabs {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 4px;
+  margin: -4px -4px 0;
+}
+
+.tab {
+  min-height: 28px;
+  padding: 4px 10px;
+  font-family: var(--mc-font);
+  font-size: 13px;
+  color: var(--minecraft-label, #404040);
+  background: color-mix(in srgb, var(--mc-panel) 78%, #000000);
+  box-shadow:
+    0 0 0 2px #000000,
+    inset 2px 2px 0 rgb(255 255 255 / 0.45),
+    inset -2px 0 0 #555555;
+}
+
+.tab:hover,
+.tab:focus-visible {
+  color: #000000;
+  outline: none;
+}
+
+.tab[aria-selected="true"] {
+  background: var(--mc-panel);
+  box-shadow:
+    0 0 0 2px #000000,
+    inset 2px 2px 0 #ffffff,
+    inset -2px 0 0 #555555;
+}
+
+/* A cheaper trade: the old count struck through in red, as the villager screen draws it. */
+.tradeCost s {
+  color: #ff5555;
+  text-decoration-thickness: 2px;
+}
+
+/* The game's half-width button, not a bar across the whole pane. */
+.tradeDetail .button {
+  max-width: 240px;
+}
+
+.button[aria-pressed="true"] {
+  color: #55ff55;
+}
+
+/* ---- trading layouts (mc-trades): Villager is the rows beside the picked trade; List is the
+   rows alone, for a narrow piece; Chest lays the offers out as inventory slots, each item over
+   its price, the way a chest GUI shows loot. ---- */
+[data-layout="list"] .trade,
+[data-layout="chest"] .trade {
+  grid-template-columns: minmax(0, 1fr);
+}
+
+[data-layout="list"] .tradeDetail,
+[data-layout="chest"] .tradeDetail {
+  display: none;
+}
+
+[data-layout="chest"] .tradeList {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(84px, 1fr));
+  align-content: start;
+  gap: 4px;
+  padding: 4px;
+}
+
+[data-layout="chest"] .tradeRow {
+  grid-template: "icon" minmax(0, 1fr) "cost" auto / minmax(0, 1fr);
+  justify-items: center;
+  gap: 2px;
+  aspect-ratio: 1;
+  padding: 6px 4px 4px;
+  background: color-mix(in srgb, var(--mc-slot) 70%, #000000);
+  box-shadow:
+    inset 2px 2px 0 #373737,
+    inset -2px -2px 0 #ffffff;
+}
+
+[data-layout="chest"] .tradeRow > .vp,
+[data-layout="chest"] .tradeRow > .arrow {
+  display: none;
+}
+
+[data-layout="chest"] .tradeIcon {
+  grid-area: icon;
+  width: 100%;
+  height: 100%;
+}
+
+[data-layout="chest"] .tradeCost {
+  grid-area: cost;
+  font-size: 15px;
+  text-align: center;
+}
+
+[data-layout="chest"] .tradeCost::after {
+  content: " VP";
+  font-size: 11px;
 }
 
 .tradeDetail {
@@ -377,7 +497,7 @@ div.slot:focus-visible {
   width: 100%;
   height: 100%;
   font-family: var(--mc-font);
-  color: #ffffff;
+  color: var(--minecraft-text, #ffffff);
 }
 
 .worldsTitle {
@@ -398,9 +518,12 @@ div.slot:focus-visible {
   padding: 6px 8px;
   overflow-y: auto;
   background: rgb(0 0 0 / 0.55);
-  box-shadow: 0 -2px 0 #000000, 0 2px 0 #000000, inset 0 2px 0 rgb(255 255 255 / 0.08);
+  box-shadow:
+    0 -2px 0 #000000,
+    0 2px 0 #000000,
+    inset 0 2px 0 rgb(255 255 255 / 0.08);
   scrollbar-width: thin;
-  scrollbar-color: #c6c6c6 #000000;
+  scrollbar-color: var(--minecraft-panel, #c6c6c6) #000000;
 }
 
 .world {
@@ -412,7 +535,7 @@ div.slot:focus-visible {
   padding: 4px;
   font: inherit;
   text-align: left;
-  color: #ffffff;
+  color: var(--minecraft-text, #ffffff);
   background: transparent;
   outline: 2px solid transparent;
   outline-offset: -2px;
@@ -472,7 +595,7 @@ div.slot:focus-visible {
 
 .worldText small {
   font-size: 14px;
-  color: #a0a0a0;
+  color: var(--minecraft-muted, #a0a0a0);
 }
 
 .worldText small[data-mode="competitive"] {
@@ -489,6 +612,28 @@ div.slot:focus-visible {
 
 .statTabs {
   grid-template-columns: repeat(3, 1fr);
+}
+
+/* ---- statistics layouts (mc-stats): Screen is the game's own (title, tabs, one list); Two
+   columns splits the list for a wide piece; Compact keeps the list alone for a small one. ---- */
+[data-layout="columns"] .statList {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  align-content: start;
+  column-gap: 24px;
+}
+
+[data-layout="columns"] .statRow {
+  width: 100%;
+}
+
+[data-layout="compact"] .stats > .worldsTitle,
+[data-layout="compact"] .stats > .statTabs {
+  display: none;
+}
+
+[data-layout="compact"] .stats {
+  gap: 0;
 }
 
 /* ---- statistics ---- */
@@ -513,5 +658,17 @@ div.slot:focus-visible {
 
 .statEmpty {
   margin: 20px auto;
-  color: #a0a0a0;
+  color: var(--minecraft-muted, #a0a0a0);
+}
+
+/* ---- title menu layouts (Look → Layout). Classic: logo and buttons down the middle. ---- */
+/* Left: logo and buttons hung from the left, the backdrop free on the right. */
+[data-layout="left"] .title {
+  align-items: flex-start;
+  padding-left: 6%;
+}
+
+/* Wide: wider buttons, for a big screen. */
+[data-layout="wide"] .buttons {
+  width: min(640px, 95%);
 }

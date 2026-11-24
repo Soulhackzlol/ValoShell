@@ -21,9 +21,12 @@ pub fn get_settings(ctx: State<'_, Ctx>) -> Settings {
 /// Replace settings with the UI's edited copy.
 #[tauri::command]
 pub fn save_settings(ctx: State<'_, Ctx>, settings: Settings) -> Result<Settings, String> {
-    ctx.settings
+    let saved = ctx
+        .settings
         .update(|current| *current = settings)
-        .map_err(|error| format!("Could not save settings: {error}"))
+        .map_err(|error| format!("Could not save settings: {error}"))?;
+    ctx.bus.publish(services::AppEvent::Settings(saved.clone()));
+    Ok(saved)
 }
 
 /// The game snapshot right now (the UI also receives every change as an event).

@@ -1,0 +1,483 @@
+/* The standard Agents piece's shared layouts. Every colour, face and radius is a theme token,
+   so the same board reads as any style that borrows it; the frame's data-layout arranges it. */
+.board {
+  container-type: size;
+  display: grid;
+  grid-template: "bar bar" auto "list detail" minmax(0, 1fr) / minmax(0, 1fr) minmax(260px, 36%);
+  gap: 12px;
+  width: 100%;
+  height: 100%;
+  padding: 14px 16px;
+  overflow: hidden;
+  font-family: var(--font-din);
+  color: var(--text-1);
+  background: var(--panel, var(--surface-raised));
+}
+
+/* ---- bar: title, role filters, owned switch -------------------------------------------- */
+
+.bar {
+  grid-area: bar;
+  display: flex;
+  align-items: center;
+  gap: 16px;
+  min-width: 0;
+}
+
+.title {
+  margin: 0;
+  font-family: var(--font-display);
+  font-size: 22px;
+  font-weight: 700;
+  letter-spacing: var(--tracking-heading);
+  text-transform: uppercase;
+}
+
+.filters {
+  display: flex;
+  gap: 4px;
+  min-width: 0;
+  overflow: hidden;
+}
+
+.filter {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  height: 30px;
+  padding: 0 10px;
+  font-size: var(--text-label);
+  letter-spacing: var(--tracking-label);
+  text-transform: uppercase;
+  color: var(--text-2);
+  border-radius: var(--radius-sm);
+  box-shadow: inset 0 0 0 1px var(--border-subtle);
+  transition: background var(--dur-fast) var(--ease-standard), color var(--dur-fast) var(--ease-standard);
+}
+
+.filter:hover {
+  color: var(--text-1);
+  background: var(--wash-hover);
+}
+
+.filter[data-active] {
+  color: var(--text-1);
+  box-shadow: inset 0 0 0 1px var(--accent), inset 0 -2px 0 var(--accent);
+}
+
+.filterIcon {
+  width: 16px;
+  height: 16px;
+  object-fit: contain;
+}
+
+/* Role names go first when the bar runs short; the icons still tell the roles apart. */
+@container (width < 720px) {
+  .filterText {
+    display: none;
+  }
+}
+
+.owned {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  margin-left: auto;
+  font-size: var(--text-label);
+  letter-spacing: var(--tracking-label);
+  text-transform: uppercase;
+  white-space: nowrap;
+  color: var(--text-2);
+}
+
+.owned i {
+  position: relative;
+  width: 28px;
+  height: 14px;
+  border-radius: var(--radius-pill);
+  box-shadow: inset 0 0 0 1px var(--border-strong);
+}
+
+.owned i::after {
+  content: "";
+  position: absolute;
+  top: 3px;
+  left: 3px;
+  width: 8px;
+  height: 8px;
+  border-radius: inherit;
+  background: var(--text-3);
+  transition: transform var(--dur-fast) var(--ease-standard);
+}
+
+.owned i[data-on]::after {
+  background: var(--accent);
+  transform: translateX(14px);
+}
+
+/* ---- list ------------------------------------------------------------------------------ */
+
+.list {
+  grid-area: list;
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(104px, 1fr));
+  grid-auto-rows: max-content;
+  gap: 8px;
+  min-height: 0;
+  margin: 0;
+  padding: 0 4px 0 0;
+  overflow-y: auto;
+  list-style: none;
+  scrollbar-width: thin;
+  scrollbar-color: var(--border-strong) transparent;
+}
+
+.tile {
+  position: relative;
+  display: grid;
+  grid-template: "art" 1fr "name" auto / 1fr;
+  width: 100%;
+  aspect-ratio: 3 / 4;
+  overflow: hidden;
+  text-align: left;
+  color: var(--text-1);
+  background: var(--panel-strong, var(--surface-overlay));
+  border-radius: var(--radius-sm);
+  box-shadow: inset 0 0 0 1px var(--border-subtle);
+  transition: box-shadow var(--dur-fast) var(--ease-standard);
+}
+
+.tile:hover {
+  box-shadow: inset 0 0 0 1px var(--border-strong);
+}
+
+.tile[data-active] {
+  box-shadow: inset 0 0 0 2px var(--accent);
+}
+
+.tileArt {
+  grid-area: art / art / name / name;
+  width: 100%;
+  height: 100%;
+  min-height: 0;
+  object-fit: cover;
+  object-position: 50% 12%;
+}
+
+/* Not unlocked: still browsable, only dimmed. */
+.tile[data-unowned] .tileArt {
+  filter: grayscale(1) brightness(0.55);
+}
+
+.tileName {
+  grid-area: name;
+  z-index: 1;
+  padding: 18px 8px 6px;
+  font-family: var(--font-display);
+  font-size: 14px;
+  font-weight: 700;
+  text-transform: uppercase;
+  background: linear-gradient(to top, var(--panel-strong, var(--surface-overlay)) 40%, transparent);
+}
+
+.tileRole {
+  display: none;
+}
+
+.tileMastery {
+  position: absolute;
+  top: 6px;
+  right: 6px;
+  min-width: 22px;
+  padding: 2px 5px;
+  font-size: var(--text-label);
+  text-align: center;
+  color: var(--on-accent);
+  background: var(--accent);
+  border-radius: var(--radius-xs);
+}
+
+/* ---- detail ---------------------------------------------------------------------------- */
+
+.detail {
+  grid-area: detail;
+  position: relative;
+  display: flex;
+  flex-direction: column;
+  min-height: 0;
+  overflow: hidden;
+  background: var(--panel-strong, var(--surface-overlay));
+  border-radius: var(--radius-sm);
+  box-shadow: inset 0 0 0 1px var(--border-subtle);
+}
+
+.portrait {
+  flex: 0 1 46%;
+  min-height: 0;
+  width: 100%;
+  object-fit: cover;
+  object-position: 50% 15%;
+  background: radial-gradient(circle at 50% 60%, var(--accent-soft), transparent 70%);
+}
+
+.info {
+  position: relative;
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  min-height: 0;
+  padding: 12px 14px 14px;
+  overflow-y: auto;
+  scrollbar-width: thin;
+}
+
+.kicker {
+  font-size: var(--text-label);
+  letter-spacing: var(--tracking-label);
+  text-transform: uppercase;
+  color: var(--accent);
+}
+
+.name {
+  margin: 0;
+  font-family: var(--font-display);
+  font-size: 34px;
+  font-weight: 700;
+  line-height: 1;
+  text-transform: uppercase;
+}
+
+.mastery {
+  align-self: flex-start;
+  padding: 2px 8px;
+  font-size: var(--text-label);
+  letter-spacing: var(--tracking-label);
+  text-transform: uppercase;
+  color: var(--text-2);
+  border-radius: var(--radius-xs);
+  box-shadow: inset 0 0 0 1px var(--accent-border);
+}
+
+.tabs {
+  display: flex;
+  gap: 4px;
+}
+
+.tab {
+  display: grid;
+  justify-items: center;
+  align-content: center;
+  gap: 2px;
+  min-width: 44px;
+  height: 48px;
+  padding: 0 6px;
+  font-size: var(--text-label);
+  text-transform: uppercase;
+  color: var(--text-2);
+  border-radius: var(--radius-xs);
+  box-shadow: inset 0 0 0 1px var(--border-subtle);
+  transition: background var(--dur-fast) var(--ease-standard), color var(--dur-fast) var(--ease-standard);
+}
+
+.tab:hover {
+  color: var(--text-1);
+  background: var(--wash-hover);
+}
+
+.tab[data-active] {
+  color: var(--text-1);
+  background: var(--accent-soft);
+  box-shadow: inset 0 -2px 0 var(--accent);
+}
+
+.tabIcon {
+  width: 24px;
+  height: 24px;
+  object-fit: contain;
+}
+
+.text {
+  margin: 0;
+  font-size: var(--text-body);
+  line-height: 1.5;
+  color: var(--text-2);
+}
+
+.text b,
+.text em {
+  display: block;
+  margin-bottom: 4px;
+  font-style: normal;
+  color: var(--text-1);
+}
+
+.text em {
+  margin: 10px 0 0;
+}
+
+/* ---- Roster: compact rows with role and mastery, the agent large beside them ----------- */
+
+[data-layout="roster"] .board {
+  grid-template-columns: minmax(220px, 34%) minmax(0, 1fr);
+}
+
+[data-layout="roster"] .list {
+  grid-template-columns: 1fr;
+  gap: 2px;
+}
+
+[data-layout="roster"] .tile {
+  grid-template: "art name mastery" auto "art role mastery" auto / 36px minmax(0, 1fr) auto;
+  column-gap: 10px;
+  align-items: center;
+  aspect-ratio: auto;
+  padding: 5px 10px 5px 5px;
+  background: transparent;
+}
+
+[data-layout="roster"] .tile[data-active] {
+  background: var(--accent-soft);
+  box-shadow: inset 3px 0 0 var(--accent);
+}
+
+[data-layout="roster"] .tileArt {
+  grid-area: art;
+  width: 36px;
+  height: 36px;
+}
+
+[data-layout="roster"] .tileName {
+  padding: 0;
+  font-size: 13px;
+  background: none;
+}
+
+[data-layout="roster"] .tileRole {
+  grid-area: role;
+  display: block;
+  font-size: var(--text-label);
+  color: var(--text-3);
+}
+
+[data-layout="roster"] .tileMastery {
+  position: static;
+  grid-area: mastery;
+}
+
+[data-layout="roster"] .detail {
+  justify-content: flex-end;
+}
+
+/* The portrait fills the panel's right side; the text keeps the left. */
+[data-layout="roster"] .portrait {
+  position: absolute;
+  inset: 0 0 0 auto;
+  width: 60%;
+  height: 100%;
+}
+
+[data-layout="roster"] .info {
+  max-width: min(420px, 55%);
+}
+
+/* ---- Spotlight: the agent's art big, a thin strip of agents under it ------------------ */
+
+[data-layout="spotlight"] .board {
+  grid-template: "bar" auto "detail" minmax(0, 1fr) "list" auto / minmax(0, 1fr);
+}
+
+[data-layout="spotlight"] .list {
+  grid-template-columns: none;
+  grid-auto-flow: column;
+  grid-auto-columns: 52px;
+  padding: 0 0 4px;
+  overflow: auto hidden;
+}
+
+[data-layout="spotlight"] .tile {
+  aspect-ratio: 1;
+}
+
+[data-layout="spotlight"] .tileName {
+  display: none;
+}
+
+[data-layout="spotlight"] .tileMastery {
+  top: auto;
+  bottom: 2px;
+  right: 2px;
+  min-width: 0;
+  padding: 0 3px;
+}
+
+[data-layout="spotlight"] .detail {
+  justify-content: center;
+  background: none;
+  box-shadow: none;
+}
+
+[data-layout="spotlight"] .portrait {
+  position: absolute;
+  inset: 0 0 0 auto;
+  width: 64%;
+  height: 100%;
+  object-fit: contain;
+  object-position: 50% 0;
+}
+
+[data-layout="spotlight"] .info {
+  max-width: min(460px, 46%);
+}
+
+[data-layout="spotlight"] .name {
+  font-size: clamp(36px, 12cqh, 88px);
+}
+
+/* ---- Showcase, borrowed by another style: the client page's arrangement (icon grid on the
+   left, the agent large in the middle, their file on the right) in that style's tokens ---- */
+
+[data-layout="showcase"] .board {
+  grid-template: "bar detail" auto "list detail" minmax(0, 1fr) / minmax(280px, 28%) minmax(0, 1fr);
+}
+
+[data-layout="showcase"] .bar {
+  flex-wrap: wrap;
+  gap: 10px;
+}
+
+[data-layout="showcase"] .owned {
+  margin-left: 0;
+}
+
+[data-layout="showcase"] .filterText,
+[data-layout="showcase"] .tileName {
+  display: none;
+}
+
+[data-layout="showcase"] .list {
+  grid-template-columns: repeat(auto-fill, minmax(64px, 1fr));
+}
+
+[data-layout="showcase"] .tile {
+  aspect-ratio: 1;
+}
+
+[data-layout="showcase"] .detail {
+  align-items: flex-end;
+  justify-content: center;
+  background: none;
+  box-shadow: none;
+}
+
+[data-layout="showcase"] .portrait {
+  position: absolute;
+  inset: 0 auto 0 0;
+  width: 62%;
+  height: 100%;
+  object-fit: contain;
+  object-position: 50% 0;
+}
+
+[data-layout="showcase"] .info {
+  max-width: min(420px, 40%);
+}

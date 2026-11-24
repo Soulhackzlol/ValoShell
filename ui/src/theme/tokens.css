@@ -10,15 +10,25 @@
 @import "@fontsource-variable/oswald/index.css";
 @import "@fontsource-variable/pixelify-sans/index.css";
 @import "@fontsource/share-tech-mono/index.css";
+@import "@fontsource/anton/index.css";
+@import "@fontsource/rajdhani/500.css";
+@import "@fontsource/rajdhani/600.css";
+@import "@fontsource/rajdhani/700.css";
 @import "@fontsource-variable/cinzel/index.css";
 
 @import "./skins.css";
 @import "./glass.css";
 @import "./league.css";
+@import "./phantom.css";
+@import "./nightcity.css";
 @import "./screens.css";
 @import "./transitions.css";
 @import "./fx.css";
 @import "./postmatch.css";
+@import "./chat.css";
+@import "./perf.css";
+/* Last: the accessibility layer must win over every style. */
+@import "./access.css";
 
 /* The VALORANT style's titles: Anton is the closest free cut to Riot's Tungsten Bold (same stems
    and letter widths), scaled to Tungsten's cap height. It is registered for every weight so the
@@ -156,6 +166,9 @@
   --space-5: calc(20px * var(--density));
   --space-6: calc(24px * var(--density));
   --space-8: calc(32px * var(--density));
+
+  /* Lift of dialogs and floating panels over the menu. */
+  --shadow-overlay: 0 30px 80px rgb(0 0 0 / 0.6);
   --bezel: 5px;
 
   --radius-xs: 4px;
@@ -175,6 +188,9 @@
   --ease-standard: cubic-bezier(0.2, 0, 0, 1);
   --ease-decelerate: cubic-bezier(0, 0, 0, 1);
   --ease-accelerate: cubic-bezier(0.3, 0, 1, 1);
+  /* Settles without overshoot, like a critically damped spring: for anything that simply
+     appears or answers the pointer. Bounce is kept for moments (a lock-in, a match found). */
+  --ease-settle: cubic-bezier(0.2, 1, 0.3, 1);
 
   /* ---- 3. Component ---- */
   --titlebar-h: 46px;

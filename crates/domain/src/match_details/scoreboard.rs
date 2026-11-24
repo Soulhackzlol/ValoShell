@@ -27,6 +27,8 @@ pub struct ScoreboardRow {
     pub rounds: i64,
     /// Damage dealt to other players, summed over the rounds.
     pub damage: i64,
+    /// Riot's party id: players queued together share it. Empty when the response has none.
+    pub party_id: String,
 }
 
 /// Every player of a finished match in roster order (observers dropped, a puuid listed twice
@@ -72,6 +74,7 @@ fn scoreboard_row(entry: &Value) -> ScoreboardRow {
         score: count("score"),
         rounds: count("roundsPlayed"),
         damage: 0,
+        party_id: text(entry, &["partyId", "PartyID"]),
     }
 }
 

@@ -1,7 +1,8 @@
 //! Match history for the career page: the last few matches in every mode, one row each (agent,
 //! mode, map, K/D/A, combat score, result, MVP, placement and the RR change when ranked).
-//! Rows are built from Riot's match details with the post-match view's rules and kept for the
-//! session, since a finished match never changes.
+//! Rows are built from Riot's match details with the post-match view's rules. The full summary
+//! of each match is kept for the session (a finished match never changes), so any row opens as
+//! a post-match screen without another read.
 
 use std::collections::HashMap;
 use std::sync::{Arc, Mutex, PoisonError};
@@ -20,11 +21,17 @@ use crate::action::ActionError;
 use crate::assets::AssetStore;
 use crate::career::CareerService;
 use crate::ctx::Ctx;
-use crate::post_match::{MatchResult, PostMatchInputs, PostMatchView, post_match_view};
+use crate::names::split_riot_id;
+use crate::post_match::{
+    KnownPlayer, MatchResult, PostMatchInputs, PostMatchView, post_match_view, with_rr,
+};
+use crate::stats::{StatsView, stats_view};
 
 const VIEW_TTL: Duration = Duration::from_secs(60);
 const MATCHES_SHOWN: u32 = 10;
 const DEATHMATCH: &str = "deathmatch";
+/// Match ids are uuids: 8-4-4-4-12 hex digits.
+const MATCH_ID_LENGTH: usize = 36;
 
 /// Best player of the match, or of the player's own team.
 #[derive(Debug, Clone, Copy, PartialEq, Eq, Serialize, TS)]
@@ -59,6 +66,8 @@ pub struct MatchRow {
     pub mvp: Option<Mvp>,
     /// RR won or lost in ranked; `None` elsewhere.
     pub rr_change: Option<i32>,
+    /// Your party that match: 1 solo, 2 a duo, 3 a trio...
+    pub party_size: u32,
     /// Epoch ms.
     #[ts(type = "number")]
     pub started_at_ms: i64,
@@ -102,6 +111,11 @@ pub fn match_row(view: &PostMatchView) -> MatchRow {
         placement,
         mvp: if placement.is_some() { None } else { mvp },
         rr_change: view.rr_change,
+        party_size: view
+            .players
+            .iter()
+            .find(|player| player.is_self)
+            .map_or(1, |player| player.stack_size),
         started_at_ms: view.started_at_ms,
     }
 }
@@ -132,8 +146,8 @@ struct Inner {
     ctx: Ctx,
     assets: AssetStore,
     career: CareerService,
-    /// Built rows by account and match: a finished match never changes.
-    rows: Mutex<HashMap<(Puuid, MatchId), MatchRow>>,
+    /// Built summaries by account and match: a finished match never changes.
+    views: Mutex<HashMap<(Puuid, MatchId), PostMatchView>>,
     last: Mutex<Option<(Instant, Puuid, HistoryView)>>,
 }
 
@@ -150,7 +164,7 @@ impl HistoryService {
                 ctx,
                 assets,
                 career,
-                rows: Mutex::new(HashMap::new()),
+                views: Mutex::new(HashMap::new()),
                 last: Mutex::new(None),
             }),
         }
@@ -165,10 +179,11 @@ impl HistoryService {
         let ids = recent_ids(&session).await?;
         let rr = self.rr_changes().await;
         let rows = self
-            .rows_for(&session, ids)
+            .summaries_for(&session, ids)
             .await
             .into_iter()
-            .map(|(id, row)| {
+            .map(|(id, summary)| {
+                let row = match_row(&summary);
                 let rr_change = rr.get(&id).copied().or(row.rr_change);
                 MatchRow { rr_change, ..row }
             })
@@ -183,6 +198,54 @@ impl HistoryService {
         Ok(view)
     }
 
+    /// Own stats over the matches the history lists, from their kept summaries.
+    pub async fn stats(&self, is_forced: bool) -> Result<StatsView, ActionError> {
+        let session = self.inner.ctx.session().ok_or(ActionError::NotConnected)?;
+        let history = self.view(is_forced).await?;
+        let views = self
+            .inner
+            .views
+            .lock()
+            .unwrap_or_else(PoisonError::into_inner);
+        let summaries: Vec<PostMatchView> = history
+            .rows
+            .iter()
+            .filter_map(|row| {
+                let key = (session.puuid.clone(), MatchId::new(&row.match_id));
+                views.get(&key).cloned()
+            })
+            .collect();
+        Ok(stats_view(&summaries))
+    }
+
+    /// One past match as a post-match screen, with its RR change when the career lists it.
+    pub async fn match_summary(&self, match_id: &str) -> Result<PostMatchView, ActionError> {
+        let session = self.inner.ctx.session().ok_or(ActionError::NotConnected)?;
+        // The id goes into a request path, so only a real match id may reach it.
+        if !is_match_id(match_id.trim()) {
+            return Err(ActionError::could_not(
+                "open that match",
+                "that is not a match id",
+            ));
+        }
+        let id = MatchId::new(match_id.trim());
+        let summary = self.summary(&session, &id).await.ok_or_else(|| {
+            ActionError::could_not("open that match", "Riot has no details for it")
+        })?;
+        if !summary.is_ranked {
+            return Ok(summary);
+        }
+        let career = self.inner.career.view(false).await.ok();
+        let update = career
+            .iter()
+            .flat_map(|career| &career.updates)
+            .find(|update| MatchId::new(&update.match_id) == id);
+        Ok(match update {
+            Some(update) => with_rr(summary, update),
+            None => summary,
+        })
+    }
+
     fn fresh(&self, puuid: &Puuid) -> Option<HistoryView> {
         let last = self
             .inner
@@ -194,29 +257,32 @@ impl HistoryService {
             .map(|(_, _, view)| view.clone())
     }
 
-    /// Every match's row, read in parallel and returned in history order.
-    async fn rows_for(
+    /// Every match's summary, read in parallel and returned in history order.
+    async fn summaries_for(
         &self,
         session: &Arc<RiotSession>,
         ids: Vec<MatchId>,
-    ) -> Vec<(MatchId, MatchRow)> {
+    ) -> Vec<(MatchId, PostMatchView)> {
         let mut tasks = JoinSet::new();
         for (order, id) in ids.into_iter().enumerate() {
             let service = self.clone();
             let session = Arc::clone(session);
             tasks.spawn(async move {
-                let row = service.row(&session, &id).await;
-                (order, id, row)
+                let summary = service.summary(&session, &id).await;
+                (order, id, summary)
             });
         }
         let mut found = Vec::new();
         while let Some(joined) = tasks.join_next().await {
-            if let Ok((order, id, Some(row))) = joined {
-                found.push((order, id, row));
+            if let Ok((order, id, Some(summary))) = joined {
+                found.push((order, id, summary));
             }
         }
         found.sort_by_key(|(order, _, _)| *order);
-        found.into_iter().map(|(_, id, row)| (id, row)).collect()
+        found
+            .into_iter()
+            .map(|(_, id, summary)| (id, summary))
+            .collect()
     }
 
     /// RR changes of recent ranked matches, from the career (best effort).
@@ -231,17 +297,18 @@ impl HistoryService {
             .collect()
     }
 
-    /// One match's row: from the session's cache, else from its details.
-    async fn row(&self, session: &RiotSession, id: &MatchId) -> Option<MatchRow> {
+    /// One match's summary: from the session's cache, else from its details. Only the own
+    /// name is known for a past match, so everyone else shows by agent (as incognito would).
+    async fn summary(&self, session: &RiotSession, id: &MatchId) -> Option<PostMatchView> {
         let key = (session.puuid.clone(), id.clone());
-        if let Some(row) = self
+        if let Some(summary) = self
             .inner
-            .rows
+            .views
             .lock()
             .unwrap_or_else(PoisonError::into_inner)
             .get(&key)
         {
-            return Some(row.clone());
+            return Some(summary.clone());
         }
         let fetched = session
             .gate
@@ -251,20 +318,44 @@ impl HistoryService {
             return None;
         }
         let index = self.inner.assets.index();
-        let known = HashMap::new();
+        let known = own_name(&session.puuid, session.riot_id.as_deref());
         let inputs = PostMatchInputs {
             index: &index,
             own: &session.puuid,
             known: &known,
         };
-        let row = match_row(&post_match_view(&fetched.data, &inputs)?);
+        let summary = PostMatchView {
+            is_seen: true,
+            ..post_match_view(&fetched.data, &inputs)?
+        };
         self.inner
-            .rows
+            .views
             .lock()
             .unwrap_or_else(PoisonError::into_inner)
-            .insert(key, row.clone());
-        Some(row)
+            .insert(key, summary.clone());
+        Some(summary)
     }
+}
+
+/// The player's own name, the one name a past match may show.
+fn own_name(own: &Puuid, riot_id: Option<&str>) -> HashMap<Puuid, KnownPlayer> {
+    let Some(riot_id) = riot_id else {
+        return HashMap::new();
+    };
+    let player = KnownPlayer {
+        name: split_riot_id(riot_id),
+        is_incognito: false,
+    };
+    [(own.clone(), player)].into_iter().collect()
+}
+
+/// `8-4-4-4-12` hex digits, nothing else (no `/`, `?` or `..` can reach the request path).
+fn is_match_id(raw: &str) -> bool {
+    raw.len() == MATCH_ID_LENGTH
+        && raw.char_indices().all(|(index, char)| match index {
+            8 | 13 | 18 | 23 => char == '-',
+            _ => char.is_ascii_hexdigit(),
+        })
 }
 
 /// Ids of the newest matches in every mode, newest first.
@@ -329,6 +420,12 @@ mod tests {
     }
 
     #[test]
+    fn a_row_knows_the_players_party_size() {
+        // The fixture's own player queued as a duo.
+        assert_eq!(match_row(&view()).party_size, 2);
+    }
+
+    #[test]
     fn mvp_follows_the_combat_score_order() {
         let mut view = view();
         let own = view
@@ -350,6 +447,38 @@ mod tests {
         let best_ally = view.players.iter().find(|player| player.is_ally).unwrap();
         let expected = best_ally.is_self.then_some(Mvp::Team);
         assert_eq!(match_row(&view).mvp, expected);
+    }
+
+    #[test]
+    fn a_past_match_names_only_the_player() {
+        let detail: Value = serde_json::from_str(DETAILS).unwrap();
+        let index = AssetIndex::bundled();
+        let own = Puuid::new("me");
+        let known = own_name(&own, Some("Me#EUW"));
+        let inputs = PostMatchInputs {
+            index: &index,
+            own: &own,
+            known: &known,
+        };
+
+        let view = post_match_view(&detail, &inputs).unwrap();
+
+        for (index, player) in view.players.iter().enumerate() {
+            let expected = if player.is_self { "Me" } else { "" };
+            // The row's place, not its puuid: a failing test's output is no place for ids.
+            assert_eq!(
+                player.game_name, expected,
+                "player {index} must not be named"
+            );
+        }
+    }
+
+    #[test]
+    fn only_real_match_ids_are_accepted() {
+        assert!(is_match_id("3b7c5a0e-1f2d-4c3b-9a8e-7d6c5b4a3f21"));
+        assert!(!is_match_id("../../store/v2/storefront/abc"));
+        assert!(!is_match_id("3b7c5a0e-1f2d-4c3b-9a8e-7d6c5b4a3f2?"));
+        assert!(!is_match_id(""));
     }
 
     #[test]

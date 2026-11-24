@@ -1,0 +1,101 @@
+/* Friend requests and the add field, in the friends piece's language (friends.module.css). */
+.add {
+  display: flex;
+  gap: 6px;
+}
+
+.add input {
+  flex: 1;
+  min-width: 0;
+  height: 36px;
+  padding: 0 12px;
+  border: none;
+  color: var(--text-1);
+  background: rgb(0 0 0 / 0.35);
+  box-shadow: inset 0 0 0 1px var(--border-default);
+  user-select: text;
+}
+
+.add input:focus {
+  outline: none;
+  box-shadow: inset 0 0 0 1px var(--accent);
+}
+
+.add button,
+.accept {
+  width: 40px;
+  display: grid;
+  place-items: center;
+  color: var(--on-accent);
+  background: var(--accent);
+}
+
+.add button:disabled,
+.accept:disabled,
+.action:disabled {
+  opacity: 0.4;
+}
+
+.requests {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+}
+
+.heading {
+  font-size: var(--text-caption);
+  font-weight: 700;
+  letter-spacing: 1px;
+  text-transform: uppercase;
+  color: var(--text-3);
+}
+
+.rows {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+
+.row {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  min-height: 34px;
+  padding: 0 4px 0 10px;
+  background: rgb(255 255 255 / 0.04);
+}
+
+.name {
+  flex: 1;
+  min-width: 0;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.tag {
+  color: var(--text-3);
+}
+
+.accept {
+  width: 28px;
+  height: 26px;
+}
+
+.action {
+  min-width: 28px;
+  height: 26px;
+  padding: 0 8px;
+  display: grid;
+  place-items: center;
+  color: var(--text-2);
+  box-shadow: inset 0 0 0 1px var(--border-default);
+}
+
+.action:hover:not(:disabled) {
+  color: var(--text-1);
+  background: rgb(255 255 255 / 0.08);
+}

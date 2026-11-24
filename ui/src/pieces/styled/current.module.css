@@ -47,7 +47,7 @@
   width: 100%;
   height: 100%;
   overflow: visible;
-  fill: var(--val-stripe, var(--auto-stripe, #ff4655));
+  fill: var(--val-stripe, var(--auto-stripe, var(--current-red, #ff4655)));
 }
 
 .corner {
@@ -55,7 +55,7 @@
   width: 100%;
   height: 100%;
   overflow: visible;
-  fill: var(--val-stripe, var(--auto-stripe, #ff4655));
+  fill: var(--val-stripe, var(--auto-stripe, var(--current-red, #ff4655)));
   pointer-events: none;
 }
 
@@ -77,7 +77,7 @@
   height: 123px;
   margin: 0 1px 1px;
   overflow: hidden;
-  box-shadow: inset 0 0 0 1px rgb(255 255 255 / 0.1);
+  box-shadow: inset 0 0 0 1px color-mix(in srgb, var(--current-line, #ffffff) 10%, transparent);
 }
 
 .modeImage,
@@ -92,7 +92,7 @@
 
 .modeEmpty {
   display: block;
-  background: linear-gradient(160deg, #3b4652, #18212b);
+  background: linear-gradient(160deg, var(--current-tile, #3b4652), var(--current-panel, #18212b));
 }
 
 .modeCard:hover .modeImage {
@@ -134,7 +134,11 @@
 .modeShade {
   position: absolute;
   inset: 0;
-  background: linear-gradient(to bottom, transparent 45%, rgb(10 16 24 / 0.75));
+  background: linear-gradient(
+    to bottom,
+    transparent 45%,
+    color-mix(in srgb, var(--current-panel, #0a1018) 75%, transparent)
+  );
 }
 
 .modeName {
@@ -150,7 +154,7 @@
   line-height: 1;
   letter-spacing: 0.3px;
   text-transform: uppercase;
-  color: #ffffff;
+  color: var(--current-bright, #ffffff);
   text-shadow: 0 1px 6px rgb(0 0 0 / 0.5);
 }
 
@@ -189,9 +193,9 @@
   letter-spacing: 0.2px;
   text-transform: uppercase;
   text-align: left;
-  color: #ece8e1;
-  background: var(--val-button, #0f1923);
-  box-shadow: inset 0 0 0 1px rgb(52 51 50), inset 4px 0 0 var(--val-edge, #ece8e1);
+  color: var(--current-ink, #ece8e1);
+  background: var(--val-button, var(--current-panel, #0f1923));
+  box-shadow: inset 0 0 0 1px rgb(52 51 50), inset 4px 0 0 var(--val-edge, var(--current-line, #ece8e1));
   transition: background 140ms ease;
 }
 
@@ -214,7 +218,7 @@
 
 /* Greyed out like the client: flat grey, no light bar, the edge kept. */
 .modeButton:disabled {
-  color: rgb(236 232 225 / 0.3);
+  color: color-mix(in srgb, var(--current-ink, #ece8e1) 30%, transparent);
   background: rgb(63 65 66);
   box-shadow: inset 0 0 0 1px rgb(52 51 50);
 }
@@ -240,7 +244,7 @@
 
 .toggle > svg path {
   fill: none;
-  stroke: #ece8e1;
+  stroke: var(--current-line, #ece8e1);
   stroke-width: 1.5;
 }
 
@@ -251,7 +255,7 @@
 }
 
 .toggle[data-on] > svg .toggleBar {
-  fill: rgb(36 255 198 / 0.45);
+  fill: color-mix(in srgb, var(--current-teal, #24ffc6) 45%, transparent);
 }
 
 .toggleKnob {
@@ -263,14 +267,15 @@
   width: 20px;
   height: 20px;
   border-radius: 50%;
-  color: #0f1923;
-  background: #ffffff;
-  transform: translateY(-50%);
-  transition: left 180ms ease;
+  color: var(--current-panel, #0f1923);
+  background: var(--current-bright, #ffffff);
+  transform: translate(0, -50%);
+  transition: transform 180ms ease;
 }
 
+/* Across the 52 px track to 22 px from its end: -3 px to 30 px. */
 .toggle[data-on] .toggleKnob {
-  left: calc(100% - 22px);
+  transform: translate(33px, -50%);
 }
 
 /* ---- daily bonuses and missions ----
@@ -284,7 +289,7 @@
   width: 100%;
   height: 100%;
   font-family: var(--font-din);
-  color: var(--val-text, #ece8e1);
+  color: var(--val-text, var(--current-ink, #ece8e1));
 }
 
 .dailyLabel,
@@ -345,7 +350,7 @@
   width: 1px;
   height: 44px;
   margin-right: 15px;
-  background: rgb(236 232 225 / 0.51);
+  background: color-mix(in srgb, var(--current-line, #ece8e1) 51%, transparent);
 }
 
 .missionIcon {
@@ -364,12 +369,12 @@
 }
 
 .missionIcon i:first-child {
-  background: linear-gradient(to right, #ece8e1 5px, rgb(110 125 135) 5px);
+  background: linear-gradient(to right, var(--current-line, #ece8e1) 5px, var(--current-muted, #6e7d87) 5px);
 }
 
 .missionIcon i:nth-child(2) {
   height: 4px;
-  background: linear-gradient(to right, #ece8e1 2px, rgb(110 125 135) 2px);
+  background: linear-gradient(to right, var(--current-line, #ece8e1) 2px, var(--current-muted, #6e7d87) 2px);
 }
 
 /* ---- lineup ----
@@ -425,20 +430,99 @@
   left: 76.7%;
 }
 
+/* ---- lineup layouts (Look → Layout). Client is the fanned overlap above. ---- */
+.slot {
+  transition:
+    left 320ms var(--ease-decelerate),
+    top 320ms var(--ease-decelerate),
+    width 320ms var(--ease-decelerate),
+    height 320ms var(--ease-decelerate);
+}
+
+/* Row: five equal banners side by side, nobody overlapping. */
+[data-layout="row"] .slot {
+  top: 0;
+  width: 19%;
+  height: 100%;
+}
+
+[data-layout="row"] .slot[data-pos="outer"][data-side="left"] {
+  left: 0;
+}
+
+[data-layout="row"] .slot[data-pos="inner"][data-side="left"] {
+  left: 20.25%;
+}
+
+[data-layout="row"] .slot[data-pos="center"] {
+  left: 40.5%;
+}
+
+[data-layout="row"] .slot[data-pos="inner"][data-side="right"] {
+  left: 60.75%;
+}
+
+[data-layout="row"] .slot[data-pos="outer"][data-side="right"] {
+  left: 81%;
+}
+
+/* Spotlight: you large in the middle, the party smaller and lower to each side. */
+[data-layout="spotlight"] .slot[data-pos="center"] {
+  left: 34%;
+  width: 32%;
+}
+
+[data-layout="spotlight"] .slot[data-pos="inner"] {
+  top: 14%;
+  width: 17%;
+  height: 86%;
+}
+
+[data-layout="spotlight"] .slot[data-pos="outer"] {
+  top: 24%;
+  width: 15%;
+  height: 76%;
+}
+
+[data-layout="spotlight"] .slot[data-pos="inner"][data-side="left"] {
+  left: 16%;
+}
+
+[data-layout="spotlight"] .slot[data-pos="outer"][data-side="left"] {
+  left: 0;
+}
+
+[data-layout="spotlight"] .slot[data-pos="inner"][data-side="right"] {
+  left: 67%;
+}
+
+[data-layout="spotlight"] .slot[data-pos="outer"][data-side="right"] {
+  left: 85%;
+}
+
 .empty {
   position: relative;
   flex: 1;
   display: grid;
   place-items: center;
   /* Sampled: 14 24 32 under the edge, darkest (9 15 22) just under the middle. */
-  background: linear-gradient(to bottom, rgb(14 24 32 / 0.97), rgb(9 15 22 / 0.97) 45%, rgb(10 17 23 / 0.97));
+  background: linear-gradient(
+    to bottom,
+    color-mix(in srgb, var(--current-panel, #0e1820) 97%, transparent),
+    rgb(9 15 22 / 0.97) 45%,
+    rgb(10 17 23 / 0.97)
+  );
   clip-path: polygon(0 0, 100% 0, 100% 79.6%, 50% 100%, 0 79.6%);
   box-shadow: inset 0 3px 0 var(--val-slotEdge, rgb(107 122 129));
   transition: background 160ms ease;
 }
 
 .empty:hover:not(:disabled) {
-  background: linear-gradient(to bottom, rgb(22 36 46 / 0.96), rgb(14 24 32 / 0.96));
+  background: linear-gradient(
+    to bottom,
+    rgb(22 36 46 / 0.96),
+    color-mix(in srgb, var(--current-panel, #0e1820) 96%, transparent)
+  );
 }
 
 .emptyLines {
@@ -452,13 +536,13 @@
 
 .emptyLines path {
   fill: none;
-  stroke: rgb(170 186 190 / 0.32);
+  stroke: color-mix(in srgb, var(--current-muted, #aababe) 32%, transparent);
   stroke-width: 1;
   vector-effect: non-scaling-stroke;
 }
 
 .emptyLines path:first-child {
-  stroke: rgb(170 186 190 / 0.45);
+  stroke: color-mix(in srgb, var(--current-muted, #aababe) 45%, transparent);
 }
 
 .plus {
@@ -482,29 +566,29 @@
 }
 
 .markHalo {
-  fill: rgb(8 14 20 / 0.4);
+  fill: color-mix(in srgb, var(--current-panel, #080e14) 40%, transparent);
 }
 
 .markHairline {
   fill: none;
-  stroke: rgb(236 232 225 / 0.12);
+  stroke: color-mix(in srgb, var(--current-line, #ece8e1) 12%, transparent);
   stroke-width: 1;
 }
 
 .markRing {
-  fill: rgb(15 25 35);
+  fill: var(--current-panel, #0f1923);
   stroke: rgb(41 51 58);
   stroke-width: 3;
 }
 
 .markPlus {
   fill: none;
-  stroke: #ece8e1;
+  stroke: var(--current-line, #ece8e1);
   stroke-width: 3;
 }
 
 .empty:hover:not(:disabled) .markRing {
-  stroke: rgb(236 232 225 / 0.45);
+  stroke: color-mix(in srgb, var(--current-line, #ece8e1) 45%, transparent);
 }
 
 .banner2 {
@@ -521,7 +605,9 @@
 }
 
 .cardArt {
-  background: var(--art) center top / cover no-repeat, linear-gradient(to bottom, #2a3540, #121a22);
+  background:
+    var(--art) center top / cover no-repeat,
+    linear-gradient(to bottom, var(--current-tile, #2a3540), #121a22);
 }
 
 /* The client's cream strip along the top of every banner. */
@@ -530,11 +616,17 @@
   position: absolute;
   inset: 0 0 auto;
   height: 7px;
-  background: var(--val-cardEdge, #e9e5dc);
+  background: var(--val-cardEdge, var(--current-line, #e9e5dc));
 }
 
 .cardShade {
-  background: linear-gradient(to bottom, transparent 46%, rgb(8 14 20 / 0.35) 57%, rgb(8 14 20 / 0.5) 61%, rgb(8 14 20 / 0.62));
+  background: linear-gradient(
+    to bottom,
+    transparent 46%,
+    color-mix(in srgb, var(--current-panel, #080e14) 35%, transparent) 57%,
+    color-mix(in srgb, var(--current-panel, #080e14) 50%, transparent) 61%,
+    color-mix(in srgb, var(--current-panel, #080e14) 62%, transparent)
+  );
 }
 
 .cardLines {
@@ -547,7 +639,7 @@
 
 .cardLines path {
   fill: none;
-  stroke: rgb(236 232 225 / 0.16);
+  stroke: color-mix(in srgb, var(--current-line, #ece8e1) 16%, transparent);
   stroke-width: 1;
   vector-effect: non-scaling-stroke;
 }
@@ -565,7 +657,7 @@
   font-weight: 400;
   line-height: 1;
   letter-spacing: 1px;
-  color: #ece8e1;
+  color: var(--current-ink, #ece8e1);
   transform: translateX(-50%);
 }
 
@@ -597,7 +689,7 @@
 }
 
 .levelBrace {
-  stroke: var(--val-cardEdge, #e9e5dc);
+  stroke: var(--val-cardEdge, var(--current-line, #e9e5dc));
   stroke-width: 2;
 }
 
@@ -618,7 +710,7 @@
 
 .ping i {
   width: 4.5px;
-  background: rgb(236 232 225 / 0.2);
+  background: color-mix(in srgb, var(--current-line, #ece8e1) 20%, transparent);
 }
 
 .ping i:nth-child(1) {
@@ -638,7 +730,7 @@
 }
 
 .ping i[data-on] {
-  background: var(--val-ping, rgb(57 245 193));
+  background: var(--val-ping, var(--current-teal, #39f5c1));
 }
 
 .kick {
@@ -650,8 +742,8 @@
   place-items: center;
   width: 24px;
   height: 24px;
-  color: #ece8e1;
-  background: rgb(10 16 22 / 0.7);
+  color: var(--current-ink, #ece8e1);
+  background: color-mix(in srgb, var(--current-panel, #0a1016) 70%, transparent);
   opacity: 0;
   transition: opacity 120ms ease;
 }
@@ -681,22 +773,22 @@
   line-height: 20px;
   letter-spacing: 0.4px;
   text-transform: uppercase;
-  color: rgb(236 232 225 / 0.6);
+  color: color-mix(in srgb, var(--current-ink, #ece8e1) 60%, transparent);
 }
 
 .readyText[data-ready] {
-  color: var(--val-ready, rgb(36 255 198));
+  color: var(--val-ready, var(--current-teal, #24ffc6));
 }
 
 .readyLine {
   width: 100%;
   height: 3px;
   margin-top: 0;
-  background: rgb(236 232 225 / 0.3);
+  background: color-mix(in srgb, var(--current-line, #ece8e1) 30%, transparent);
 }
 
 .readyLine[data-ready] {
-  background: var(--val-ready, rgb(36 255 198));
+  background: var(--val-ready, var(--current-teal, #24ffc6));
 }
 
 .cardName {
@@ -709,18 +801,18 @@
   white-space: nowrap;
   overflow: hidden;
   text-overflow: ellipsis;
-  color: #ffffff;
+  color: var(--current-bright, #ffffff);
 }
 
 .banner2[data-self] .cardName {
-  color: var(--val-gold, #f0cb74);
+  color: var(--val-gold, var(--current-gold, #f0cb74));
 }
 
 .cardTitle {
   margin-top: 1px;
   font-size: 11.5px;
   line-height: 14px;
-  color: rgb(236 232 225 / 0.85);
+  color: color-mix(in srgb, var(--current-ink, #ece8e1) 85%, transparent);
 }
 
 .chevrons {
@@ -730,13 +822,13 @@
   width: calc(100% - 42px);
   height: 65px;
   margin-top: 24px;
-  color: #ffffff;
+  color: var(--current-bright, #ffffff);
 }
 
 .chevrons i {
   width: 42px;
   height: 65px;
-  background: var(--val-gold, #e8c35f);
+  background: var(--val-gold, var(--current-gold, #e8c35f));
 }
 
 .chevrons i[data-side="l"] {
@@ -786,7 +878,7 @@
   font-size: 14px;
   letter-spacing: 1px;
   text-transform: uppercase;
-  color: #ece8e1;
+  color: var(--current-ink, #ece8e1);
 }
 
 .findButton {
@@ -795,7 +887,7 @@
   height: 100%;
   padding: 4px;
   container-type: size;
-  box-shadow: inset 0 0 0 1px var(--val-frame, rgb(236 232 225 / 0.9));
+  box-shadow: inset 0 0 0 1px var(--val-frame, color-mix(in srgb, var(--current-line, #ece8e1) 90%, transparent));
 }
 
 /* The frame's little ticks either side, like the client's. */
@@ -806,7 +898,7 @@
   top: 50%;
   width: 5px;
   height: 1px;
-  background: var(--val-frame, rgb(236 232 225 / 0.9));
+  background: var(--val-frame, color-mix(in srgb, var(--current-line, #ece8e1) 90%, transparent));
 }
 
 .findButton::before {
@@ -829,13 +921,13 @@
   letter-spacing: 0.2px;
   white-space: nowrap;
   text-transform: uppercase;
-  color: var(--val-label, #fbe9e2);
-  background: var(--val-fill, #ff4655);
+  color: var(--val-label, var(--theme-on-play, #fbe9e2));
+  background: var(--val-fill, var(--theme-play, var(--current-red, #ff4655)));
   transition: background 140ms ease;
 }
 
 .findButton:hover:not(:disabled) span {
-  background: color-mix(in oklch, var(--val-fill, #ff4655) 85%, white);
+  background: color-mix(in oklch, var(--val-fill, var(--theme-play, var(--current-red, #ff4655))) 85%, white);
 }
 
 .findButton[data-searching] span {
@@ -863,7 +955,7 @@
   min-height: 0;
   overflow: hidden;
   text-decoration: none;
-  color: #ece8e1;
+  color: var(--current-ink, #ece8e1);
   background: #1a2530;
 }
 
@@ -872,13 +964,13 @@
   content: "";
   position: absolute;
   inset: 0;
-  box-shadow: inset 0 0 0 1px rgb(150 158 168 / 0.45);
+  box-shadow: inset 0 0 0 1px color-mix(in srgb, var(--current-muted, #969ea8) 45%, transparent);
   pointer-events: none;
   transition: box-shadow 140ms ease;
 }
 
 .tile:hover::after {
-  box-shadow: inset 0 0 0 1px rgb(236 232 225 / 0.8);
+  box-shadow: inset 0 0 0 1px color-mix(in srgb, var(--current-line, #ece8e1) 80%, transparent);
 }
 
 .tile[data-size="big"] {
@@ -911,7 +1003,11 @@
 .tileShade {
   position: absolute;
   inset: 0;
-  background: linear-gradient(to bottom, transparent 45%, rgb(8 12 18 / 0.85));
+  background: linear-gradient(
+    to bottom,
+    transparent 45%,
+    color-mix(in srgb, var(--current-panel, #080c12) 85%, transparent)
+  );
 }
 
 .tileText {
@@ -929,7 +1025,7 @@
   font-weight: 700;
   line-height: 1;
   text-transform: uppercase;
-  color: #ece8e1;
+  color: var(--current-ink, #ece8e1);
 }
 
 .tileSub {
@@ -945,7 +1041,7 @@
   font-size: 11.5px;
   line-height: 13.5px;
   letter-spacing: 0.2px;
-  color: rgb(236 232 225 / 0.9);
+  color: color-mix(in srgb, var(--current-ink, #ece8e1) 90%, transparent);
 }
 
 .tile[data-size="mid"] .tileText {
@@ -989,12 +1085,12 @@
   position: absolute;
   inset: 3px;
   border-radius: 1px;
-  background: #ece8e1;
+  background: var(--current-line, #ece8e1);
 }
 
 /* The shown slide: a teal dot inside four corner ticks. */
 .dot[data-active]::before {
-  background: rgb(104 222 196);
+  background: var(--current-teal, #68dec4);
 }
 
 .dot[data-active]::after {
@@ -1002,10 +1098,10 @@
   position: absolute;
   inset: -1px;
   background:
-    linear-gradient(135deg, rgb(104 222 196) 0 2px, transparent 2px) top left / 3px 3px no-repeat,
-    linear-gradient(225deg, rgb(104 222 196) 0 2px, transparent 2px) top right / 3px 3px no-repeat,
-    linear-gradient(45deg, rgb(104 222 196) 0 2px, transparent 2px) bottom left / 3px 3px no-repeat,
-    linear-gradient(315deg, rgb(104 222 196) 0 2px, transparent 2px) bottom right / 3px 3px no-repeat;
+    linear-gradient(135deg, var(--current-teal, #68dec4) 0 2px, transparent 2px) top left / 3px 3px no-repeat,
+    linear-gradient(225deg, var(--current-teal, #68dec4) 0 2px, transparent 2px) top right / 3px 3px no-repeat,
+    linear-gradient(45deg, var(--current-teal, #68dec4) 0 2px, transparent 2px) bottom left / 3px 3px no-repeat,
+    linear-gradient(315deg, var(--current-teal, #68dec4) 0 2px, transparent 2px) bottom right / 3px 3px no-repeat;
 }
 
 .patch {
@@ -1018,9 +1114,11 @@
   padding: 0 10px 0 13px;
   font-size: 12px;
   text-decoration: none;
-  color: #ece8e1;
-  background: rgb(15 25 35 / 0.9);
-  box-shadow: inset 3px 0 0 #ff4655, inset 0 0 0 1px rgb(150 158 168 / 0.45);
+  color: var(--current-ink, #ece8e1);
+  background: color-mix(in srgb, var(--current-panel, #0f1923) 90%, transparent);
+  box-shadow:
+    inset 3px 0 0 var(--current-red, #ff4655),
+    inset 0 0 0 1px color-mix(in srgb, var(--current-muted, #969ea8) 45%, transparent);
 }
 
 .patchTitle {
@@ -1058,7 +1156,7 @@
   background: none;
   font: inherit;
   font-size: 15px;
-  color: #ece8e1;
+  color: var(--current-ink, #ece8e1);
   user-select: text;
 }
 
@@ -1071,4 +1169,86 @@
   width: 25px;
   height: 25px;
   color: #e4e2e6;
+}
+
+/* ---- news column layouts. Client: one big tile, two mid, the patch notes. ---- */
+/* Even: every tile the same height. */
+[data-layout="even"] .tile[data-size] {
+  flex: 1 1 0;
+}
+
+/* Featured: the top tile takes the column; the rest shrink to a title strip. */
+[data-layout="featured"] .tile[data-size="big"] {
+  flex: 1 1 0;
+}
+
+[data-layout="featured"] .tile[data-size="mid"] {
+  flex: 0 0 74px;
+}
+
+[data-layout="featured"] .tile[data-size="mid"] :is(.tileSub, .tileDesc, .slideTitle) {
+  display: none;
+}
+
+[data-layout="featured"] .tile[data-size="mid"] .tileTitle {
+  font-size: 24px;
+}
+
+/* ---- mode panel layouts. Client: the 123 px card over 50 px rows. ---- */
+/* Compact: a short card and slim rows, for a small corner. */
+[data-layout="compact"] .modeCard {
+  height: 72px;
+}
+
+[data-layout="compact"] .modeButton,
+[data-layout="compact"] .modeButton[data-size="toggle"],
+[data-layout="poster"] .modeButton,
+[data-layout="poster"] .modeButton[data-size="toggle"] {
+  height: 38px;
+  font-size: 12px;
+}
+
+/* Poster: slim rows, and the card grows into all the height they leave. */
+[data-layout="poster"] .modeCard {
+  flex: 1 1 auto;
+  height: auto;
+  min-height: 123px;
+}
+
+/* ---- daily bonuses layouts. Client: one bar, bonuses | streak | missions. ---- */
+/* Minimal: the numbers only. */
+[data-layout="minimal"] :is(.dailyLabel, .missionLabel) {
+  font-size: 0;
+}
+
+[data-layout="minimal"] :is(.dailyLabel, .missionLabel) b {
+  font-size: 16px;
+}
+
+/* The line's chat icon opens the full chat panel (history, whispers): with a chat line on the
+   screen, the menu's floating chat button steps aside. */
+.chatOpen {
+  position: relative;
+  display: grid;
+  flex: none;
+  place-items: center;
+  padding: 0;
+  border: 0;
+  color: inherit;
+  background: none;
+  cursor: pointer;
+  opacity: 0.75;
+  transition: opacity 120ms ease;
+}
+
+.chatOpen:hover,
+.chatOpen:focus-visible {
+  opacity: 1;
+}
+
+/* A small icon, a comfortable target. */
+.chatOpen::before {
+  content: "";
+  position: absolute;
+  inset: -8px;
 }

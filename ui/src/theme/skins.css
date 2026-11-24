@@ -1,7 +1,7 @@
 /* Menu styles: `data-skin` on <html> (set from the Studio theme) restyles every scene through
    the style knobs in tokens.css, plus structural touches through `data-part` hooks (scene,
    piece, nav, tab, play). Navs that differ per style live in menu/NavVariants.module.css;
-   colours, display font and cut corners come with the style's bundle (studio/skins.ts). */
+   colours, display font and cut corners come with the style's bundle (studio/skins/bundles.ts). */
 
 /* ---- CS2: near-black panels, a topographic top bar in condensed caps, the selected tab as
    a solid light block, flat corners and a green PLAY. ---- */
@@ -182,9 +182,10 @@
   filter: grayscale(1) sepia(1) hue-rotate(70deg) saturate(2.4) brightness(0.85);
 }
 
-/* ---- Fortnite: royal blue bar, heavy italic tabs, the open tab on a slanted yellow block. */
+/* ---- Fortnite: the lobby's see-through top bar over the sky, upright heavy tabs, the open
+   tab lit white with a yellow bar under it. */
 :root[data-skin="fortnite"] {
-  --nav-shade: linear-gradient(to bottom, #1c3fc4, #142a8c);
+  --nav-shade: linear-gradient(to bottom, rgb(6 14 60 / 0.85), rgb(6 14 60 / 0.35) 70%, transparent);
   --panel: rgb(10 22 90 / 0.82);
   --panel-strong: rgb(16 32 120 / 0.92);
   --border-default: rgb(255 255 255 / 0.18);
@@ -194,27 +195,28 @@
   --on-play: #121212;
 }
 
-:root[data-skin="fortnite"] [data-part="nav"] {
-  box-shadow: inset 0 -4px 0 rgb(0 0 0 / 0.25);
+:root[data-skin="fortnite"] [data-part="tab"] {
+  font-family: "Anton", "Oswald Variable", var(--font-display);
+  font-size: 19px;
+  font-weight: 400;
+  letter-spacing: 0.04em;
+  color: rgb(255 255 255 / 0.7);
+  text-shadow: 0 2px 0 rgb(0 0 0 / 0.25);
 }
 
-:root[data-skin="fortnite"] [data-part="tab"] {
-  font-family: "Oswald Variable", var(--font-display);
-  font-size: 21px;
-  font-weight: 700;
-  font-style: italic;
-  letter-spacing: 0.5px;
-  color: rgb(255 255 255 / 0.78);
+:root[data-skin="fortnite"] [data-part="tab"]:hover {
+  color: #ffffff;
 }
 
 :root[data-skin="fortnite"] [data-part="tab"]::after {
-  display: none;
+  bottom: 0;
+  height: 4px;
+  border-radius: 2px;
+  background: var(--fortnite-yellow, #fbe925);
 }
 
 :root[data-skin="fortnite"] [data-part="tab"][aria-current="page"] {
-  color: #121212;
-  background: #fbe925;
-  transform: skewX(-8deg);
+  color: #ffffff;
 }
 
 /* ---- Minecraft: pixel type everywhere, dark translucent lists with a black outline. ---- */

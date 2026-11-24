@@ -1,0 +1,102 @@
+/* Pip-Boy home looks: phosphor green on near-black, uppercase mono with a faint glow, 2px
+   rules, and a solid green fill with dark type for the highlighted action. */
+
+.frame {
+  container-type: size;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  gap: 8px;
+  width: 100%;
+  height: 100%;
+  padding: 10px 14px;
+  font-family: var(--font-mono);
+  color: var(--accent);
+  text-shadow: 0 0 6px color-mix(in srgb, var(--accent) 55%, transparent);
+  border-top: 2px solid var(--accent);
+}
+
+.frame[data-row] {
+  flex-direction: row;
+  align-items: center;
+  gap: 14px;
+}
+
+.action {
+  align-self: flex-start;
+  padding: 4px 10px;
+  border: 0;
+  font: inherit;
+  font-size: clamp(18px, 30cqh, 30px);
+  letter-spacing: 2px;
+  color: var(--theme-play, var(--accent));
+  background: none;
+  cursor: pointer;
+}
+
+.action:hover:not(:disabled),
+.action:focus-visible {
+  outline: none;
+  color: #0a0f0a;
+  text-shadow: none;
+  background: var(--theme-play, var(--accent));
+}
+
+.action:disabled {
+  opacity: 0.4;
+  cursor: default;
+}
+
+.prompt {
+  font-size: 13px;
+  letter-spacing: 1px;
+  opacity: 0.75;
+}
+
+/* A perk card: the emblem in a thin green frame, as the PERKS list draws its icons. */
+.card {
+  display: grid;
+  flex: none;
+  place-items: center;
+  width: clamp(48px, 60cqh, 100px);
+  aspect-ratio: 1;
+  border: 2px solid var(--accent);
+}
+
+.emblem {
+  width: 80%;
+  height: 80%;
+  object-fit: contain;
+  filter: grayscale(1) sepia(1) hue-rotate(70deg) saturate(4);
+}
+
+.body {
+  display: flex;
+  flex: 1;
+  flex-direction: column;
+  gap: 4px;
+  min-width: 0;
+}
+
+.title {
+  overflow: hidden;
+  font-size: clamp(16px, 20cqh, 24px);
+  letter-spacing: 1px;
+  white-space: nowrap;
+  text-overflow: ellipsis;
+}
+
+.header {
+  display: flex;
+  align-items: baseline;
+  justify-content: space-between;
+  gap: 12px;
+}
+
+/* A skill bar in ten segments, filled in solid green. */
+.meter {
+  height: 10px;
+  background:
+    repeating-linear-gradient(90deg, transparent 0 calc(10% - 3px), #000 0 10%),
+    linear-gradient(90deg, var(--accent) calc(var(--progress) * 100%), color-mix(in srgb, var(--accent) 18%, transparent) 0);
+}

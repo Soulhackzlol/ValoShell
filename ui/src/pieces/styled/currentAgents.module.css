@@ -5,7 +5,7 @@
   inset: 0;
   overflow: hidden;
   font-family: var(--font-din);
-  color: #ece8e1;
+  color: var(--current-ink, #ece8e1);
   background: linear-gradient(160deg, var(--tint-top, #161a36) 20%, var(--tint-bottom, #26136c) 95%);
 }
 
@@ -14,7 +14,11 @@
   position: absolute;
   inset: 0 auto 0 0;
   width: 700px;
-  background: linear-gradient(to right, #0f1923 440px, rgb(15 25 35 / 0) 700px);
+  background: linear-gradient(
+    to right,
+    var(--current-panel, #0f1923) 440px,
+    color-mix(in srgb, var(--current-panel, #0f1923) 0%, transparent) 700px
+  );
   pointer-events: none;
 }
 
@@ -29,13 +33,13 @@
   font-size: 14px;
   letter-spacing: 0.6px;
   text-transform: uppercase;
-  color: rgb(236 232 225 / 0.8);
+  color: color-mix(in srgb, var(--current-ink, #ece8e1) 80%, transparent);
 }
 
 .crumb i {
   width: 8px;
   height: 9px;
-  background: rgb(236 232 225 / 0.5);
+  background: color-mix(in srgb, var(--current-line, #ece8e1) 50%, transparent);
   clip-path: polygon(0 0, 100% 50%, 0 100%);
 }
 
@@ -55,7 +59,7 @@
   font-size: 11px;
   letter-spacing: 0.3px;
   text-transform: uppercase;
-  color: #ece8e1;
+  color: var(--current-ink, #ece8e1);
   background: rgb(26 35 46);
 }
 
@@ -67,7 +71,7 @@
   position: relative;
   width: 41px;
   height: 14px;
-  border: 1.5px solid #ece8e1;
+  border: 1.5px solid var(--current-line, #ece8e1);
   border-radius: 7px 0 0 7px;
   clip-path: polygon(0 0, 85% 0, 100% 50%, 85% 100%, 0 100%);
 }
@@ -78,14 +82,17 @@
   left: 3px;
   width: 8px;
   height: 8px;
-  background: rgb(236 232 225 / 0.6);
-  transform: translateY(-50%) rotate(45deg);
-  transition: left 160ms ease, background 160ms ease;
+  background: color-mix(in srgb, var(--current-line, #ece8e1) 60%, transparent);
+  transform: translate(0, -50%) rotate(45deg);
+  transition:
+    transform 160ms ease,
+    background 160ms ease;
 }
 
+/* Across the 41 px track to 15 px from its end: 3 px to 26 px. */
 .ownedToggle[data-on] i {
-  left: calc(100% - 15px);
-  background: rgb(36 255 198);
+  transform: translate(23px, -50%) rotate(45deg);
+  background: var(--current-teal, #24ffc6);
 }
 
 .filters {
@@ -102,9 +109,9 @@
   place-items: center;
   width: 60px;
   height: 60px;
-  color: #ece8e1;
+  color: var(--current-ink, #ece8e1);
   background: rgb(34 42 49);
-  box-shadow: inset 0 0 0 1px rgb(236 232 225 / 0.22);
+  box-shadow: inset 0 0 0 1px color-mix(in srgb, var(--current-line, #ece8e1) 22%, transparent);
   transition: box-shadow 120ms ease, background 120ms ease;
 }
 
@@ -113,8 +120,8 @@
 }
 
 .filter[data-active] {
-  background: rgb(15 25 35);
-  box-shadow: inset 0 0 0 2px #ffffff;
+  background: var(--current-panel, #0f1923);
+  box-shadow: inset 0 0 0 2px var(--current-bright, #ffffff);
 }
 
 .filterIcon {
@@ -126,7 +133,7 @@
 .allDots {
   width: 22px;
   height: 22px;
-  background: radial-gradient(circle, #ece8e1 2.4px, transparent 2.9px) 0 0 / 7.33px 7.33px;
+  background: radial-gradient(circle, var(--current-line, #ece8e1) 2.4px, transparent 2.9px) 0 0 / 7.33px 7.33px;
 }
 
 .grid {
@@ -144,7 +151,7 @@
   overflow-x: hidden;
   overflow-y: auto;
   scrollbar-width: thin;
-  scrollbar-color: #ece8e1 transparent;
+  scrollbar-color: var(--current-line, #ece8e1) transparent;
 }
 
 .grid::-webkit-scrollbar {
@@ -152,22 +159,22 @@
 }
 
 .grid::-webkit-scrollbar-thumb {
-  background: #ece8e1;
+  background: var(--current-line, #ece8e1);
 }
 
 .cell {
   overflow: hidden;
   background: linear-gradient(to bottom, rgb(46 54 61), rgb(31 39 45));
-  box-shadow: inset 0 0 0 1px rgb(236 232 225 / 0.14);
+  box-shadow: inset 0 0 0 1px color-mix(in srgb, var(--current-line, #ece8e1) 14%, transparent);
   transition: box-shadow 120ms ease;
 }
 
 .cell:hover {
-  box-shadow: inset 0 0 0 1px rgb(236 232 225 / 0.6);
+  box-shadow: inset 0 0 0 1px color-mix(in srgb, var(--current-line, #ece8e1) 60%, transparent);
 }
 
 .cell[data-active] {
-  box-shadow: inset 0 0 0 2px #ffffff;
+  box-shadow: inset 0 0 0 2px var(--current-bright, #ffffff);
 }
 
 .cellIcon {
@@ -192,7 +199,7 @@
   bottom: 6px;
   width: 16px;
   height: 16px;
-  background: #ece8e1;
+  background: var(--current-line, #ece8e1);
   mask: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24'%3E%3Cpath d='M7 10V7a5 5 0 0 1 10 0v3h1a1 1 0 0 1 1 1v10a1 1 0 0 1-1 1H6a1 1 0 0 1-1-1V11a1 1 0 0 1 1-1zm2 0h6V7a3 3 0 0 0-6 0z'/%3E%3C/svg%3E") center / contain no-repeat;
 }
 
@@ -210,7 +217,7 @@
   text-align: center;
   text-transform: uppercase;
   white-space: nowrap;
-  color: rgb(15 25 35 / 0.6);
+  color: color-mix(in srgb, var(--current-panel, #0f1923) 60%, transparent);
   transform: translateX(-50%);
   pointer-events: none;
 }
@@ -232,7 +239,7 @@
   top: 161px;
   width: 2px;
   height: 112px;
-  background: #ffffff;
+  background: var(--current-bright, #ffffff);
 }
 
 /* The diamond and notch where the rail meets the rule under the name. */
@@ -243,7 +250,7 @@
   top: 51px;
   width: 8px;
   height: 8px;
-  background: #ffffff;
+  background: var(--current-bright, #ffffff);
   transform: rotate(45deg);
 }
 
@@ -254,7 +261,7 @@
   top: 47px;
   width: 9px;
   height: 16px;
-  border: solid #ffffff;
+  border: solid var(--current-bright, #ffffff);
   border-width: 0 2px 2px 0;
   transform: scaleY(0.75) rotate(-45deg);
   transform-origin: 0 50%;
@@ -266,7 +273,11 @@
   top: 216px;
   width: 446px;
   height: 1px;
-  background: linear-gradient(to right, rgb(236 232 225 / 0.45) 95%, #ffffff 95%);
+  background: linear-gradient(
+    to right,
+    color-mix(in srgb, var(--current-line, #ece8e1) 45%, transparent) 95%,
+    var(--current-bright, #ffffff) 95%
+  );
 }
 
 .mastery {
@@ -278,7 +289,7 @@
   width: 70px;
   height: 68px;
   font-size: 17px;
-  color: #ffffff;
+  color: var(--current-bright, #ffffff);
 }
 
 .mastery svg {
@@ -330,7 +341,7 @@
   width: 78px;
   padding: 0;
   font: inherit;
-  color: #ffffff;
+  color: var(--current-bright, #ffffff);
 }
 
 .tab > :first-child {
@@ -351,7 +362,7 @@
   place-items: center;
   font-size: 15px;
   font-weight: 700;
-  background: rgb(255 255 255 / 0.12);
+  background: color-mix(in srgb, var(--current-line, #ffffff) 12%, transparent);
   transition: background 120ms ease;
 }
 
@@ -360,12 +371,12 @@
 }
 
 .tab:hover b {
-  background: rgb(255 255 255 / 0.18);
+  background: color-mix(in srgb, var(--current-line, #ffffff) 18%, transparent);
 }
 
 .tab[data-active] {
-  background: rgb(255 255 255 / 0.15);
-  box-shadow: inset 0 3px 0 rgb(236 232 225 / 0.9);
+  background: color-mix(in srgb, var(--current-line, #ffffff) 15%, transparent);
+  box-shadow: inset 0 3px 0 color-mix(in srgb, var(--current-line, #ece8e1) 90%, transparent);
 }
 
 .tab[data-active] .tabIcon {
@@ -373,7 +384,7 @@
 }
 
 .tab[data-active] b {
-  background: rgb(255 255 255 / 0.25);
+  background: color-mix(in srgb, var(--current-line, #ffffff) 25%, transparent);
 }
 
 .tabRule {
@@ -382,7 +393,7 @@
   top: 355px;
   width: 424px;
   height: 1px;
-  background: rgb(236 232 225 / 0.35);
+  background: color-mix(in srgb, var(--current-line, #ece8e1) 35%, transparent);
 }
 
 .text {

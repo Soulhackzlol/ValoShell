@@ -12,16 +12,26 @@ jobs:
     name: Build and publish release
     runs-on: windows-latest
     steps:
-      - uses: actions/checkout@v7
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7
 
-      - uses: actions/setup-node@v7
+      # Installed copies compare this tag with their own version to offer updates. A tag that
+      # does not match Cargo.toml and tauri.conf.json would ship a build that offers itself forever.
+      - name: Check the tag matches the app version
+        shell: pwsh
+        run: |
+          $tag = "${{ github.ref_name }}"
+          $cargo = (Select-String -Path Cargo.toml -Pattern '^version = "(.+)"' | Select-Object -First 1).Matches[0].Groups[1].Value
+          $tauri = (Get-Content app/tauri.conf.json -Raw | ConvertFrom-Json).version
+          if ("v$cargo" -ne $tag -or "v$tauri" -ne $tag) { throw "Tag $tag does not match Cargo.toml ($cargo) and tauri.conf.json ($tauri)." }
+
+      - uses: actions/setup-node@949feb2413d6458794dcd2491c4babbbce0c15c1 # v7
         with:
           node-version: 22
           cache: npm
 
-      - uses: dtolnay/rust-toolchain@stable
+      - uses: dtolnay/rust-toolchain@b725eda525362e7cf34af9a7243cac1e3f01a7ec # stable
 
-      - uses: Swatinem/rust-cache@v2
+      - uses: Swatinem/rust-cache@d1527c8f67ef9af357290475d4af4b0fab8f12e0 # v2
 
       - run: npm ci
 
@@ -44,7 +54,7 @@ jobs:
 
       # No generated notes: they list dependency bumps instead of what changed for players.
       # Tags with a "-" (v0.2.0-beta.1) publish as pre-releases; the rest become Latest.
-      - uses: softprops/action-gh-release@v3
+      - uses: softprops/action-gh-release@efb35369e0ad2afab669f228072c1b0d510eae64 # v3
         with:
           body_path: release-notes.md
           generate_release_notes: false

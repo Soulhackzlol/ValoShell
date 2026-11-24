@@ -1,6 +1,7 @@
 // League client pieces. The home hub: the newest article as the big banner with two hextech
 // buttons, the next ones stacked beside it. The lobby: game modes down the left, the party as
-// tall banners across the middle (empty ones invite), FIND MATCH under them.
+// tall banners across the middle (empty ones invite), FIND MATCH under them. The party on its
+// own: the same banners, the open ones opening the friends list.
 import { For, Index, Show, onMount } from "solid-js";
 import { useNavigate } from "@solidjs/router";
 import { Crown, Plus } from "lucide-solid";
@@ -11,6 +12,7 @@ import { party, partyActions } from "~/state/party";
 import { newsView } from "~/state/views";
 import { Art } from "~/ui/Art";
 import { openExternal } from "../widgets";
+import { openInvites, usePartySlots } from "./socialActions";
 import { usePlay } from "./usePlay";
 import styles from "./league.module.css";
 
@@ -83,7 +85,7 @@ export function LolLobby(_props: PieceProps) {
     if (play.searchClock() !== null) return "Cancel";
     if (play.penaltyClock()) return `Restricted ${play.penaltyClock()}`;
     if (!play.isOwner()) return play.isReady() ? "Not ready" : "Ready";
-    return "Find match";
+    return play.isCustom() ? "Start game" : "Find match";
   };
   return (
     <section class={styles.lobby}>
@@ -149,18 +151,43 @@ export function LolLobby(_props: PieceProps) {
   );
 }
 
-function Banner(props: { member: MemberView | null }) {
+export function LolParty(_props: PieceProps) {
+  const slots = usePartySlots();
+  return (
+    <section class={styles.party}>
+      <div class={styles.banners}>
+        <Index each={slots()}>{(member) => <Banner member={member()} onInvite={openInvites} />}</Index>
+      </div>
+    </section>
+  );
+}
+
+function EmptyBanner(props: { onInvite?: (() => void) | undefined }) {
+  // A function, not one element: each branch needs its own copy of the nodes.
+  const content = () => (
+    <>
+      <span class={styles.bannerPlus}>
+        <Plus size={18} />
+      </span>
+      <small>Invite from Social</small>
+    </>
+  );
+  return (
+    <Show when={props.onInvite} fallback={<div class={styles.banner} data-empty>{content()}</div>}>
+      {(onInvite) => (
+        <button class={styles.banner} data-empty onMouseEnter={() => playCue("hover")} onClick={() => onInvite()()}>
+          {content()}
+        </button>
+      )}
+    </Show>
+  );
+}
+
+function Banner(props: { member: MemberView | null; onInvite?: () => void }) {
   return (
     <Show
       when={props.member}
-      fallback={
-        <div class={styles.banner} data-empty>
-          <span class={styles.bannerPlus}>
-            <Plus size={18} />
-          </span>
-          <small>Invite from Social</small>
-        </div>
-      }
+      fallback={<EmptyBanner onInvite={props.onInvite} />}
     >
       {(member) => (
         <div class={styles.banner} data-self={member().is_self ? "" : undefined} style={{ "--art": member().card_tall ? `url("${member().card_tall}")` : "none" }}>

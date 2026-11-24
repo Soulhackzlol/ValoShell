@@ -18,6 +18,8 @@ use crate::assets::{AssetIndex, AssetStore, image_url};
 use crate::collection::edition_of;
 use crate::ctx::Ctx;
 
+pub mod agent_store;
+
 /// A store answer is reused for this long (sections themselves last hours).
 const VIEW_TTL: Duration = Duration::from_secs(10 * 60);
 
@@ -26,6 +28,8 @@ const VIEW_TTL: Duration = Duration::from_secs(10 * 60);
 #[ts(export)]
 pub struct StoreItem {
     pub id: String,
+    /// The skin a skin-level offer sells (the wishlist matches on it); `None` for other items.
+    pub skin_id: Option<String>,
     pub name: String,
     pub image: Option<String>,
     /// Price in its currency (VP for skins, KC for accessories).
@@ -115,10 +119,17 @@ fn offer_item(index: &AssetIndex, offer: &Offer, discounted: Option<&Cost>) -> O
     let reward = offer.first_reward()?;
     let id = reward.item_id.as_ref()?.to_string();
     let (name, image, edition) = item_art(index, &reward.item_type_id, &id);
+    let skin_id = reward
+        .item_type_id
+        .eq_ignore_ascii_case(ITEM_TYPE_SKIN_LEVELS)
+        .then(|| index.skin_of_level(&id))
+        .flatten()
+        .map(|skin| skin.uuid.to_lowercase());
     let (currency, price) = currency_of(&offer.cost);
     let discounted_price = discounted.map(|cost| currency_of(cost).1);
     Some(StoreItem {
         id,
+        skin_id,
         name,
         image: image.as_deref().map(image_url),
         price,

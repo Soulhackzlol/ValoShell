@@ -1,0 +1,137 @@
+/* Pip-Boy: phosphor green on near-black, uppercase mono, solid green fills for the picked.
+   Layout comes from matchBase.module.css (screenBase / resultsBase for the other screens);
+   these rules are this style's material. */
+
+.pick {
+  composes: pick from "./matchBase.module.css";
+}
+
+.head {
+  composes: head from "./matchBase.module.css";
+}
+
+.hero {
+  composes: hero from "./matchBase.module.css";
+}
+
+.heroArt {
+  composes: heroArt from "./matchBase.module.css";
+}
+
+.heroName {
+  composes: heroName from "./matchBase.module.css";
+}
+
+.heroRole {
+  composes: heroRole from "./matchBase.module.css";
+}
+
+.roster {
+  composes: roster from "./matchBase.module.css";
+}
+
+.group {
+  composes: group from "./matchBase.module.css";
+}
+
+.groupName {
+  composes: groupName from "./matchBase.module.css";
+}
+
+.tile {
+  composes: tile from "./matchBase.module.css";
+}
+
+.tileArt {
+  composes: tileArt from "./matchBase.module.css";
+}
+
+.bar {
+  composes: bar from "./matchBase.module.css";
+}
+
+.dodge {
+  composes: dodge from "./matchBase.module.css";
+}
+
+.timer {
+  composes: timer from "./matchBase.module.css";
+}
+
+.lock {
+  composes: lock from "./matchBase.module.css";
+}
+
+.empty {
+  composes: empty from "./matchBase.module.css";
+}
+
+.lobby {
+  composes: lobby from "./matchBase.module.css";
+}
+
+.teams {
+  composes: teams from "./matchBase.module.css";
+}
+
+.team {
+  composes: team from "./matchBase.module.css";
+}
+
+.teamHead {
+  composes: teamHead from "./matchBase.module.css";
+}
+
+.lines {
+  composes: lines from "./matchBase.module.css";
+}
+
+.line {
+  composes: line from "./matchBase.module.css";
+}
+
+.lineAgent {
+  composes: lineAgent from "./matchBase.module.css";
+}
+
+.lineName {
+  composes: lineName from "./matchBase.module.css";
+}
+
+.stack {
+  composes: stack from "./matchBase.module.css";
+}
+
+.lineRank {
+  composes: lineRank from "./matchBase.module.css";
+}
+
+.rankIcon {
+  composes: rankIcon from "./matchBase.module.css";
+}
+
+/* ---- material ---- */
+.pick, .lobby { font-family: var(--font-mono); color: var(--accent); text-shadow: 0 0 6px color-mix(in srgb, var(--accent) 50%, transparent); border-top: 2px solid var(--accent); }
+.head, .heroName, .teamHead, .groupName { text-transform: uppercase; letter-spacing: 1px; }
+.head > span, .heroRole, .teamHead > span { opacity: 0.7; text-transform: uppercase; }
+.hero { border: 2px solid var(--accent); }
+.heroArt { filter: grayscale(1) sepia(1) hue-rotate(70deg) saturate(4); opacity: 0.75; }
+.heroName { font-size: clamp(20px, 7cqh, 36px); }
+.tile { border: 2px solid color-mix(in srgb, var(--accent) 40%, transparent); background: none; }
+.tileArt { filter: grayscale(1) sepia(1) hue-rotate(70deg) saturate(4); }
+.tile[data-own] { border-color: var(--accent); background: color-mix(in srgb, var(--accent) 25%, transparent); }
+.dodge, .lock { padding: 4px 12px; border: 0; font: inherit; text-transform: uppercase; color: var(--accent); background: none; }
+.dodge::before, .lock::before { content: "[ "; } .dodge::after, .lock::after { content: " ]"; }
+.lock:hover:not(:disabled), .dodge:hover:not(:disabled), .lock[data-locked] { color: #0a0f0a; text-shadow: none; background: var(--accent); }
+.timer { font-size: 24px; }
+.line { box-shadow: inset 3px 0 0 var(--stack); }
+.line[data-self] { color: #0a0f0a; text-shadow: none; background: var(--accent); }
+.lineAgent { filter: grayscale(1) sepia(1) hue-rotate(70deg) saturate(4); }
+
+/* ---- News, Progress and Chat (styledScreens.tsx) ---- */
+.meter { --meter-fill: var(--pipboy-green, #1aff80); --meter-track: color-mix(in srgb, var(--pipboy-green, #1aff80) 18%, transparent); }
+.field { color: var(--pipboy-green, #1aff80); background: rgb(0 0 0 / 0.6); box-shadow: inset 0 0 0 1px currentColor; font-family: var(--font-mono); font-size: 13px; text-transform: uppercase; }
+
+/* ---- Results (styledResults.tsx) ---- */
+.resultTitle { font-family: var(--font-mono); font-size: clamp(22px, 5cqi, 46px); text-transform: uppercase; text-shadow: 0 0 10px color-mix(in srgb, var(--pipboy-green, #1aff80) 60%, transparent); }
+.mvp { --mvp-fill: var(--pipboy-green, #1aff80); --mvp-text: #021a0c; }

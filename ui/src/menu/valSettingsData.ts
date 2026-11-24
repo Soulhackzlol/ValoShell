@@ -6,13 +6,16 @@ import { createSignal } from "solid-js";
 /** English and Spanish wording, as the style's language picks. */
 export type Words = readonly [en: string, es: string];
 
+/** ValoShell's own settings, shown among the client's. */
+export type AppSettingKey = "uiVolume" | "motion" | "effects" | "streamer" | "updates" | "uiScale" | "contrast" | "colorVision";
+
 export type Row =
   | { kind: "section"; label: Words }
   | { kind: "toggle"; key: string; label: Words }
   | { kind: "slider"; key: string; label: Words; min: number; max: number; step: number }
   | { kind: "select"; key: string; label: Words; options: readonly Words[] }
   | { kind: "bind"; key: string; label: Words }
-  | { kind: "app"; key: "uiVolume" | "motion" | "streamer"; label: Words };
+  | { kind: "app"; key: AppSettingKey; label: Words };
 
 export interface Tab {
   id: string;
@@ -40,6 +43,9 @@ export const TABS: readonly Tab[] = [
     label: ["General", "General"],
     rows: [
       section("Accessibility", "Accesibilidad"),
+      { kind: "app", key: "uiScale", label: ["Interface size (ValoShell)", "Tamaño de la interfaz (ValoShell)"] },
+      { kind: "app", key: "contrast", label: ["High contrast (ValoShell)", "Alto contraste (ValoShell)"] },
+      { kind: "app", key: "colorVision", label: ["Menu colours for colour blindness", "Colores del menú para daltonismo"] },
       select("enemyHighlight", "Enemy highlight color", "Color de resaltado de enemigos", [
         ["Red (default)", "Rojo (predeterminado)"],
         ["Yellow (deuteranopia)", "Amarillo (deuteranopía)"],
@@ -56,6 +62,7 @@ export const TABS: readonly Tab[] = [
       toggle("corpses", "Show corpses", "Mostrar cadáveres"),
       toggle("bulletTracers", "Show bullet tracers", "Mostrar trazadoras de balas"),
       { kind: "app", key: "streamer", label: ["Streamer mode (hide names)", "Modo streamer (ocultar nombres)"] },
+      { kind: "app", key: "updates", label: ["Check for ValoShell updates", "Buscar actualizaciones de ValoShell"] },
     ],
   },
   {
@@ -169,6 +176,7 @@ export const TABS: readonly Tab[] = [
       ]),
       toggle("bloom", "Bloom", "Resplandor"),
       { kind: "app", key: "motion", label: ["Menu motion", "Animaciones del menú"] },
+      { kind: "app", key: "effects", label: ["Menu effects", "Efectos del menú"] },
     ],
   },
   {

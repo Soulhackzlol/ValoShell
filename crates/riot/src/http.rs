@@ -193,7 +193,7 @@ impl RiotHttp {
         match builder.timeout(request.timeout).send().await {
             Ok(response) => read_reply(response).await,
             Err(error) => {
-                tracing::debug!(path = %request.path, %error, "riot_request_failed");
+                tracing::debug!(path = %redacted_path(&request.path), %error, "riot_request_failed");
                 Reply::transport_failure()
             }
         }
@@ -255,19 +255,57 @@ fn is_token_rejected(reply: &Reply) -> bool {
     }
 }
 
+/// Path segments followed by a secret: a party code joins whoever holds it, so it must never
+/// reach a log, an error message or a toast on a stream.
+const SECRET_AFTER: &[&str] = &["joinbycode"];
+
+/// `path` as logs and errors may show it: uuid-shaped segments (puuids, match and roster ids)
+/// and chat addresses become `{id}`, party codes become `{code}`, and the query is dropped, so
+/// no player is identifiable and no party can be joined from it.
+pub fn redacted_path(path: &str) -> String {
+    let path = path.split('?').next().unwrap_or_default();
+    let segments: Vec<&str> = path.split('/').collect();
+    segments
+        .iter()
+        .enumerate()
+        .map(|(index, segment)| {
+            let follows_secret = index > 0 && SECRET_AFTER.contains(&segments[index - 1]);
+            if follows_secret && !segment.is_empty() {
+                "{code}"
+            } else if is_identifier(segment) {
+                "{id}"
+            } else {
+                segment
+            }
+        })
+        .collect::<Vec<_>>()
+        .join("/")
+}
+
+/// A uuid (8-4-4-4-12 hex) or a chat address (`puuid@server`).
+fn is_identifier(segment: &str) -> bool {
+    const UUID_LENGTH: usize = 36;
+    let is_uuid = segment.len() == UUID_LENGTH
+        && segment
+            .chars()
+            .all(|letter| letter.is_ascii_hexdigit() || letter == '-')
+        && segment.matches('-').count() == 4;
+    is_uuid || segment.contains('@')
+}
+
 pub fn ensure_success(reply: &Reply, request: &Request) -> RiotResult<()> {
     if reply.is_success() {
         return Ok(());
     }
     if reply.status == 0 {
         return Err(RiotError::Transport {
-            endpoint: request.path.clone(),
+            endpoint: redacted_path(&request.path),
             reason: "no answer (timeout or connection refused)".to_owned(),
         });
     }
     Err(RiotError::Status {
         status: reply.status,
-        endpoint: request.path.clone(),
+        endpoint: redacted_path(&request.path),
     })
 }
 
@@ -333,6 +371,29 @@ fn tls_error(endpoint: &str, error: &dyn std::fmt::Display) -> RiotError {
 #[cfg(test)]
 mod tests {
     use super::*;
+
+    #[test]
+    fn logged_paths_hide_player_ids() {
+        let path =
+            "/mmr/v1/players/3b7c5a0e-1f2d-4c3b-9a8e-7d6c5b4a3f21/competitiveupdates?queue=x";
+
+        assert_eq!(
+            redacted_path(path),
+            "/mmr/v1/players/{id}/competitiveupdates"
+        );
+        assert_eq!(
+            redacted_path("/chat/v6/messages/abc@ares.pvp.net"),
+            "/chat/v6/messages/{id}"
+        );
+    }
+
+    #[test]
+    fn logged_paths_hide_party_codes() {
+        assert_eq!(
+            redacted_path("/parties/v1/players/joinbycode/K7Q2XA"),
+            "/parties/v1/players/joinbycode/{code}"
+        );
+    }
 
     #[test]
     fn basic_authorization_encodes_riot_user() {

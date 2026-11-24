@@ -1,6 +1,7 @@
 // UI sounds per menu style. Each style has a synthesised pack (WebAudio voices: no assets,
 // nothing to license) shaped after its game's menu; real files win where the player has them
 // (Minecraft's and CS 1.6's own sounds from their installs, or files in the sounds folder).
+import { isLookPreview } from "~/ipc/runtime";
 import type { SoundPack, Skin } from "~/studio/types";
 
 export type SoundCue = "hover" | "confirm" | "back" | "tab" | "found";
@@ -143,6 +144,25 @@ const LEAGUE: Pack = {
   found: [...arpeggio("sine", [523, 659, 784, 1046, 1318], 0.08, 0.5, 0.04), noise("highpass", 6000, 0.3, 0.01, 0.3)],
 };
 
+// Phantom: jazzy, punchy UI: a snappy slap on tabs, a bright two-note stab to confirm and a
+// brassy rising hit for a match.
+const PHANTOM: Pack = {
+  hover: [noise("highpass", 5200, 0.018, 0.02)],
+  tab: [noise("bandpass", 1600, 0.035, 0.07, 0, 1.5), tone("triangle", 660, 990, 0.06, 0.035)],
+  confirm: [tone("sawtooth", 523, 523, 0.08, 0.03), tone("sawtooth", 784, 784, 0.12, 0.03, 0.07), noise("bandpass", 2400, 0.04, 0.05)],
+  back: [tone("triangle", 784, 392, 0.1, 0.04), noise("bandpass", 1200, 0.03, 0.04)],
+  found: [...arpeggio("sawtooth", [392, 494, 587, 784], 0.07, 0.3, 0.03), noise("bandpass", 2000, 0.25, 0.04, 0.28)],
+};
+
+// Night City: clipped digital blips, a two-tone handshake to confirm and a data-burst for a match.
+const NIGHT_CITY: Pack = {
+  hover: [tone("square", 3200, 3200, 0.012, 0.012)],
+  tab: [tone("square", 1200, 1800, 0.04, 0.025), noise("highpass", 7000, 0.02, 0.015, 0.02)],
+  confirm: [tone("square", 880, 880, 0.04, 0.025), tone("square", 1320, 1320, 0.05, 0.025, 0.05)],
+  back: [tone("square", 1320, 660, 0.06, 0.025)],
+  found: [...arpeggio("square", [660, 880, 1320, 1760, 2640], 0.045, 0.08, 0.02), noise("highpass", 5000, 0.35, 0.02, 0.24)],
+};
+
 const PACKS: Record<Skin, Pack> = {
   modern: VALORANT,
   current: VALORANT,
@@ -158,6 +178,8 @@ const PACKS: Record<Skin, Pack> = {
   halo: HALO,
   pipboy: PIPBOY,
   league: LEAGUE,
+  phantom: PHANTOM,
+  nightcity: NIGHT_CITY,
 };
 
 // Hovering across a row of buttons must not machine-gun the hover cue.
@@ -201,6 +223,8 @@ function activePack(): Skin | null {
 }
 
 export function playCue(cue: SoundCue): void {
+  // The gallery's preview frame stays silent: hovering a preview must not click in your ears.
+  if (isLookPreview) return;
   const pack = activePack();
   const volume = interfaceVolume * options.volume;
   if (!pack || volume === 0) return;

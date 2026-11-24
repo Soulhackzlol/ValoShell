@@ -56,7 +56,7 @@
   min-height: 0;
   margin: 0;
   padding: 2px;
-  overflow: auto;
+  overflow: hidden auto;
   list-style: none;
   background: var(--olive-dark);
   box-shadow: inset 1px 1px 0 var(--dark), inset -1px -1px 0 var(--light);
@@ -103,6 +103,16 @@
 
 .button:hover:not(:disabled) {
   color: #ffffff;
+}
+
+/* PLAY takes the theme's Play colour when one is picked; the other buttons stay olive. */
+.button[data-part="play"] {
+  color: var(--theme-on-play, var(--ink));
+  background: var(--theme-play, var(--olive));
+}
+
+.button[data-part="play"]:hover:not(:disabled) {
+  color: var(--theme-on-play, #ffffff);
 }
 
 .button:active:not(:disabled) {
@@ -155,7 +165,7 @@
 .tableBody {
   flex: 1;
   min-height: 0;
-  overflow: auto;
+  overflow: hidden auto;
 }
 
 .tableRow {
@@ -220,4 +230,45 @@
 .check > input:focus-visible + .checkBox {
   outline: 1px dotted var(--ink);
   outline-offset: 2px;
+}
+
+/* ---- layouts (Look -> Layout). Find Match "buttons": the modes as the stacked raised buttons
+   of the 1.6 main menu instead of a sunken list box. ---- */
+
+[data-layout="buttons"] .list {
+  display: flex;
+  flex-direction: column;
+  gap: 3px;
+  padding: 0;
+  background: none;
+  box-shadow: none;
+}
+
+[data-layout="buttons"] .list > .listRow {
+  padding: 5px 12px;
+  background: var(--olive);
+  box-shadow: inset 1px 1px 0 var(--light), inset -1px -1px 0 var(--dark);
+}
+
+/* The picked mode stays pressed in, like a held VGUI button. */
+[data-layout="buttons"] .list > .listRow[data-active] {
+  background: var(--pick);
+  box-shadow: inset 1px 1px 0 var(--dark), inset -1px -1px 0 var(--light);
+}
+
+/* Friends "compact": name and status only, without the header, so the browser fits a side rail. */
+[data-layout="compact"] .tableHead {
+  display: none;
+}
+
+[data-layout="compact"] .tableRow {
+  grid-template-columns: minmax(0, 1fr) auto;
+}
+
+[data-layout="compact"] .tableRow:not([data-active]) > span:nth-child(2) {
+  color: var(--light);
+}
+
+[data-layout="compact"] .tableRow > span:nth-child(3) {
+  display: none;
 }

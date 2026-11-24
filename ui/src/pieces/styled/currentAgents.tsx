@@ -2,20 +2,20 @@
 // breadcrumb, the owned toggle, role filters and the icon grid on a navy column; the agent's
 // portrait over their name stacked huge behind them on their own tint; and the mastery
 // diamond, name, INFO / ability tabs (captioned with your keybinds), bio and role text.
-import { For, Index, Show, createMemo, createSignal } from "solid-js";
+import { For, Index, Show } from "solid-js";
 import type { AgentCard } from "~/bindings/AgentCard";
 import type { PieceProps } from "~/studio/registry";
-import { values as gameSettings } from "~/menu/valSettingsData";
 import { playCue } from "~/menu/sound";
-import { isAgentOwned, masteryOf, refreshAgentProgress } from "~/state/agents";
-import { ROLE_ORDER, catalog } from "~/state/catalog";
+import { masteryOf } from "~/state/agents";
+import { ROLE_ORDER } from "~/state/catalog";
 import { Art } from "~/ui/Art";
+import { AgentStoreLine } from "../agentStoreLine";
+import { type Role, abilitySlots, isMasteryShown, roleOf, useAgentBrowser } from "../agentBrowser";
+import { AgentBoard, BOARD_LAYOUTS } from "./agentBoard";
 import { colorVars } from "./current";
 import { ValCanvas } from "./valCanvas";
 import { valLang, vt } from "./valText";
 import styles from "./currentAgents.module.css";
-
-type Role = (typeof ROLE_ORDER)[number];
 
 const ROLE_TEXT: Record<Role, { en: [string, string]; es: [string, string] }> = {
   Duelist: {
@@ -36,19 +36,7 @@ const ROLE_TEXT: Record<Role, { en: [string, string]; es: [string, string] }> = 
   },
 };
 
-/** The client's tab order, and which keybind captions each tab. */
-const SLOTS: readonly [slot: string, bind: string][] = [
-  ["Grenade", "ability1"],
-  ["Ability1", "ability2"],
-  ["Ability2", "signature"],
-  ["Ultimate", "ultimate"],
-];
-
 const GHOST_LINES = 4;
-
-function roleOf(agent: AgentCard): Role | null {
-  return (ROLE_ORDER as readonly string[]).includes(agent.role) ? (agent.role as Role) : null;
-}
 
 /** The page tint from the agent's colours: dark at the top left, saturated bottom right. */
 function tint(agent: AgentCard | undefined): Record<string, string> {
@@ -62,27 +50,29 @@ function tint(agent: AgentCard | undefined): Record<string, string> {
   };
 }
 
+/**
+ * The client's page under Showcase (the first layout); the other layouts on the fluid board.
+ * Another style's look borrowing Showcase gets the board too, so it wears that style's tokens
+ * rather than the client's navy.
+ */
 export function ValAgents(props: PieceProps) {
-  const [role, setRole] = createSignal<Role | "all">("all");
-  const [pickedId, setPickedId] = createSignal("");
-  const [tab, setTab] = createSignal("info");
-  const [isOwnedOnly, setOwnedOnly] = createSignal(false);
-  const agents = createMemo(() => [...catalog().agents].sort((a, b) => a.display_name.localeCompare(b.display_name)));
-  const shown = () =>
-    agents().filter((agent) => (role() === "all" || agent.role === role()) && (!isOwnedOnly() || isAgentOwned(agent.uuid)));
-  const picked = () => agents().find((agent) => agent.uuid === pickedId()) ?? agents()[0];
+  const isBorrowed = () => props.piece.kind !== "val-agents";
+  const isBoard = () => isBorrowed() || BOARD_LAYOUTS.includes(String(props.piece.props["layout"]));
+  return (
+    <Show when={isBoard()} fallback={<ValAgentsPage {...props} />}>
+      <AgentBoard {...props} />
+    </Show>
+  );
+}
+
+function ValAgentsPage(props: PieceProps) {
+  const browser = useAgentBrowser();
+  const { agents, shown, picked, role, tab, isOwnedOnly, ability, pick } = browser;
   const roleText = () => {
     const current = picked();
     const key = current ? roleOf(current) : null;
     return key ? ROLE_TEXT[key][valLang()] : null;
   };
-  const ability = () => picked()?.abilities.find((entry) => entry.slot === tab());
-  const pick = (agent: AgentCard) => {
-    playCue("tab");
-    setPickedId(agent.uuid);
-    setTab("info");
-  };
-  refreshAgentProgress();
   return (
     <ValCanvas style={{ ...tint(picked()), ...colorVars(props, ["accent"]) }}>
       <div class={styles.page}>
@@ -106,10 +96,7 @@ export function ValAgents(props: PieceProps) {
           role="switch"
           aria-checked={isOwnedOnly()}
           title="Show only the agents you have unlocked"
-          onClick={() => {
-            playCue(isOwnedOnly() ? "back" : "confirm");
-            setOwnedOnly(!isOwnedOnly());
-          }}
+          onClick={browser.toggleOwned}
         >
           <span>{vt("owned")}</span>
           <span class={styles.ownedToggle} data-on={isOwnedOnly() ? "" : undefined}>
@@ -117,14 +104,14 @@ export function ValAgents(props: PieceProps) {
           </span>
         </button>
         <div class={styles.filters}>
-          <button class={styles.filter} data-active={role() === "all" ? "" : undefined} onClick={() => setRole("all")}>
+          <button class={styles.filter} data-active={role() === "all" ? "" : undefined} onClick={() => browser.filter("all")}>
             <span class={styles.allDots} />
           </button>
           <For each={ROLE_ORDER}>
             {(entry) => {
               const icon = () => agents().find((agent) => agent.role === entry)?.role_icon ?? null;
               return (
-                <button class={styles.filter} title={ROLE_TEXT[entry][valLang()][0]} data-active={role() === entry ? "" : undefined} onClick={() => setRole(entry)}>
+                <button class={styles.filter} title={ROLE_TEXT[entry][valLang()][0]} data-active={role() === entry ? "" : undefined} onClick={() => browser.filter(entry)}>
                   <Art src={icon()} class={styles.filterIcon} fallback={<b>{entry[0]}</b>} />
                 </button>
               );
@@ -137,8 +124,8 @@ export function ValAgents(props: PieceProps) {
               <button
                 class={styles.cell}
                 data-active={picked()?.uuid === agent.uuid ? "" : undefined}
-                data-unowned={isAgentOwned(agent.uuid) ? undefined : ""}
-                title={isAgentOwned(agent.uuid) ? agent.display_name : `${agent.display_name} (not unlocked)`}
+                data-unowned={browser.isOwned(agent) ? undefined : ""}
+                title={browser.isOwned(agent) ? agent.display_name : `${agent.display_name} (not unlocked)`}
                 onMouseEnter={() => playCue("hover")}
                 onClick={() => pick(agent)}
               >
@@ -147,7 +134,7 @@ export function ValAgents(props: PieceProps) {
             )}
           </For>
         </div>
-        <Show when={picked()}>{(agent) => <AgentInfo agent={agent()} tab={tab()} setTab={setTab} roleText={roleText()} ability={ability()} />}</Show>
+        <Show when={picked()}>{(agent) => <AgentInfo agent={agent()} tab={tab()} setTab={browser.openTab} roleText={roleText()} ability={ability()} isMasteryShown={isMasteryShown(props)} />}</Show>
       </div>
     </ValCanvas>
   );
@@ -159,27 +146,24 @@ function AgentInfo(props: {
   setTab: (tab: string) => void;
   roleText: [string, string] | null;
   ability: AgentCard["abilities"][number] | undefined;
+  isMasteryShown: boolean;
 }) {
   const mastery = () => masteryOf(props.agent.uuid);
-  const slots = () => SLOTS.flatMap(([slot, bind]) => {
-    const entry = props.agent.abilities.find((ability) => ability.slot === slot);
-    return entry ? [{ entry, key: String(gameSettings()[bind] ?? "") }] : [];
-  });
-  const choose = (tab: string) => {
-    playCue("tab");
-    props.setTab(tab);
-  };
+  const slots = () => abilitySlots(props.agent).map((slot) => ({ entry: slot.ability, key: slot.key }));
+  const choose = (tab: string) => props.setTab(tab);
   return (
     <>
       <i class={styles.rail} aria-hidden="true" />
       <i class={styles.rule} aria-hidden="true" />
-      <span class={styles.mastery} title={`Mastery level ${mastery().lifetime} (act level ${mastery().act})`}>
-        <svg viewBox="0 0 70 68" aria-hidden="true">
-          <path d="M35 3 L44 12 M35 3 L26 12 M35 65 L44 56 M35 65 L26 56 M3 34 L12 25 M3 34 L12 43 M67 34 L58 25 M67 34 L58 43" />
-          <path d="M35 13 L56 34 L35 55 L14 34 Z" />
-        </svg>
-        <b>{mastery().lifetime}</b>
-      </span>
+      <Show when={props.isMasteryShown}>
+        <span class={styles.mastery} title={`Mastery level ${mastery().lifetime} (act level ${mastery().act})`}>
+          <svg viewBox="0 0 70 68" aria-hidden="true">
+            <path d="M35 3 L44 12 M35 3 L26 12 M35 65 L44 56 M35 65 L26 56 M3 34 L12 25 M3 34 L12 43 M67 34 L58 25 M67 34 L58 43" />
+            <path d="M35 13 L56 34 L35 55 L14 34 Z" />
+          </svg>
+          <b>{mastery().lifetime}</b>
+        </span>
+      </Show>
       <h2 class={styles.name}>{props.agent.display_name}</h2>
       <nav class={styles.tabs}>
         <button class={styles.tab} data-active={props.tab === "info" ? "" : undefined} onMouseEnter={() => playCue("hover")} onClick={() => choose("info")}>
@@ -204,6 +188,7 @@ function AgentInfo(props: {
               <Show when={props.agent.description}>
                 <p class={styles.bio}>{props.agent.description}</p>
               </Show>
+              <AgentStoreLine agentId={props.agent.uuid} />
               <Show when={props.roleText}>
                 {(text) => (
                   <>

@@ -11,11 +11,13 @@ use crate::http::{Host, Request};
 /// The client asks for this many rows per page.
 pub const DEFAULT_PAGE_SIZE: u32 = 510;
 
-/// Leaderboard affinities (the shard families Riot ranks separately).
+/// Leaderboard regions. BR and LATAM play on the NA shard but are ranked on their own boards.
 #[derive(Debug, Clone, Copy, PartialEq, Eq)]
 pub enum Affinity {
     Eu,
     Na,
+    Latam,
+    Br,
     Ap,
     Kr,
 }
@@ -25,6 +27,8 @@ impl Affinity {
         match self {
             Self::Eu => "eu",
             Self::Na => "na",
+            Self::Latam => "latam",
+            Self::Br => "br",
             Self::Ap => "ap",
             Self::Kr => "kr",
         }

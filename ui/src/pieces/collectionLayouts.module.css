@@ -1,15 +1,27 @@
-/* The loadout's alternative layouts: CS:GO inventory, CS 1.6 buy menu, compact list and
-   Minecraft slots. Each style may restyle the tiles further (theme/screens.css). */
+/* The loadout's other layouts: a dense grid (CS:GO's inventory), a numbered menu (CS 1.6's buy
+   menu), a compact list and square slots (Minecraft's inventory). A layout is an arrangement,
+   not a style: each one draws in the current style's colours and fonts (the --wall-* defaults
+   below), and the game it comes from gets its own palette back only under that game's style
+   (the blocks at the end). Each style may restyle the tiles further (theme/screens.css). */
 
-/* ---- CS:GO inventory ---- */
+/* ---- grid (CS:GO inventory) ---- */
 
 .inventory {
+  --wall-ground: var(--panel);
+  --wall-bar: color-mix(in oklch, var(--text-1) 6%, var(--panel));
+  --wall-tile: color-mix(in oklch, var(--text-1) 5%, var(--panel));
+  --wall-tile-hover: color-mix(in oklch, var(--text-1) 10%, var(--panel));
+  --wall-pick: var(--accent);
+  --wall-text: var(--text-1);
+  --wall-muted: var(--text-2);
+  --wall-faint: var(--text-3);
+  container-type: inline-size;
   display: flex;
   flex-direction: column;
   width: 100%;
   height: 100%;
-  background: rgb(30 35 41 / 0.92);
-  box-shadow: 0 0 0 1px rgb(0 0 0 / 0.5), inset 0 0 0 1px rgb(255 255 255 / 0.05);
+  background: var(--wall-ground);
+  box-shadow: inset 0 0 0 1px var(--border-subtle);
 }
 
 .invHead {
@@ -19,8 +31,8 @@
   gap: 18px;
   padding: 0 14px;
   height: 44px;
-  background: linear-gradient(to bottom, #3a4550, #2b333b);
-  box-shadow: inset 0 -1px 0 rgb(0 0 0 / 0.4);
+  background: var(--wall-bar);
+  box-shadow: inset 0 -1px 0 rgb(0 0 0 / 0.3);
 }
 
 .invTitle {
@@ -28,13 +40,15 @@
   font-size: 18px;
   font-weight: 700;
   text-transform: uppercase;
-  color: #ffffff;
+  color: var(--wall-text);
 }
 
 .invTabs {
   display: flex;
   min-width: 0;
-  overflow: hidden;
+  /* Scrolls rather than clips, so the last category (Melee) stays reachable when narrow. */
+  overflow-x: auto;
+  scrollbar-width: none;
 }
 
 .invTabs button {
@@ -44,25 +58,37 @@
   font-weight: 600;
   white-space: nowrap;
   text-transform: uppercase;
-  color: #aab4bd;
+  color: var(--wall-muted);
   transition: color var(--dur-fast) var(--ease-standard), background var(--dur-fast) var(--ease-standard);
 }
 
 .invTabs button:hover {
-  color: #ffffff;
+  color: var(--wall-text);
 }
 
 .invTabs button[data-active] {
-  color: #ffffff;
+  color: var(--wall-text);
   background: rgb(255 255 255 / 0.08);
-  box-shadow: inset 0 -2px 0 #de9b35;
+  box-shadow: inset 0 -2px 0 var(--wall-pick);
 }
 
 .invCount {
+  flex: none;
   margin-left: auto;
   font-size: 12px;
   white-space: nowrap;
-  color: #8f98a0;
+  color: var(--wall-faint);
+}
+
+/* A narrow inventory drops the count and tightens the tabs so every category fits. */
+@container (max-width: 700px) {
+  .invCount {
+    display: none;
+  }
+
+  .invTabs button {
+    padding: 0 8px;
+  }
 }
 
 .invGrid {
@@ -74,7 +100,7 @@
   align-content: start;
   gap: 6px;
   padding: 10px;
-  overflow: auto;
+  overflow: hidden auto;
 }
 
 .invTile {
@@ -83,23 +109,23 @@
   grid-template-rows: minmax(0, 1fr) auto;
   padding: 6px 8px 8px;
   text-align: left;
-  background: linear-gradient(to bottom, #48535e, #2f3840);
+  background: var(--wall-tile);
   box-shadow:
-    inset 0 1px 0 rgb(255 255 255 / 0.1),
-    inset 0 -4px 0 var(--edition, #8f98a0);
+    inset 0 1px 0 rgb(255 255 255 / 0.08),
+    inset 0 -4px 0 var(--edition, var(--wall-faint));
   animation: tileIn 360ms var(--ease-decelerate) both;
   animation-delay: calc(min(var(--stagger, 0), 24) * 18ms);
   transition: background var(--dur-fast) var(--ease-standard);
 }
 
 .invTile:hover {
-  background: linear-gradient(to bottom, #56636f, #37414a);
+  background: var(--wall-tile-hover);
 }
 
 .invTile[data-selected] {
   box-shadow:
-    0 0 0 2px #de9b35,
-    inset 0 -4px 0 var(--edition, #8f98a0);
+    0 0 0 2px var(--wall-pick),
+    inset 0 -4px 0 var(--edition, var(--wall-faint));
 }
 
 .invArt {
@@ -123,31 +149,38 @@
   font-size: 11px;
   white-space: nowrap;
   text-overflow: ellipsis;
-  color: #c5ccd3;
+  color: var(--wall-muted);
 }
 
 .invName i {
   font-style: normal;
-  color: #6b747c;
+  color: var(--wall-faint);
 }
 
 .invName b {
   font-weight: 600;
-  color: #ffffff;
+  color: var(--wall-text);
 }
 
-/* ---- CS 1.6 buy menu ---- */
+/* ---- numbered menu (CS 1.6 buy menu) ---- */
 
 .buy {
+  --wall-ground: var(--panel);
+  --wall-key: var(--accent);
+  --wall-text: var(--text-1);
+  --wall-muted: var(--text-2);
+  --wall-line: var(--border-subtle);
+  --wall-pick: color-mix(in oklch, var(--accent) 18%, transparent);
+  --wall-font: inherit;
   display: flex;
   flex-direction: column;
   width: 100%;
   height: 100%;
   padding: 14px 16px;
-  font-family: Tahoma, Verdana, sans-serif;
-  color: #dedfd6;
-  background: rgb(0 0 0 / 0.72);
-  box-shadow: inset 0 0 0 1px rgb(255 176 0 / 0.35);
+  font-family: var(--wall-font);
+  color: var(--wall-muted);
+  background: var(--wall-ground);
+  box-shadow: inset 0 0 0 1px var(--wall-line);
 }
 
 .buy:focus {
@@ -155,7 +188,7 @@
 }
 
 .buy:focus-visible {
-  box-shadow: inset 0 0 0 1px #ffb000;
+  box-shadow: inset 0 0 0 1px var(--wall-key);
 }
 
 .buyTitle {
@@ -163,7 +196,7 @@
   padding-bottom: 10px;
   font-size: 18px;
   font-weight: 700;
-  color: #ffb000;
+  color: var(--wall-key);
 }
 
 .buyCols {
@@ -180,7 +213,7 @@
   gap: 2px;
   margin: 0;
   padding: 0;
-  overflow: auto;
+  overflow: hidden auto;
   list-style: none;
 }
 
@@ -192,26 +225,26 @@
   padding: 5px 8px;
   text-align: left;
   font-size: 14px;
-  color: #dedfd6;
+  color: var(--wall-muted);
 }
 
 .buyItem kbd {
   min-width: 14px;
   font-family: inherit;
   font-weight: 700;
-  color: #ffb000;
+  color: var(--wall-key);
 }
 
 .buyItem small {
   margin-left: auto;
   font-size: 12px;
-  color: rgb(222 223 214 / 0.55);
+  opacity: 0.6;
 }
 
 .buyItem:hover,
 .buyItem[data-selected] {
-  color: #ffffff;
-  background: rgb(255 176 0 / 0.18);
+  color: var(--wall-text);
+  background: var(--wall-pick);
 }
 
 .buyPreview {
@@ -222,7 +255,7 @@
   gap: 12px;
   min-height: 0;
   padding: 12px;
-  box-shadow: inset 0 0 0 1px rgb(255 176 0 / 0.25);
+  box-shadow: inset 0 0 0 1px var(--wall-line);
 }
 
 .buyImage {
@@ -235,14 +268,15 @@
 .buyCaption,
 .buyHint {
   font-size: 13px;
-  color: rgb(222 223 214 / 0.75);
+  opacity: 0.8;
 }
 
 .buyFooter {
   flex: none;
   padding-top: 10px;
   font-size: 11px;
-  color: rgb(255 176 0 / 0.7);
+  color: var(--wall-key);
+  opacity: 0.75;
 }
 
 /* ---- compact list ---- */
@@ -253,7 +287,7 @@
   gap: 3px;
   width: 100%;
   height: 100%;
-  overflow: auto;
+  overflow: hidden auto;
 }
 
 .listRow {
@@ -300,31 +334,35 @@
   object-fit: contain;
 }
 
-/* ---- Minecraft slots ---- */
+/* ---- slots (Minecraft inventory) ---- */
 
 .slots {
+  --wall-ground: var(--panel);
+  --wall-frame: inset 0 0 0 1px var(--border-subtle);
+  --wall-slot: color-mix(in oklch, var(--text-1) 6%, var(--panel));
+  --wall-slot-hover: color-mix(in oklch, var(--accent) 18%, var(--panel));
+  --wall-slot-edge: inset 0 0 0 1px var(--border-subtle);
+  --wall-title: var(--text-2);
+  --wall-pixelated: auto;
   display: flex;
   flex-direction: column;
   gap: 8px;
   width: 100%;
   height: 100%;
   padding: 14px;
-  overflow: auto;
-  background: #c6c6c6;
-  box-shadow:
-    inset 3px 3px 0 #ffffff,
-    inset -3px -3px 0 #555555,
-    0 0 0 3px #000000;
+  overflow: hidden auto;
+  background: var(--wall-ground);
+  box-shadow: var(--wall-frame);
 }
 
 .slotsTitle {
   font-size: 16px;
-  color: #3f3f3f;
+  color: var(--wall-title);
 }
 
 .slotGrid {
   display: grid;
-  grid-template-columns: repeat(9, minmax(0, 1fr));
+  grid-template-columns: repeat(auto-fill, minmax(56px, 1fr));
   gap: 4px;
 }
 
@@ -332,15 +370,13 @@
   position: relative;
   aspect-ratio: 1;
   max-width: 100%;
-  background: #8b8b8b;
-  box-shadow:
-    inset 3px 3px 0 #373737,
-    inset -3px -3px 0 #ffffff;
+  background: var(--wall-slot);
+  box-shadow: var(--wall-slot-edge);
 }
 
 .slot:hover,
 .slot[data-selected] {
-  background: #c5c5c5;
+  background: var(--wall-slot-hover);
 }
 
 .slotImage {
@@ -349,16 +385,15 @@
   width: 76%;
   height: 76%;
   object-fit: contain;
-  image-rendering: pixelated;
+  image-rendering: var(--wall-pixelated);
 }
 
 .slotLetter {
   font-size: 14px;
-  color: #ffffff;
-  text-shadow: 2px 2px 0 #3f3f3f;
+  color: var(--text-1);
 }
 
-/* The purple-edged tooltip Minecraft draws over a hovered item. */
+/* The tooltip over a hovered item. */
 .slotTip {
   position: absolute;
   bottom: calc(100% + 6px);
@@ -370,15 +405,15 @@
   padding: 6px 8px;
   white-space: nowrap;
   text-align: left;
-  color: #ffffff;
-  background: rgb(16 0 16 / 0.94);
-  box-shadow: inset 0 0 0 2px #2b0a5b;
+  color: var(--text-1);
+  background: var(--surface-popup, rgb(16 16 20 / 0.96));
+  box-shadow: inset 0 0 0 1px var(--border-default);
   transform: translateX(-50%);
   pointer-events: none;
 }
 
 .slotTip small {
-  color: #a8a8a8;
+  color: var(--text-3);
 }
 
 .slot:hover .slotTip,
@@ -391,4 +426,56 @@
     opacity: 0;
     translate: 0 8px;
   }
+}
+
+/* ---- each layout's own game: its palette back under that game's style ---- */
+
+:global(:root[data-skin="csgo"]) .inventory,
+:global(:root[data-skin="cs2"]) .inventory {
+  --wall-ground: rgb(30 35 41 / 0.92);
+  --wall-bar: linear-gradient(to bottom, #3a4550, #2b333b);
+  --wall-tile: linear-gradient(to bottom, #48535e, #2f3840);
+  --wall-tile-hover: linear-gradient(to bottom, #56636f, #37414a);
+  --wall-pick: #de9b35;
+  --wall-text: #ffffff;
+  --wall-muted: #aab4bd;
+  --wall-faint: #8f98a0;
+}
+
+:global(:root[data-skin="cs16"]) .buy {
+  --wall-ground: rgb(0 0 0 / 0.72);
+  --wall-key: #ffb000;
+  --wall-text: #ffffff;
+  --wall-muted: #dedfd6;
+  --wall-line: rgb(255 176 0 / 0.35);
+  --wall-pick: rgb(255 176 0 / 0.18);
+  --wall-font: Tahoma, Verdana, sans-serif;
+}
+
+:global(:root[data-skin="minecraft"]) .slots {
+  --wall-ground: #c6c6c6;
+  --wall-frame: inset 3px 3px 0 #ffffff, inset -3px -3px 0 #555555, 0 0 0 3px #000000;
+  --wall-slot: #8b8b8b;
+  --wall-slot-hover: #c5c5c5;
+  --wall-slot-edge: inset 3px 3px 0 #373737, inset -3px -3px 0 #ffffff;
+  --wall-title: #3f3f3f;
+  --wall-pixelated: pixelated;
+}
+
+:global(:root[data-skin="minecraft"]) .slotGrid {
+  grid-template-columns: repeat(9, minmax(0, 1fr));
+}
+
+:global(:root[data-skin="minecraft"]) .slotLetter {
+  color: #ffffff;
+  text-shadow: 2px 2px 0 #3f3f3f;
+}
+
+:global(:root[data-skin="minecraft"]) .slotTip {
+  background: rgb(16 0 16 / 0.94);
+  box-shadow: inset 0 0 0 2px #2b0a5b;
+}
+
+:global(:root[data-skin="minecraft"]) .slotTip small {
+  color: #a8a8a8;
 }

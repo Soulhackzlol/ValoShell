@@ -1,13 +1,13 @@
 // The whole store as one piece, drawn the way each style's own game draws its shop: the
 // 2022 VALORANT store, the 2020 beta's hairlines, CS:GO's Panorama tiles, CS2's flat grid, a
-// CS 1.6 VGUI dialog, console output, Halo 3's menu list beside an info pane, and Glass's
-// frosted cards (glassStore.tsx).
+// CS 1.6 VGUI dialog, console output, Halo 3's menu list beside an info pane, and in files of
+// their own Glass's frosted cards, League's client store, a Persona 5 shop counter, Fallout's
+// barter screen and a Cyberpunk vendor. Fortnite and Minecraft draw their shops with pieces of
+// their own (fn-shop, mc-trades).
 // View only: prices are labels, never buttons; buying happens in VALORANT.
 import { For, Index, Match, Show, Switch, createMemo, createSignal, type JSX } from "solid-js";
 import { RefreshCw } from "lucide-solid";
-import type { BundleView } from "~/bindings/BundleView";
 import type { StoreItem } from "~/bindings/StoreItem";
-import type { StoreView } from "~/bindings/StoreView";
 import type { PieceProps } from "~/studio/registry";
 import type { Skin } from "~/studio/types";
 import { doc } from "~/studio/store";
@@ -16,9 +16,26 @@ import { storeView } from "~/state/views";
 import { Status, formatDuration, remaining, useNow, useStore } from "./store";
 import { BundleArt, EDITION_TINT, ItemArt, gradeOf, partsOf, type EditionTone } from "./storeArt";
 import { GlassFront } from "./glassStore";
+import { LeagueFront } from "./leagueStore";
+import { NightCityFront } from "./nightcityStore";
+import { PhantomFront } from "./phantomStore";
+import { PipboyFront } from "./pipboyStore";
+import { type FrontProps, type ShelfId, bundleOff, clock, cost, isOnSale, shelvesOf } from "./storeShelves";
 import s from "./storeFront.module.css";
 
-type FrontLayout = "valnow" | "glass" | "beta" | "csgo" | "cs2" | "cs16" | "terminal" | "halo";
+type FrontLayout =
+  | "valnow"
+  | "glass"
+  | "beta"
+  | "csgo"
+  | "cs2"
+  | "cs16"
+  | "terminal"
+  | "halo"
+  | "league"
+  | "phantom"
+  | "pipboy"
+  | "nightcity";
 
 /** The store's look when set to Auto: what the style's own game would show. */
 const AUTO_FRONT: Record<Skin, FrontLayout> = {
@@ -34,59 +51,11 @@ const AUTO_FRONT: Record<Skin, FrontLayout> = {
   halo: "halo",
   fortnite: "valnow",
   minecraft: "valnow",
-  pipboy: "halo",
-  league: "valnow",
+  pipboy: "pipboy",
+  league: "league",
+  phantom: "phantom",
+  nightcity: "nightcity",
 };
-
-type ShelfId = "daily" | "featured" | "night" | "accessories";
-
-/** One section of the store with its own countdown. */
-interface Shelf {
-  id: ShelfId;
-  label: string;
-  items: StoreItem[];
-  endsInS: number;
-}
-
-function shelvesOf(view: StoreView): Shelf[] {
-  const shelves: Shelf[] = [{ id: "daily", label: "Daily offers", items: view.daily, endsInS: view.daily_ends_in_s }];
-  const bundle = view.bundles[0];
-  if (bundle) shelves.push({ id: "featured", label: bundle.name, items: bundle.items, endsInS: bundle.ends_in_s });
-  if (view.night_market?.length) {
-    shelves.push({ id: "night", label: "Night market", items: view.night_market, endsInS: view.night_market_ends_in_s });
-  }
-  if (view.accessories.length) {
-    shelves.push({ id: "accessories", label: "Accessories", items: view.accessories, endsInS: view.accessories_end_in_s });
-  }
-  return shelves;
-}
-
-interface FrontProps {
-  view: StoreView;
-  /** Seconds left on a section, live. */
-  left: (endsInS: number) => number;
-}
-
-/** `09:20:14`, or `5d 01:00:00` past a day: the clocks consoles and old menus show. */
-function clock(totalSeconds: number): string {
-  const seconds = Math.max(0, Math.floor(totalSeconds));
-  const days = Math.floor(seconds / 86400);
-  const pad = (value: number) => value.toString().padStart(2, "0");
-  const time = `${pad(Math.floor((seconds % 86400) / 3600))}:${pad(Math.floor((seconds % 3600) / 60))}:${pad(seconds % 60)}`;
-  return days > 0 ? `${days}d ${time}` : time;
-}
-
-function cost(item: { price: number; discounted_price: number | null }): number {
-  return item.discounted_price ?? item.price;
-}
-
-function isOnSale(item: { price: number; discounted_price: number | null }): boolean {
-  return item.discounted_price !== null && item.discounted_price !== item.price;
-}
-
-function bundleOff(bundle: BundleView): number | null {
-  return isOnSale(bundle) ? Math.round((1 - cost(bundle) / bundle.price) * 100) : null;
-}
 
 /** A decorative price label: old price struck through, the price, the currency. */
 function Tag(props: { item: { price: number; discounted_price: number | null }; currency: string; class?: string | undefined }) {
@@ -141,6 +110,18 @@ export function StoreFront(props: PieceProps) {
             </Match>
             <Match when={layout() === "glass"}>
               <GlassFront {...front} />
+            </Match>
+            <Match when={layout() === "league"}>
+              <LeagueFront {...front} />
+            </Match>
+            <Match when={layout() === "phantom"}>
+              <PhantomFront {...front} />
+            </Match>
+            <Match when={layout() === "pipboy"}>
+              <PipboyFront {...front} />
+            </Match>
+            <Match when={layout() === "nightcity"}>
+              <NightCityFront {...front} />
             </Match>
             <Match when={true}>
               <ValnowFront {...front} />

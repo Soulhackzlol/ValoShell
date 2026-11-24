@@ -1,0 +1,142 @@
+/* Terminal: phosphor mono on black, dashed panes, the picked line inverted.
+   Layout comes from matchBase.module.css (screenBase / resultsBase for the other screens);
+   these rules are this style's material. */
+
+.pick {
+  composes: pick from "./matchBase.module.css";
+}
+
+.head {
+  composes: head from "./matchBase.module.css";
+}
+
+.hero {
+  composes: hero from "./matchBase.module.css";
+}
+
+.heroArt {
+  composes: heroArt from "./matchBase.module.css";
+}
+
+.heroName {
+  composes: heroName from "./matchBase.module.css";
+}
+
+.heroRole {
+  composes: heroRole from "./matchBase.module.css";
+}
+
+.roster {
+  composes: roster from "./matchBase.module.css";
+}
+
+.group {
+  composes: group from "./matchBase.module.css";
+}
+
+.groupName {
+  composes: groupName from "./matchBase.module.css";
+}
+
+.tile {
+  composes: tile from "./matchBase.module.css";
+}
+
+.tileArt {
+  composes: tileArt from "./matchBase.module.css";
+}
+
+.bar {
+  composes: bar from "./matchBase.module.css";
+}
+
+.dodge {
+  composes: dodge from "./matchBase.module.css";
+}
+
+.timer {
+  composes: timer from "./matchBase.module.css";
+}
+
+.lock {
+  composes: lock from "./matchBase.module.css";
+}
+
+.empty {
+  composes: empty from "./matchBase.module.css";
+}
+
+.lobby {
+  composes: lobby from "./matchBase.module.css";
+}
+
+.teams {
+  composes: teams from "./matchBase.module.css";
+}
+
+.team {
+  composes: team from "./matchBase.module.css";
+}
+
+.teamHead {
+  composes: teamHead from "./matchBase.module.css";
+}
+
+.lines {
+  composes: lines from "./matchBase.module.css";
+}
+
+.line {
+  composes: line from "./matchBase.module.css";
+}
+
+.lineAgent {
+  composes: lineAgent from "./matchBase.module.css";
+}
+
+.lineName {
+  composes: lineName from "./matchBase.module.css";
+}
+
+.stack {
+  composes: stack from "./matchBase.module.css";
+}
+
+.lineRank {
+  composes: lineRank from "./matchBase.module.css";
+}
+
+.rankIcon {
+  composes: rankIcon from "./matchBase.module.css";
+}
+
+/* ---- material ---- */
+.pick, .lobby { font-family: var(--font-mono); font-size: 14px; color: var(--accent); background: rgb(0 0 0 / 0.6); outline: 1px dashed color-mix(in srgb, var(--accent) 50%, transparent); outline-offset: -1px; }
+.head::before { content: "$ match --info"; opacity: 0.6; }
+.hero { outline: 1px dashed color-mix(in srgb, var(--accent) 40%, transparent); }
+.heroArt { opacity: 0.35; filter: grayscale(1); }
+.heroName { font-size: 22px; }
+.heroRole, .groupName, .teamHead > span { opacity: 0.6; }
+.groupName::before { content: "# "; }
+.tile { border: 0; background: none; outline: 1px dashed color-mix(in srgb, var(--accent) 35%, transparent); }
+.tileArt { filter: grayscale(1) brightness(1.2); }
+.tile[data-own] { background: var(--accent); }
+.dodge, .lock { padding: 4px 10px; border: 0; font: inherit; color: var(--accent); background: none; }
+.dodge::before { content: "[ "; } .dodge::after { content: " ]"; }
+.lock::before { content: "$ "; }
+.lock:hover:not(:disabled), .dodge:hover:not(:disabled) { color: #000; background: var(--accent); }
+.lock[data-locked] { color: #000; background: var(--accent); }
+.timer::after { content: "s"; }
+.teamHead::before { content: "== "; }
+.line { outline: 1px dashed color-mix(in srgb, var(--accent) 20%, transparent); }
+.line[data-self] { color: #000; background: var(--accent); }
+.lineAgent { filter: grayscale(1); }
+
+/* ---- News, Progress and Chat (styledScreens.tsx) ---- */
+.meter { --meter-fill: currentColor; --meter-track: color-mix(in srgb, currentColor 18%, transparent); }
+.field { color: var(--terminal-green, #33ff66); background: #000000; border: 1px dashed currentColor; font-family: var(--font-mono); font-size: 13px; }
+
+/* ---- Results (styledResults.tsx) ---- */
+.resultTitle { font-family: var(--font-mono); font-size: clamp(22px, 4.5cqi, 40px); font-weight: 400; }
+.lobby[data-result="defeat"] .resultTitle { color: #ff5f56; }
+.mvp { --mvp-fill: transparent; --mvp-text: currentColor; font-family: var(--font-mono); }

@@ -1,0 +1,454 @@
+/* Night City: Cyberpunk 2077's in-game menus. Salmon-red hairline frames with chamfered corners
+   and bracket marks on warm near-black glass, red labels in a squared tech face, cyan for what is
+   picked and for numbers, yellow kept for PLAY. Rows boot in one after another; PLAY splits into
+   offset red and cyan slices when pointed at.
+   Roles: --nightcity-red (frames, labels), --nightcity-cyan (selection, values, ready),
+   --nightcity-yellow (PLAY), --nightcity-panel (panel glass). */
+
+.panel,
+.breach {
+  --nc-red: var(--nightcity-red, #ff5e57);
+  --nc-cyan: var(--nightcity-cyan, #5ef6ff);
+  --nc-line: color-mix(in srgb, var(--nc-red) 55%, transparent);
+  --nc-faint: color-mix(in srgb, var(--nc-red) 22%, transparent);
+  container-type: size;
+  position: relative;
+  height: 100%;
+  font-family: "Rajdhani", var(--font-display);
+  background:
+    radial-gradient(circle, var(--nc-faint) 1px, transparent 1.5px) 0 0 / 14px 14px,
+    color-mix(in srgb, var(--nightcity-panel, #0e0b10) 90%, transparent);
+  border: 1px solid var(--nc-line);
+  clip-path: polygon(0 0, calc(100% - 22px) 0, 100% 22px, 100% 100%, 22px 100%, 0 calc(100% - 22px));
+  /* Not bootIn: the panel's own clip-path (its cut corners) cannot blend into an inset(). */
+  animation: panelIn 420ms steps(4, end) backwards;
+}
+
+/* Bracket marks: a bright L at the top-left and bottom-right corners, as the HUD frames have. */
+.panel::before,
+.breach::before,
+.panel::after,
+.breach::after {
+  content: "";
+  position: absolute;
+  width: 26px;
+  height: 26px;
+  pointer-events: none;
+}
+
+.panel::before,
+.breach::before {
+  top: 6px;
+  left: 6px;
+  border-top: 2px solid var(--nc-red);
+  border-left: 2px solid var(--nc-red);
+}
+
+.panel::after,
+.breach::after {
+  right: 6px;
+  bottom: 6px;
+  border-right: 2px solid var(--nc-red);
+  border-bottom: 2px solid var(--nc-red);
+}
+
+.panel {
+  display: grid;
+  grid-template-rows: auto minmax(0, 1fr) auto;
+  gap: 2cqh;
+  padding: 3.4cqh 4cqw;
+}
+
+/* The header: code, title, state, over a dashed rule like the HUD's data strips. */
+.head {
+  display: grid;
+  grid-template-columns: auto 1fr auto;
+  align-items: baseline;
+  gap: 3cqw;
+  padding-bottom: 1.6cqh;
+  background: repeating-linear-gradient(to right, var(--nc-line) 0 10px, transparent 10px 14px) bottom / 100% 1px no-repeat;
+}
+
+.code {
+  font-family: var(--font-mono);
+  font-size: 11px;
+  letter-spacing: 0.18em;
+  color: color-mix(in srgb, var(--nc-red) 75%, transparent);
+}
+
+.title {
+  font-family: "Rajdhani", var(--font-display);
+  font-size: clamp(20px, 6.4cqh, 46px);
+  font-weight: 700;
+  letter-spacing: 0.08em;
+  line-height: 1;
+  text-transform: uppercase;
+  color: var(--nc-red);
+  text-shadow: 0 0 18px color-mix(in srgb, var(--nc-red) 45%, transparent);
+}
+
+.uplink {
+  font-family: var(--font-mono);
+  font-size: 11px;
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+  color: var(--nc-cyan);
+}
+
+.uplink[data-off] {
+  color: var(--nc-red);
+}
+
+.rows {
+  display: grid;
+  align-content: start;
+  gap: 1.2cqh;
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+
+.row {
+  display: grid;
+  grid-template-columns: auto minmax(0, 1fr) auto auto auto;
+  align-items: center;
+  gap: 2.4cqw;
+  min-height: 9cqh;
+  padding: 0 2.4cqw;
+  background: linear-gradient(90deg, color-mix(in srgb, var(--nc-red) 12%, transparent), transparent 70%);
+  border-left: 2px solid var(--nc-red);
+  animation: bootIn 360ms steps(5, end) backwards;
+  animation-delay: calc((160ms + var(--i, 0) * 70ms) * var(--motion-scale, 1));
+  transition: background 120ms ease, border-color 120ms ease;
+}
+
+/* Pointed at: the row is picked, so it turns cyan like a selected item. */
+.row:not([data-empty]):hover {
+  background: linear-gradient(90deg, color-mix(in srgb, var(--nc-cyan) 16%, transparent), transparent 75%);
+  border-left-color: var(--nc-cyan);
+}
+
+.row:not([data-empty]):hover .name {
+  color: var(--nc-cyan);
+}
+
+.row[data-empty] {
+  grid-template-columns: auto 1fr;
+  background: none;
+  border-left-color: var(--nc-faint);
+}
+
+.slot {
+  font-family: var(--font-mono);
+  font-size: 12px;
+  color: var(--nc-red);
+}
+
+.name {
+  overflow: hidden;
+  font-family: "Rajdhani", var(--font-display);
+  font-size: clamp(15px, 5cqh, 28px);
+  font-weight: 700;
+  letter-spacing: 0.04em;
+  text-overflow: ellipsis;
+  text-transform: uppercase;
+  white-space: nowrap;
+  color: var(--nightcity-text, #f2e9e4);
+  transition: color 120ms ease;
+}
+
+.meta {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  font-size: 14px;
+  font-weight: 600;
+  letter-spacing: 0.06em;
+  color: color-mix(in srgb, var(--nc-red) 80%, transparent);
+}
+
+.meta b {
+  color: var(--nc-cyan);
+}
+
+.meta img {
+  width: 22px;
+  height: 22px;
+  object-fit: contain;
+}
+
+.ping {
+  display: inline-flex;
+  align-items: end;
+  gap: 2px;
+  height: 14px;
+}
+
+.ping i {
+  width: 3px;
+  background: color-mix(in srgb, var(--nc-cyan) 25%, transparent);
+}
+
+.ping i:nth-child(1) {
+  height: 40%;
+}
+
+.ping i:nth-child(2) {
+  height: 70%;
+}
+
+.ping i:nth-child(3) {
+  height: 100%;
+}
+
+.ping i[data-on] {
+  background: var(--nc-cyan);
+}
+
+.chip {
+  padding: 1px 10px;
+  font-size: 13px;
+  font-weight: 700;
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+  color: var(--nc-red);
+  border: 1px solid currentColor;
+  clip-path: polygon(0 0, calc(100% - 6px) 0, 100% 6px, 100% 100%, 0 100%);
+}
+
+.chip[data-ready] {
+  color: var(--nc-cyan);
+  background: color-mix(in srgb, var(--nc-cyan) 12%, transparent);
+}
+
+.openSlot {
+  justify-self: start;
+  padding: 0;
+  font-family: var(--font-mono);
+  font-size: 12px;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  color: color-mix(in srgb, var(--nc-red) 55%, transparent);
+  background: none;
+  border: 0;
+  cursor: pointer;
+}
+
+.openSlot:hover {
+  color: var(--nc-cyan);
+}
+
+.foot {
+  display: flex;
+  justify-content: space-between;
+  font-size: 13px;
+  font-weight: 600;
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
+  color: color-mix(in srgb, var(--nc-red) 75%, transparent);
+}
+
+.foot b {
+  color: var(--nc-cyan);
+}
+
+/* ---- breach panel ---- */
+
+.breach {
+  display: grid;
+  grid-template-rows: auto auto minmax(0, 1fr);
+  gap: 3cqh;
+  padding: 5cqh 5cqw;
+}
+
+.modes {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+}
+
+/* A short panel (beside the queue picker on Gigs): the chips become one sliding row, so PLAY
+   keeps its room. */
+@container (max-height: 300px) {
+  .modes {
+    flex-wrap: nowrap;
+    overflow-x: auto;
+    scrollbar-width: none;
+    /* The last chip fades out at the edge, so the row reads as one that slides. */
+    mask-image: linear-gradient(to left, transparent, black 32px);
+  }
+
+  .mode {
+    flex: none;
+  }
+}
+
+.mode {
+  padding: 5px 14px;
+  font-family: "Rajdhani", var(--font-display);
+  font-size: 14px;
+  font-weight: 700;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  color: var(--nc-red);
+  background: color-mix(in srgb, var(--nc-red) 6%, transparent);
+  border: 1px solid var(--nc-line);
+  clip-path: polygon(0 0, calc(100% - 8px) 0, 100% 8px, 100% 100%, 0 100%);
+  cursor: pointer;
+  transition: color 120ms ease, background 120ms ease, border-color 120ms ease;
+}
+
+.mode:hover:not(:disabled) {
+  color: var(--nc-cyan);
+  border-color: var(--nc-cyan);
+}
+
+.mode[aria-checked="true"] {
+  color: #0a0a0d;
+  background: var(--nc-cyan);
+  border-color: var(--nc-cyan);
+}
+
+.mode:disabled {
+  cursor: default;
+}
+
+.play {
+  position: relative;
+  align-self: end;
+  min-height: 46cqh;
+  font: inherit;
+  font-family: "Rajdhani", var(--font-display);
+  font-size: clamp(28px, 22cqh, 96px);
+  font-weight: 700;
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+  color: var(--on-play, #000000);
+  background: var(--play, var(--nightcity-yellow, #fcee0a));
+  border: 0;
+  clip-path: polygon(0 0, calc(100% - 28px) 0, 100% 28px, 100% 100%, 28px 100%, 0 calc(100% - 28px));
+  cursor: pointer;
+}
+
+/* Glitch: two offset copies of the word in cyan and red, sliced, only while pointed at. */
+.play::before,
+.play::after {
+  content: attr(data-text);
+  position: absolute;
+  inset: 0;
+  display: grid;
+  place-items: center;
+  opacity: 0;
+  pointer-events: none;
+}
+
+.play::before {
+  color: var(--nc-cyan);
+}
+
+.play::after {
+  color: var(--nc-red);
+}
+
+.play:hover:not(:disabled)::before {
+  opacity: 0.9;
+  animation: sliceA 600ms steps(2, end) infinite;
+}
+
+.play:hover:not(:disabled)::after {
+  opacity: 0.9;
+  animation: sliceB 600ms steps(2, end) infinite;
+}
+
+.play:disabled {
+  opacity: 0.45;
+  cursor: default;
+}
+
+/* Opacity only, so the endless searching pulse stays on the compositor (filter repaints). */
+.breach[data-searching] .play {
+  animation: pulse 1s ease-in-out infinite alternate;
+}
+
+:global(:root[data-motion="reduced"]) .breach[data-searching] .play {
+  animation: none;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  :global(:root:not([data-motion="full"])) .breach[data-searching] .play {
+    animation: none;
+  }
+}
+
+@keyframes panelIn {
+  from {
+    opacity: 0;
+    translate: -14px 0;
+  }
+}
+
+@keyframes bootIn {
+  from {
+    opacity: 0;
+    clip-path: inset(0 100% 0 0);
+  }
+}
+
+@keyframes sliceA {
+  0% {
+    clip-path: inset(10% 0 70% 0);
+    translate: -4px 0;
+  }
+
+  50% {
+    clip-path: inset(55% 0 20% 0);
+    translate: 3px 0;
+  }
+
+  100% {
+    clip-path: inset(30% 0 45% 0);
+    translate: -2px 0;
+  }
+}
+
+@keyframes sliceB {
+  0% {
+    clip-path: inset(65% 0 10% 0);
+    translate: 4px 0;
+  }
+
+  50% {
+    clip-path: inset(20% 0 60% 0);
+    translate: -3px 0;
+  }
+
+  100% {
+    clip-path: inset(40% 0 35% 0);
+    translate: 2px 0;
+  }
+}
+
+@keyframes pulse {
+  to {
+    opacity: 0.78;
+  }
+}
+
+/* ---- layouts (Look → Layout) ---- */
+/* Party link, Dense: tighter rows, for a short panel. */
+[data-layout="dense"] .rows {
+  gap: 0.6cqh;
+}
+
+[data-layout="dense"] .row {
+  min-height: 6.5cqh;
+}
+
+/* Breach panel, Button only: the mode stays as picked; PLAY fills the panel. */
+[data-layout="button"] .modes {
+  display: none;
+}
+
+[data-layout="button"] .play {
+  min-height: 70cqh;
+}

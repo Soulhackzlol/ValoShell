@@ -1,0 +1,151 @@
+/* Match found for the poster styles. Phantom: a red slash across the screen with MATCH FOUND as
+   ransom-note letters, slammed in. Night City: a framed readout whose title glitches in cyan
+   and red over a filling bar. */
+.phantom {
+  display: grid;
+  justify-items: center;
+  gap: 18px;
+  padding: 48px 12vw;
+  background: var(--phantom-red, #e5191c);
+  clip-path: polygon(0 18%, 100% 0, 100% 82%, 0 100%);
+  animation: slashIn 420ms cubic-bezier(0.2, 1.4, 0.4, 1) both;
+}
+
+.phantomTitle {
+  font-size: clamp(48px, 9vw, 140px);
+  rotate: -4deg;
+}
+
+.phantomInfo {
+  padding: 4px 16px;
+  font-family: var(--font-display);
+  font-size: 28px;
+  text-transform: uppercase;
+  color: var(--phantom-paper, #ffffff);
+  background: var(--phantom-ink, #0b0b0b);
+  rotate: 2deg;
+}
+
+.nightcity {
+  display: grid;
+  gap: 12px;
+  min-width: min(640px, 80vw);
+  padding: 32px 40px;
+  background: color-mix(in srgb, var(--nightcity-panel, #0e0b10) 94%, transparent);
+  border: 1px solid var(--nightcity-red, #ff5e57);
+  clip-path: polygon(0 0, calc(100% - 26px) 0, 100% 26px, 100% 100%, 0 100%);
+  animation: bootIn 360ms steps(5, end) both;
+}
+
+.ncCode {
+  font-family: var(--font-mono);
+  font-size: 13px;
+  letter-spacing: 0.14em;
+  color: var(--nightcity-red, #ff5e57);
+}
+
+.ncTitle {
+  position: relative;
+  font-family: var(--font-display);
+  font-size: clamp(40px, 6vw, 88px);
+  font-weight: 700;
+  line-height: 1;
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+  color: var(--nightcity-yellow, #fcee0a);
+}
+
+.ncTitle::before,
+.ncTitle::after {
+  content: attr(data-text);
+  position: absolute;
+  inset: 0;
+}
+
+.ncTitle::before {
+  color: var(--nightcity-cyan, #5ef6ff);
+  animation: sliceA 700ms steps(2, end) infinite;
+}
+
+.ncTitle::after {
+  color: var(--nightcity-red, #ff5e57);
+  animation: sliceB 700ms steps(2, end) infinite;
+}
+
+.ncInfo {
+  font-family: var(--font-mono);
+  font-size: 15px;
+  text-transform: uppercase;
+  color: var(--nightcity-cyan, #5ef6ff);
+}
+
+.ncBar {
+  height: 4px;
+  background: color-mix(in srgb, var(--nightcity-cyan, #5ef6ff) 20%, transparent);
+}
+
+.ncBar i {
+  display: block;
+  height: 100%;
+  background: var(--nightcity-yellow, #fcee0a);
+  animation: fill 2400ms linear both;
+}
+
+@keyframes slashIn {
+  from {
+    opacity: 0;
+    translate: -40% 0;
+    rotate: -8deg;
+  }
+}
+
+@keyframes bootIn {
+  from {
+    opacity: 0;
+    translate: 0 -12px;
+  }
+}
+
+@keyframes sliceA {
+  0% {
+    clip-path: inset(10% 0 70% 0);
+    translate: -5px 0;
+  }
+
+  50% {
+    clip-path: inset(60% 0 15% 0);
+    translate: 4px 0;
+  }
+
+  100% {
+    clip-path: inset(35% 0 40% 0);
+    translate: -3px 0;
+  }
+}
+
+@keyframes sliceB {
+  0% {
+    clip-path: inset(70% 0 5% 0);
+    translate: 5px 0;
+  }
+
+  50% {
+    clip-path: inset(15% 0 65% 0);
+    translate: -4px 0;
+  }
+
+  100% {
+    clip-path: inset(45% 0 30% 0);
+    translate: 3px 0;
+  }
+}
+
+@keyframes fill {
+  from {
+    width: 0;
+  }
+
+  to {
+    width: 100%;
+  }
+}

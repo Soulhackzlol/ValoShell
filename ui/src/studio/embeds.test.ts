@@ -1,5 +1,5 @@
 import { describe, expect, it } from "vitest";
-import { blockedReason, embedSource, embedUrl, isShortLink, kindForUrl } from "./embeds";
+import { blockedReason, embedSource, embedUrl, isDomain, isShortLink, kindForUrl } from "./embeds";
 
 describe("embeds", () => {
   it("turns a TikTok video link into the embed player", () => {
@@ -46,5 +46,13 @@ describe("embeds", () => {
     expect(blockedReason("https://www.tiktok.com/")).not.toBeNull();
     expect(blockedReason("https://www.instagram.com/p/x")).not.toBeNull();
     expect(blockedReason("https://open.spotify.com/track/1")).toBeNull();
+  });
+
+  it("matches a domain and its subdomains, not look-alikes", () => {
+    expect([isDomain("tiktok.com", "tiktok.com"), isDomain("vm.tiktok.com", "tiktok.com")]).toEqual([true, true]);
+    expect(isDomain("eviltiktok.com", "tiktok.com")).toBe(false);
+    expect(isShortLink("https://eviltiktok.com/t/abc/")).toBe(false);
+    expect(embedSource("https://notyoutube.com/watch?v=x")).toBe("notyoutube.com");
+    expect(kindForUrl("https://evilgiphy.com/page")).toBe("web");
   });
 });

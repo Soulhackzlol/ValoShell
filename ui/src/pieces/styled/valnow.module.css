@@ -1,0 +1,395 @@
+/* VALORANT 2022 home pieces: flat navy panels, a red rule for what matters, off-white tall
+   condensed caps. Colours are tokens on each root so a theme (or a redesign) can swap them.
+   The social panel's own rules are in valnowSocial.module.css; it composes `.social` here. */
+
+.party,
+.play,
+.social {
+  --v22-red: var(--accent, #ff4655);
+  --v22-bone: #ece8e1;
+  --v22-navy: var(--panel, rgb(15 25 35 / 0.88));
+  --v22-navy-strong: var(--panel-strong, rgb(21 33 45 / 0.96));
+  --v22-line: var(--border-default, rgb(236 232 225 / 0.14));
+  /* Ready and available; the colour-vision layer may replace it. */
+  --v22-teal: #46e3b7;
+  color: var(--v22-bone);
+}
+
+/* ---- party ---- */
+
+.party {
+  container-type: size;
+  display: grid;
+  grid-template-columns: repeat(5, minmax(0, 1fr));
+  align-items: end;
+  gap: 1.4cqw;
+  width: 100%;
+  height: 100%;
+}
+
+.slot {
+  height: 88%;
+  min-width: 0;
+  animation: rise 480ms cubic-bezier(0.2, 0.8, 0.2, 1) both;
+  animation-delay: calc(var(--i) * 60ms);
+}
+
+/* The player stands a little taller in the middle, as the 2022 lobby did. */
+.slot[data-centre] {
+  height: 100%;
+}
+
+.card {
+  position: relative;
+  display: flex;
+  flex-direction: column;
+  justify-content: flex-end;
+  height: 100%;
+  overflow: hidden;
+  background: var(--v22-navy);
+  box-shadow: inset 0 0 0 1px var(--v22-line);
+}
+
+.card[data-self] {
+  box-shadow: inset 0 0 0 1px var(--v22-line), inset 0 -3px 0 var(--v22-red);
+}
+
+.cardArt {
+  position: absolute;
+  inset: 0;
+  background: var(--art) center top / cover no-repeat;
+}
+
+.level {
+  position: absolute;
+  top: 10px;
+  left: 50%;
+  min-width: 44px;
+  padding: 2px 8px;
+  font-size: 13px;
+  font-weight: 700;
+  text-align: center;
+  background: rgb(15 25 35 / 0.85);
+  box-shadow: inset 0 0 0 1px rgb(236 232 225 / 0.4);
+  transform: translateX(-50%);
+}
+
+.leader {
+  position: absolute;
+  top: 10px;
+  left: 10px;
+  display: grid;
+  place-items: center;
+  width: 22px;
+  height: 22px;
+  color: #f3d36b;
+  background: rgb(15 25 35 / 0.85);
+}
+
+.kick {
+  position: absolute;
+  top: 10px;
+  right: 10px;
+  display: grid;
+  place-items: center;
+  width: 22px;
+  height: 22px;
+  border: 0;
+  color: var(--v22-bone);
+  background: rgb(15 25 35 / 0.85);
+  opacity: 0;
+  transition: opacity 160ms ease;
+}
+
+.card:hover .kick,
+.kick:focus-visible {
+  opacity: 1;
+}
+
+.kick:hover {
+  color: var(--v22-red);
+}
+
+.plate {
+  position: relative;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 2px;
+  padding: 10px 8px 8px;
+  text-align: center;
+  background: rgb(15 25 35 / 0.92);
+  border-top: 2px solid var(--v22-red);
+}
+
+.name {
+  font-family: var(--font-display);
+  font-stretch: 75%;
+  font-weight: 700;
+  text-transform: uppercase;
+  max-width: 100%;
+  overflow: hidden;
+  font-size: clamp(16px, 4.2cqh, 30px);
+  line-height: 1;
+  white-space: nowrap;
+  text-overflow: ellipsis;
+  color: #ffffff;
+}
+
+.title {
+  max-width: 100%;
+  min-height: 1em;
+  overflow: hidden;
+  font-size: 11px;
+  letter-spacing: 1.5px;
+  white-space: nowrap;
+  text-overflow: ellipsis;
+  text-transform: uppercase;
+  color: rgb(236 232 225 / 0.55);
+}
+
+.rank {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  margin-top: 4px;
+  font-size: 12px;
+  font-weight: 600;
+  letter-spacing: 1px;
+  text-transform: uppercase;
+}
+
+.rankIcon {
+  width: 22px;
+  height: 22px;
+  object-fit: contain;
+}
+
+.ready {
+  font-family: var(--font-display);
+  font-stretch: 75%;
+  font-weight: 700;
+  text-transform: uppercase;
+  position: relative;
+  padding: 4px 0;
+  font-size: 13px;
+  letter-spacing: 2px;
+  text-align: center;
+  color: rgb(236 232 225 / 0.5);
+  background: rgb(15 25 35 / 0.96);
+  transition: color 200ms ease, background-color 200ms ease;
+}
+
+.card[data-ready] .ready {
+  color: #0f1923;
+  background: var(--v22-teal);
+}
+
+.invite {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 10px;
+  width: 100%;
+  height: 100%;
+  border: 1px dashed rgb(236 232 225 / 0.25);
+  color: rgb(236 232 225 / 0.55);
+  background: rgb(15 25 35 / 0.45);
+  transition: color 160ms ease, border-color 160ms ease, background-color 160ms ease;
+}
+
+.invite:not(:disabled):hover {
+  border-color: var(--v22-red);
+  color: #ffffff;
+  background: rgb(15 25 35 / 0.75);
+}
+
+.invite:disabled {
+  cursor: default;
+}
+
+.inviteIcon {
+  display: grid;
+  place-items: center;
+  width: 44px;
+  height: 44px;
+  box-shadow: inset 0 0 0 1px currentColor;
+}
+
+.inviteLabel {
+  font-family: var(--font-display);
+  font-stretch: 75%;
+  font-weight: 700;
+  text-transform: uppercase;
+  font-size: 18px;
+  letter-spacing: 1px;
+}
+
+/* Strip: one row of small cards for a short bar. */
+[data-layout="strip"] .party {
+  grid-template-columns: repeat(5, minmax(0, 1fr));
+  align-items: stretch;
+  gap: 6px;
+}
+
+[data-layout="strip"] .slot,
+[data-layout="strip"] .slot[data-centre] {
+  height: 100%;
+}
+
+[data-layout="strip"] .card {
+  flex-direction: row;
+  align-items: stretch;
+}
+
+[data-layout="strip"] .cardArt {
+  position: relative;
+  flex: none;
+  aspect-ratio: 1;
+  background-image: var(--art-small);
+}
+
+[data-layout="strip"] .plate {
+  flex: 1;
+  min-width: 0;
+  align-items: flex-start;
+  justify-content: center;
+  padding: 4px 8px;
+  border-top: 0;
+  border-left: 2px solid var(--v22-red);
+}
+
+[data-layout="strip"] .name {
+  font-size: 16px;
+}
+
+[data-layout="strip"] .title,
+[data-layout="strip"] .level,
+[data-layout="strip"] .ready {
+  display: none;
+}
+
+[data-layout="strip"] .card[data-ready] .plate {
+  border-left-color: var(--v22-teal);
+}
+
+[data-layout="strip"] .invite {
+  flex-direction: row;
+}
+
+[data-layout="strip"] .inviteIcon {
+  width: 28px;
+  height: 28px;
+}
+
+/* ---- PLAY ---- */
+
+.play {
+  container-type: size;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 4px;
+  width: 100%;
+  height: 100%;
+}
+
+.playButton {
+  font-family: var(--font-display);
+  font-stretch: 75%;
+  font-weight: 700;
+  text-transform: uppercase;
+  min-width: 60%;
+  padding: 0 0.3em;
+  border: 0;
+  font-size: clamp(36px, 46cqh, 120px);
+  line-height: 0.95;
+  letter-spacing: 2px;
+  color: #ffffff;
+  background: none;
+  /* Studio > Theme > Play colour wins over the 2022 red when the player picks one. */
+  box-shadow: inset 0 -4px 0 var(--theme-play, var(--v22-red));
+  transition: color 160ms ease, box-shadow 160ms ease;
+}
+
+.playButton:not(:disabled):hover {
+  color: var(--theme-play, var(--v22-red));
+}
+
+.playButton:disabled {
+  color: rgb(236 232 225 / 0.35);
+  box-shadow: inset 0 -4px 0 rgb(236 232 225 / 0.2);
+  cursor: default;
+}
+
+/* Searching: the rule breathes so the wait is visible without moving anything. */
+.playButton[data-searching] {
+  animation: breathe 1.6s ease-in-out infinite;
+}
+
+.mode {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+
+.modeName {
+  font-family: var(--font-display);
+  font-stretch: 75%;
+  font-weight: 700;
+  text-transform: uppercase;
+  min-width: 10ch;
+  font-size: clamp(14px, 13cqh, 24px);
+  letter-spacing: 3px;
+  text-align: center;
+  color: var(--v22-bone);
+}
+
+.modeStep {
+  display: grid;
+  place-items: center;
+  width: 24px;
+  height: 24px;
+  border: 0;
+  color: rgb(236 232 225 / 0.6);
+  background: none;
+  transition: color 160ms ease;
+}
+
+.modeStep:not(:disabled):hover {
+  color: var(--v22-red);
+}
+
+.modeStep:disabled {
+  opacity: 0.25;
+  cursor: default;
+}
+
+.playMeta {
+  font-size: 11px;
+  letter-spacing: 2px;
+  text-transform: uppercase;
+  color: rgb(236 232 225 / 0.45);
+}
+
+@keyframes rise {
+  from {
+    opacity: 0;
+    transform: translateY(16px);
+  }
+}
+
+@keyframes breathe {
+  50% {
+    opacity: 0.6;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .slot,
+  .playButton[data-searching] {
+    animation: none;
+  }
+}

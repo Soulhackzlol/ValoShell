@@ -1,0 +1,421 @@
+/* Night City Friends and Party: the style's language (nightcity.module.css) of salmon-red
+   hairlines with chamfered corners on warm near-black, red labels in a squared tech face, cyan
+   for values and what is ready, yellow for the one hot action. Rows boot in one after another;
+   a pointed row slips sideways once, the red and cyan glitch of the HUD, never on a loop. */
+
+.panel,
+.crew {
+  --nc-red: var(--nightcity-red, #ff5e57);
+  --nc-cyan: var(--nightcity-cyan, #5ef6ff);
+  --nc-yellow: var(--nightcity-yellow, #fcee0a);
+  --nc-line: color-mix(in srgb, var(--nc-red) 55%, transparent);
+  --nc-faint: color-mix(in srgb, var(--nc-red) 22%, transparent);
+  --nc-text: var(--nightcity-text, #f2e9e4);
+  container-type: size;
+  position: relative;
+  width: 100%;
+  height: 100%;
+  font-family: "Rajdhani", var(--font-display);
+  color: var(--nc-text);
+}
+
+.panel {
+  display: grid;
+  grid-template-rows: auto minmax(0, 1fr);
+  gap: 1.6cqh;
+  padding: 3cqh 1.4rem;
+  background:
+    radial-gradient(circle, var(--nc-faint) 1px, transparent 1.5px) 0 0 / 14px 14px,
+    color-mix(in srgb, var(--nightcity-panel, #0e0b10) 90%, transparent);
+  border: 1px solid var(--nc-line);
+  clip-path: polygon(0 0, calc(100% - 20px) 0, 100% 20px, 100% 100%, 20px 100%, 0 calc(100% - 20px));
+}
+
+.head {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) auto;
+  align-items: end;
+  padding-bottom: 1cqh;
+  background: repeating-linear-gradient(to right, var(--nc-line) 0 10px, transparent 10px 14px) bottom / 100% 1px no-repeat;
+}
+
+.head .code {
+  grid-column: 1 / -1;
+}
+
+.code {
+  font-family: var(--font-mono);
+  font-size: 11px;
+  letter-spacing: 0.18em;
+  color: color-mix(in srgb, var(--nc-red) 75%, transparent);
+}
+
+.title {
+  margin: 0;
+  font-size: clamp(22px, 6cqh, 38px);
+  font-weight: 700;
+  line-height: 1;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  color: var(--nc-red);
+  text-shadow: 0 0 18px color-mix(in srgb, var(--nc-red) 45%, transparent);
+}
+
+.count {
+  font-size: 13px;
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
+}
+
+.count b {
+  color: var(--nc-cyan);
+}
+
+.groups {
+  display: grid;
+  align-content: start;
+  gap: 1.8cqh;
+  min-height: 0;
+  overflow: hidden auto;
+  scrollbar-width: thin;
+  scrollbar-color: var(--nc-line) transparent;
+}
+
+.groupHead {
+  display: flex;
+  justify-content: space-between;
+  margin: 0 0 6px;
+  padding-left: 8px;
+  font-size: 13px;
+  font-weight: 700;
+  letter-spacing: 0.16em;
+  text-transform: uppercase;
+  color: var(--nc-red);
+  border-left: 2px solid var(--nc-red);
+}
+
+.groupHead b {
+  color: var(--nc-cyan);
+}
+
+.rows {
+  display: grid;
+  gap: 4px;
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+
+.contact {
+  display: grid;
+  grid-template-columns: auto auto minmax(0, 1fr) auto;
+  align-items: center;
+  gap: 10px;
+  padding: 5px 8px;
+  border: 1px solid transparent;
+  transition:
+    background 120ms ease,
+    border-color 120ms ease;
+  animation: bootIn 320ms steps(4, end) backwards;
+  animation-delay: calc((120ms + var(--i, 0) * 40ms) * var(--motion-scale, 1));
+}
+
+.contact:hover {
+  background: color-mix(in srgb, var(--nc-red) 10%, transparent);
+  border-color: var(--nc-line);
+  animation: slip 180ms steps(2, end);
+}
+
+.contact[data-status="offline"],
+.contact[data-status="away"],
+.contact[data-status="online"] {
+  opacity: 0.6;
+}
+
+/* The portrait sits in two offset frames, red behind and cyan in front: the HUD's split. */
+.portrait {
+  position: relative;
+  display: grid;
+  place-items: center;
+  width: 38px;
+  height: 38px;
+  font-weight: 700;
+  color: var(--nc-red);
+  background: var(--nightcity-panel, #0e0b10);
+  box-shadow:
+    -2px -2px 0 0 var(--nc-red),
+    2px 2px 0 0 color-mix(in srgb, var(--nc-cyan) 70%, transparent);
+}
+
+.portrait img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+}
+
+.contactText {
+  display: grid;
+  min-width: 0;
+}
+
+.contactText b,
+.contactText small {
+  overflow: hidden;
+  white-space: nowrap;
+  text-overflow: ellipsis;
+}
+
+.contactText b {
+  font-size: 17px;
+  font-weight: 700;
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+  color: var(--nc-red);
+}
+
+.contactText small {
+  font-size: 13px;
+  letter-spacing: 0.05em;
+  color: var(--nc-cyan);
+}
+
+.contactActions {
+  display: flex;
+  gap: 6px;
+}
+
+.chip {
+  padding: 1px 10px;
+  font-size: 12px;
+  font-weight: 700;
+  letter-spacing: 0.14em;
+  text-transform: uppercase;
+  color: var(--nc-cyan);
+  border: 1px solid currentColor;
+  clip-path: polygon(0 0, calc(100% - 6px) 0, 100% 6px, 100% 100%, 0 100%);
+}
+
+.chip:hover:not(:disabled) {
+  color: var(--nightcity-panel, #0e0b10);
+  background: var(--nc-cyan);
+}
+
+.chip[data-hot] {
+  color: var(--nc-yellow);
+}
+
+.chip[data-hot]:hover:not(:disabled) {
+  color: #000;
+  background: var(--nc-yellow);
+}
+
+.chip:disabled {
+  opacity: 0.6;
+}
+
+.empty {
+  margin: 0;
+  font-family: var(--font-mono);
+  font-size: 13px;
+  letter-spacing: 0.14em;
+  text-transform: uppercase;
+  color: var(--nc-line);
+}
+
+/* ---- crew ---- */
+.crew {
+  display: grid;
+  grid-auto-flow: column;
+  grid-auto-columns: minmax(0, 1fr);
+  gap: 1.4cqw;
+}
+
+.slot {
+  min-width: 0;
+  animation: bootIn 360ms steps(5, end) backwards;
+  animation-delay: calc((140ms + var(--i, 0) * 70ms) * var(--motion-scale, 1));
+}
+
+.shard,
+.open {
+  position: relative;
+  display: flex;
+  flex-direction: column;
+  justify-content: flex-end;
+  width: 100%;
+  height: 100%;
+  overflow: hidden;
+  background: color-mix(in srgb, var(--nightcity-panel, #0e0b10) 90%, transparent);
+  border: 1px solid var(--nc-line);
+  clip-path: polygon(0 0, calc(100% - 16px) 0, 100% 16px, 100% 100%, 16px 100%, 0 calc(100% - 16px));
+}
+
+.shard[data-self] {
+  border-color: var(--nc-cyan);
+}
+
+/* The card art toned to the HUD: red shadows, the shading flattened. */
+.shardArt {
+  position: absolute;
+  inset: 0;
+  background: var(--art) center top / cover no-repeat;
+  filter: grayscale(1) contrast(1.2) sepia(1) hue-rotate(-30deg) saturate(2.4) brightness(0.8);
+  -webkit-mask-image: linear-gradient(to bottom, #000 45%, transparent 85%);
+  mask-image: linear-gradient(to bottom, #000 45%, transparent 85%);
+}
+
+.shardSmall {
+  display: none;
+  justify-content: center;
+  padding-top: 12px;
+}
+
+.shardText {
+  position: relative;
+  display: grid;
+  gap: 2px;
+  padding: 10px 12px 14px;
+}
+
+.shardText > b {
+  overflow: hidden;
+  font-size: clamp(14px, 6cqh, 22px);
+  font-weight: 700;
+  letter-spacing: 0.06em;
+  white-space: nowrap;
+  text-overflow: ellipsis;
+  text-transform: uppercase;
+  color: var(--nc-red);
+}
+
+.shardMeta {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  font-size: 13px;
+  letter-spacing: 0.08em;
+}
+
+.shardMeta img {
+  width: 20px;
+  height: 20px;
+}
+
+.shardMeta b {
+  color: var(--nc-cyan);
+}
+
+.ready {
+  justify-self: start;
+  padding: 0 8px;
+  font-size: 12px;
+  font-weight: 700;
+  letter-spacing: 0.14em;
+  text-transform: uppercase;
+  color: color-mix(in srgb, var(--nc-red) 70%, transparent);
+  border: 1px solid currentColor;
+}
+
+.ready[data-ready] {
+  color: var(--nc-cyan);
+}
+
+.kick {
+  position: absolute;
+  top: 8px;
+  left: 8px;
+  width: 22px;
+  height: 22px;
+  font-size: 12px;
+  color: var(--nc-red);
+  border: 1px solid var(--nc-line);
+  opacity: 0;
+  transition: opacity 120ms ease;
+}
+
+.shard:hover .kick,
+.kick:focus-visible {
+  opacity: 1;
+}
+
+.open {
+  align-items: center;
+  justify-content: center;
+  gap: 6px;
+  font-size: 14px;
+  font-weight: 700;
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
+  color: color-mix(in srgb, var(--nc-red) 70%, transparent);
+  background: repeating-linear-gradient(135deg, var(--nc-faint) 0 1px, transparent 1px 10px);
+  border-style: dashed;
+  transition: color 120ms ease;
+}
+
+.open:hover {
+  color: var(--nc-yellow);
+}
+
+@keyframes bootIn {
+  from {
+    opacity: 0;
+    transform: translateX(-8px);
+  }
+}
+
+/* One sideways slip and back: the glitch, once per pointing. */
+@keyframes slip {
+  50% {
+    transform: translateX(3px);
+  }
+}
+
+/* ---- layouts (Look → Layout) ---- */
+/* Contacts, Dense: no portraits, tighter rows, more of the list on screen. */
+[data-layout="dense"] .portrait {
+  display: none;
+}
+
+[data-layout="dense"] .contact {
+  grid-template-columns: auto minmax(0, 1fr) auto;
+  padding: 2px 6px;
+}
+
+[data-layout="dense"] .contactText {
+  grid-template-columns: minmax(0, auto) minmax(0, 1fr);
+  align-items: baseline;
+  gap: 10px;
+}
+
+/* Crew, Strip: small square portraits with the handle under them, for a short bar. */
+[data-layout="strip"] .shardArt {
+  display: none;
+}
+
+[data-layout="strip"] .shardSmall {
+  display: flex;
+}
+
+[data-layout="strip"] :is(.shard, .open) {
+  justify-content: flex-start;
+}
+
+[data-layout="strip"] .shardText {
+  justify-items: center;
+  padding: 8px 6px 10px;
+  text-align: center;
+}
+
+[data-layout="strip"] .shardText .ready {
+  justify-self: center;
+}
+
+:global(:root[data-motion="reduced"]) :is(.contact, .slot, .contact:hover) {
+  animation: none;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  :global(:root:not([data-motion="full"])) :is(.contact, .slot, .contact:hover) {
+    animation: none;
+  }
+}

@@ -1,0 +1,211 @@
+/* Layout of every style's match report (styledResults.tsx). The material comes from the style's
+   Match sheet (panel, title strip, rows, the lock button for Continue) and its Results rules.
+   Rows reuse the lobby's .line, so overrides are scoped under the report (two classes) to win
+   over it whatever order the sheets load in. */
+
+.report {
+  gap: 14px;
+}
+
+/* ---- banner: result, score and RR on the left; Continue on the right ---- */
+
+.report .banner {
+  position: relative;
+  isolation: isolate;
+  display: grid;
+  grid-template: "context continue" auto "title continue" auto "score rr" auto / minmax(0, 1fr) auto;
+  align-items: end;
+  gap: 4px 16px;
+  overflow: hidden;
+}
+
+/* The map behind the result, faded towards the words so any style's type stays readable. */
+.report .banner::before {
+  content: "";
+  position: absolute;
+  inset: 0;
+  z-index: -1;
+  background: var(--splash) center / cover no-repeat;
+  opacity: 0.3;
+  mask-image: linear-gradient(to left, black, transparent 85%);
+}
+
+.context {
+  grid-area: context;
+  font-size: 12px;
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+  opacity: 0.7;
+}
+
+.title {
+  grid-area: title;
+  margin: 0;
+  font-size: clamp(32px, 8cqi, 76px);
+  line-height: 0.9;
+  text-wrap: balance;
+}
+
+/* The score and RR sit inside the style's title strip (.head), whose `.head > span` rule makes
+   small labels; scoped under the report so the score stays the banner's second headline. */
+.report .score {
+  grid-area: score;
+  width: auto;
+  padding: 0;
+  font-family: inherit;
+  color: inherit;
+  background: none;
+  opacity: 1;
+  transform: none;
+  display: flex;
+  align-items: baseline;
+  gap: 6px;
+  font-size: clamp(20px, 3.4cqi, 30px);
+}
+
+.report .score > i {
+  font-style: normal;
+  opacity: 0.5;
+}
+
+.report .rr {
+  grid-area: rr;
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  justify-self: end;
+  padding: 0;
+  font-size: 15px;
+  font-weight: 700;
+  /* The rank emblem beside it carries the rank's colour; the number keeps the style's text
+     colour, so it reads on any panel (a lavender Diamond on Beta's paper did not). */
+  color: inherit;
+  background: none;
+  opacity: 1;
+  transform: none;
+}
+
+.report .rr[data-down] {
+  opacity: 0.75;
+}
+
+.rrIcon {
+  width: 26px;
+  height: 26px;
+  object-fit: contain;
+}
+
+.report .continue {
+  grid-area: continue;
+  align-self: center;
+  transition-property: transform;
+  transition-duration: 120ms;
+}
+
+.report .continue:active {
+  transform: scale(0.96);
+}
+
+/* ---- your numbers ---- */
+
+.tiles {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(104px, 1fr));
+  gap: 8px;
+}
+
+.tiles .tile {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+  gap: 2px;
+  min-height: 0;
+  padding: 10px 12px;
+}
+
+.tile > b {
+  font-size: clamp(18px, 2.6cqi, 26px);
+  line-height: 1;
+}
+
+.tile > small {
+  font-size: 11px;
+  text-transform: uppercase;
+  opacity: 0.7;
+}
+
+/* ---- scoreboards ---- */
+
+.columns,
+.rows .row {
+  display: grid;
+  grid-template-columns: 28px minmax(0, 1fr) 76px 44px;
+  align-items: center;
+  gap: 10px;
+}
+
+.columns {
+  padding: 0 10px 0 4px;
+  font-size: 11px;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  opacity: 0.6;
+}
+
+.columns > :nth-child(n + 3),
+.rows .row > :nth-child(n + 3) {
+  justify-self: end;
+}
+
+.rows {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+
+.rows .row {
+  min-height: 36px;
+  padding: 3px 10px 3px 4px;
+}
+
+.agent {
+  width: 28px;
+  height: 28px;
+  object-fit: cover;
+}
+
+.name {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+}
+
+.mvp {
+  flex: none;
+  padding: 0 5px;
+  font-size: max(0.72em, 11px);
+  font-weight: 800;
+  line-height: 1.5;
+  color: var(--mvp-text, #111111);
+  background: var(--mvp-fill, #f5c542);
+}
+
+.party {
+  flex: none;
+  font-size: max(0.72em, 11px);
+  opacity: 0.7;
+}
+
+@container (max-width: 520px) {
+  .report .banner {
+    grid-template: "context" auto "title" auto "score" auto "rr" auto "continue" auto / minmax(0, 1fr);
+  }
+
+  .report .rr,
+  .report .continue {
+    justify-self: start;
+  }
+}

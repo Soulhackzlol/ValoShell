@@ -97,11 +97,11 @@
 }
 
 .presence[data-state="connected"] {
-  background: #30d158;
+  background: var(--win, #30d158);
 }
 
 .presence[data-state="failed"] {
-  background: #ff453a;
+  background: var(--loss, #ff453a);
 }
 
 .who {
@@ -210,7 +210,6 @@
   font: inherit;
   font-size: 13.5px;
   color: rgb(245 245 247 / 0.65);
-  transform: translate(var(--gx, 0px), var(--gy, 0px));
   transition:
     color 160ms ease,
     transform 600ms var(--spring),
@@ -220,7 +219,7 @@
 
 .search:hover {
   color: #ffffff;
-  transform: translate(var(--gx, 0px), var(--gy, 0px)) scale(1.04);
+  transform: scale(1.04);
   transition:
     color 160ms ease,
     transform 200ms var(--soft),
@@ -360,5 +359,38 @@
   .search,
   .iconButton:hover svg {
     animation: none;
+  }
+}
+
+/* Narrow windows (a small window, or 125-150 % Windows scaling on a 1080p screen): Search keeps
+   only its icon, then the profile only its picture, so Studio and Settings stay on screen. */
+@media (max-width: 1400px) {
+  .search span,
+  .search kbd {
+    display: none;
+  }
+
+  .tab {
+    padding: 0 13px;
+  }
+}
+
+@media (max-width: 1180px) {
+  .nav {
+    gap: 10px;
+    padding: 0 14px;
+  }
+
+  .who {
+    display: none;
+  }
+
+  .tab {
+    padding: 0 10px;
+    font-size: 13px;
+  }
+
+  .right {
+    gap: 6px;
   }
 }

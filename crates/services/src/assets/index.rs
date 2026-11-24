@@ -12,8 +12,8 @@ use ts_rs::TS;
 use super::endpoints::Endpoint;
 use super::records::{
     Agent, Buddy, BuddyLevel, Bundle, Contract, Currency, Envelope, Flex, GameMap, GameMode,
-    LevelBorder, PlayerCard, PlayerTitle, Queue, Season, Skin, SkinChroma, SkinLevel, Spray, Tier,
-    TierTable, Version, Weapon,
+    LevelBorder, Mission, PlayerCard, PlayerTitle, Queue, Season, Skin, SkinChroma, SkinLevel,
+    Spray, Tier, TierTable, Version, Weapon,
 };
 
 /// Raw endpoint bodies, as stored on disk.
@@ -53,6 +53,7 @@ pub struct AssetIndexSummary {
     pub tiers: usize,
     pub currencies: usize,
     pub contracts: usize,
+    pub missions: usize,
     pub seasons: usize,
     pub queues: usize,
     pub bundles: usize,
@@ -111,6 +112,7 @@ pub struct AssetIndex {
     pub(super) flex: Table<Flex>,
     pub(super) currencies: Table<Currency>,
     pub(super) contracts: Table<Contract>,
+    pub(super) missions: Table<Mission>,
     pub(super) seasons: Table<Season>,
     pub(super) game_modes: Table<GameMode>,
     pub(super) queues: Table<Queue>,
@@ -280,6 +282,7 @@ impl AssetIndex {
         }
         self.currencies = table(rows(docs, Endpoint::Currencies), |row: &Currency| &row.uuid);
         self.contracts = table(rows(docs, Endpoint::Contracts), |row: &Contract| &row.uuid);
+        self.missions = table(rows(docs, Endpoint::Missions), |row: &Mission| &row.uuid);
         self.seasons = table(rows(docs, Endpoint::Seasons), |row: &Season| &row.uuid);
         self.game_modes = table(rows(docs, Endpoint::GameModes), |row: &GameMode| &row.uuid);
         self.queues = rows::<Queue>(docs, Endpoint::Queues)
@@ -326,6 +329,7 @@ impl AssetIndex {
             tiers: self.tiers.len(),
             currencies: self.currencies.len(),
             contracts: self.contracts.len(),
+            missions: self.missions.len(),
             seasons: self.seasons.len(),
             queues: self.queues.len(),
             bundles: self.bundles.len(),

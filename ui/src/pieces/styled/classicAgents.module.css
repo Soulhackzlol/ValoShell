@@ -1,0 +1,75 @@
+/* CS 1.6 agent menu: the class-menu layout inside the shared VGUI window (classic.module.css
+   draws the window, buttons and tabs). Numbered raised buttons on the left, a sunken picture box
+   and plain text on the right; the picked button pressed in and yellow. */
+
+.split {
+  flex: 1;
+  min-height: 0;
+  display: grid;
+  grid-template-columns: minmax(160px, 34%) minmax(0, 1fr);
+  grid-template-rows: minmax(0, 1fr);
+  gap: 10px;
+}
+
+.choices {
+  display: flex;
+  flex-direction: column;
+  gap: 3px;
+  min-height: 0;
+  overflow: hidden auto;
+  scrollbar-width: thin;
+}
+
+.choice {
+  text-align: left;
+}
+
+/* Picked: pressed in, the VGUI's yellow-olive selection. */
+.choice[data-active] {
+  color: #ffffff;
+  background: var(--pick);
+  box-shadow: inset 1px 1px 0 var(--dark), inset -1px -1px 0 var(--light);
+}
+
+/* The picture takes a bit over half; the text scrolls in the rest. */
+.info {
+  display: grid;
+  grid-template-rows: minmax(0, 55%) minmax(0, 1fr);
+  gap: 8px;
+  min-height: 0;
+}
+
+.picture {
+  min-height: 0;
+  overflow: hidden;
+  background: #000000;
+  box-shadow: inset 1px 1px 0 var(--dark), inset -1px -1px 0 var(--light);
+}
+
+/* Drawn like a 2003 class render: a bit dark, a bit desaturated. */
+.portrait {
+  width: 100%;
+  height: 100%;
+  object-fit: contain;
+  object-position: center bottom;
+  filter: saturate(0.6) contrast(1.1) brightness(0.9);
+}
+
+.text {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+  min-height: 0;
+  overflow: hidden auto;
+  scrollbar-width: thin;
+}
+
+.text p {
+  margin: 4px 0 0;
+}
+
+.ability {
+  font: inherit;
+  text-align: left;
+  color: inherit;
+}

@@ -13,7 +13,7 @@
 }
 
 /* Every other piece on a Glass screen gets the same rounded corners. */
-:root[data-skin="glass"] [data-part="piece"] > * {
+:root[data-skin="glass"] [data-part="piece-content"] > * {
   border-radius: 24px;
 }
 
@@ -27,4 +27,10 @@
 :root[data-skin="glass"] [data-part="piece"]:not([data-kind^="glass-"], [data-kind="store-front"]) :is(h1, h2, h3) {
   font-weight: 700;
   letter-spacing: -0.025em;
+}
+
+/* Feedback on the press, not the release: a pressed control sinks a little at once. Set with
+   `scale` so it composes with each control's own transform instead of replacing it. */
+:root[data-skin="glass"] button:not(:disabled):active {
+  scale: 0.98;
 }

@@ -212,7 +212,7 @@ function BetaCard(props: { member: MemberView; showStats: boolean }) {
           when={isSelf()}
           fallback={
             <>
-              <span class={styles.cardName}>{props.member.game_name}</span>
+              <span class={styles.cardName} data-sensitive>{props.member.game_name}</span>
               <Show when={props.showStats}>
                 <span class={styles.cardDivider} />
                 <span class={styles.stat}>
@@ -237,7 +237,7 @@ function BetaCard(props: { member: MemberView; showStats: boolean }) {
               <small>Account level</small>
             </span>
           </Show>
-          <span class={styles.namePlate}>{props.member.game_name}</span>
+          <span class={styles.namePlate} data-sensitive>{props.member.game_name}</span>
           <span class={styles.readyText}>{props.member.is_ready ? "Ready" : "Not ready"}</span>
         </Show>
       </div>
@@ -305,7 +305,7 @@ export function BetaSocial(props: PieceProps) {
               </span>
               <span class={styles.rowText}>
                 <small>#{member().tag_line}</small>
-                <b>{member().game_name}</b>
+                <b data-sensitive>{member().game_name}</b>
                 <Show when={member().rank.tier >= 3}>
                   <em>{member().rank.name}</em>
                 </Show>
@@ -357,7 +357,7 @@ function FriendRow(props: { friend: FriendView; onOpen: () => void }) {
       </span>
       <span class={styles.rowText}>
         <small>#{props.friend.tag_line}</small>
-        <b>{props.friend.game_name}</b>
+        <b data-sensitive>{props.friend.game_name}</b>
         <em>{friendActivity(props.friend)}</em>
       </span>
     </button>

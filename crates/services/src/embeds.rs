@@ -9,6 +9,11 @@ const TIMEOUT: Duration = Duration::from_secs(8);
 /// TikTok answers bare clients with an error page instead of the redirect.
 const BROWSER_AGENT: &str = "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/130.0 Safari/537.36";
 
+/// TikTok itself or one of its subdomains; a bare suffix check would also let `eviltiktok.com` in.
+fn is_tiktok_host(host: &str) -> bool {
+    host == "tiktok.com" || host.ends_with(".tiktok.com")
+}
+
 /// True for a link this module would follow.
 pub fn is_short_link(raw: &str) -> bool {
     let Ok(url) = reqwest::Url::parse(raw.trim()) else {
@@ -17,7 +22,7 @@ pub fn is_short_link(raw: &str) -> bool {
     let host = url.host_str().unwrap_or_default();
     url.scheme() == "https"
         && (SHORT_LINK_HOSTS.contains(&host)
-            || (host.ends_with("tiktok.com") && url.path().starts_with("/t/")))
+            || (is_tiktok_host(host) && url.path().starts_with("/t/")))
 }
 
 /// Where a short link leads, or `None` when it is not one or cannot be followed.
@@ -46,5 +51,6 @@ mod tests {
         assert!(!is_short_link("http://vm.tiktok.com/ZMabc123/"));
         assert!(!is_short_link("https://www.tiktok.com/@someone/video/123"));
         assert!(!is_short_link("https://example.com/vm.tiktok.com"));
+        assert!(!is_short_link("https://eviltiktok.com/t/ZTabc/"));
     }
 }

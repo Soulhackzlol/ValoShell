@@ -6,7 +6,7 @@ import styles from "./Toasts.module.css";
 
 export function Toasts() {
   return (
-    <div class={styles.stack} aria-live="polite">
+    <div class={styles.stack} data-part="toasts" aria-live="polite">
       <For each={toasts()}>
         {(toast) => (
           <div class={styles.toast} data-tone={toast.tone}>

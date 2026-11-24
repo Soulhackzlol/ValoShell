@@ -6,11 +6,11 @@ import type { RankBadge } from "~/bindings/RankBadge";
 import type { PieceProps } from "~/studio/registry";
 import { lobby } from "~/state/lobby";
 import { Art } from "~/ui/Art";
+import { partyLabel, stackColor } from "~/ui/stacks";
 import { Empty } from "~/ui/controls";
 import { rankColor } from "./home";
 import styles from "./lobby.module.css";
 
-const STACK_COLORS = ["var(--party-1)", "var(--party-2)", "var(--party-3)", "var(--party-4)", "var(--party-5)"];
 
 function Rank(props: { rank: RankBadge; rr?: number; isLoaded: boolean; isHidden: boolean }) {
   const isPending = () => !props.isLoaded && !props.isHidden;
@@ -25,10 +25,13 @@ function Rank(props: { rank: RankBadge; rr?: number; isLoaded: boolean; isHidden
   );
 }
 
-function Row(props: { player: LobbyPlayerView; isCompact: boolean }): JSX.Element {
-  const stackColor = () => (props.player.stack_group === null ? undefined : STACK_COLORS[props.player.stack_group % STACK_COLORS.length]);
+function Row(props: { player: LobbyPlayerView; index: number; isCompact: boolean }): JSX.Element {
   return (
-    <li class={styles.row} data-self={props.player.is_self ? "" : undefined} style={{ "--stack": stackColor() ?? "transparent" }}>
+    <li
+      class={styles.row}
+      data-self={props.player.is_self ? "" : undefined}
+      style={{ "--stack": stackColor(props.player.stack_group), "--stagger": props.index }}
+    >
       <span class={styles.agent}>
         <Art src={props.player.agent_icon} fallback={<span>{props.player.agent_name?.slice(0, 2) ?? ""}</span>} />
       </span>
@@ -36,7 +39,7 @@ function Row(props: { player: LobbyPlayerView; isCompact: boolean }): JSX.Elemen
         <span class={styles.name} data-sensitive>
           {props.player.game_name || (props.player.is_incognito ? "Hidden" : "—")}
           <Show when={props.player.stack_size > 1}>
-            <span class={styles.stack}>{props.player.stack_size === 2 ? "Duo" : `${props.player.stack_size}-stack`}</span>
+            <span class={styles.stack}>{partyLabel(props.player.stack_size)}</span>
           </Show>
         </span>
         <Show when={!props.isCompact}>
@@ -83,7 +86,9 @@ function Team(props: { title: string; players: LobbyPlayerView[]; average: RankB
         </div>
       </Show>
       <ol class={styles.rows} data-compact={props.isCompact ? "" : undefined}>
-        <Index each={props.players}>{(player) => <Row player={player()} isCompact={props.isCompact} />}</Index>
+        <Index each={props.players}>
+          {(player, index) => <Row player={player()} index={index} isCompact={props.isCompact} />}
+        </Index>
       </ol>
     </section>
   );

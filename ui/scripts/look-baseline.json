@@ -1,0 +1,21 @@
+{
+  "accepted": [
+    "beta-agents tiny text xN: N (Npx)",
+    "beta-dossier tiny text xN: Name (Npx)",
+    "beta-lineup tiny text xN: Account level (Npx)",
+    "csgo-profile spill Npx: csgo-profile > N",
+    "csgo-store clipped Npx: csgo-store > .offer",
+    "glass-party clipped Npx: glass-party > .card",
+    "glass-results clipped Npx: glass-results > post-match",
+    "lol-friends tiny text xN: N (Npx)",
+    "nc-agents clipped Npx: nc-agents > .holo",
+    "ph-friends text overlap: ph-friends > Ghost / Available · Du",
+    "ph-missions text overlap: ph-missions > Ranked. Win to / Target locked",
+    "ph-party text overlap: ph-party > Nova / Ready",
+    "ph-results text overlap: ph-results > Results · Comp / Mission comple",
+    "v22-agents clipped Npx: vN-agents > .stage",
+    "val-career tiny text xN: Score (Npx)",
+    "val-collection tiny text xN: Say It With Your Che (Npx)",
+    "val-store clipped Npx: val-store > .tile"
+  ]
+}

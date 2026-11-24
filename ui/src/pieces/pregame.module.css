@@ -74,7 +74,7 @@
   background: var(--panel);
   box-shadow: inset 3px 0 0 var(--border-strong);
   animation: slideIn 480ms var(--ease-decelerate) both;
-  animation-delay: calc(var(--stagger) * 70ms);
+  animation-delay: calc(var(--stagger) * 70ms * var(--motion-scale));
   transition: box-shadow var(--dur-base) var(--ease-standard), background var(--dur-base) var(--ease-standard);
 }
 
@@ -159,155 +159,110 @@
   height: 30px;
 }
 
-.picker {
-  display: grid;
-  grid-template-rows: 1fr auto auto;
+/* ---- layouts ----
+   The frame sets data-layout; the first option of each piece is the look above. */
+
+/* Map and timer, Map banner: the map's splash behind its name, the timer to the right. */
+[data-layout="banner"] .header {
+  flex-direction: row;
+  justify-content: space-between;
   gap: var(--space-4);
-  width: 100%;
-  height: 100%;
+  padding: 0 var(--space-6);
+  text-align: left;
+  background:
+    linear-gradient(to right, rgb(var(--ground-rgb, 10 10 14) / 0.92) 25%, rgb(var(--ground-rgb, 10 10 14) / 0.35)),
+    var(--map-splash) center / cover no-repeat;
+  box-shadow: inset 0 -2px 0 var(--accent);
 }
 
-.spotlight {
-  position: relative;
-  display: flex;
+[data-layout="banner"] .headerMode {
+  order: -1;
   flex-direction: column;
-  justify-content: flex-end;
-  min-height: 0;
-  padding: var(--space-4);
-  overflow: hidden;
+  gap: 2px;
 }
 
-.spotlight::before {
-  content: "";
-  position: absolute;
-  inset: -10% 0 0 0;
-  background-image: var(--portrait);
-  background-size: contain;
-  background-position: center bottom;
-  background-repeat: no-repeat;
-  opacity: 0.95;
-  mask-image: linear-gradient(to top, transparent 0%, black 28%);
-  transition: background-image 200ms;
+[data-layout="banner"] .headerMap {
+  flex: 1;
+  font-size: clamp(26px, 3vw, 48px);
 }
 
-.spotlightRole,
-.spotlightName {
-  position: relative;
+[data-layout="banner"] .timer {
+  margin: 0;
+  font-size: clamp(30px, 3vw, 46px);
 }
 
-.spotlightRole {
-  font-size: 12px;
-  font-weight: 700;
-  letter-spacing: 3px;
-  text-transform: uppercase;
-  color: var(--accent);
+[data-layout="banner"] .enemy {
+  display: none;
 }
 
-.spotlightName {
-  font-family: var(--font-display);
-  font-stretch: calc(125% * var(--stretch, 1));
-  font-size: clamp(30px, 3.4vw, 54px);
-  font-weight: 800;
-  line-height: 1;
-  letter-spacing: 3px;
-  text-transform: uppercase;
-}
-
-.grid {
-  display: grid;
-  grid-template-columns: repeat(auto-fill, minmax(54px, 1fr));
-  gap: 6px;
-}
-
-.agent {
-  aspect-ratio: 1;
-  display: grid;
-  place-items: center;
-  overflow: hidden;
+/* Map and timer, Line: one compact line for a thin strip. */
+[data-layout="line"] .header {
+  flex-direction: row;
+  gap: var(--space-4);
+  padding: 0 var(--space-4);
   background: var(--panel);
-  box-shadow: inset 0 0 0 1px var(--border-default);
-  font-family: var(--font-display);
-  font-weight: 800;
-  text-transform: uppercase;
-  color: var(--text-2);
-  transition: transform 220ms cubic-bezier(0.34, 1.56, 0.64, 1), box-shadow var(--dur-fast) var(--ease-standard);
+  box-shadow: inset 0 0 0 1px var(--border-subtle);
 }
 
-.agent img {
-  width: 100%;
-  height: 100%;
-  object-fit: cover;
+[data-layout="line"] .headerMap {
+  font-size: clamp(18px, 1.6vw, 26px);
+  letter-spacing: 2px;
 }
 
-.agent:hover:not(:disabled) {
-  box-shadow: inset 0 0 0 2px var(--text-1);
-  z-index: 1;
+[data-layout="line"] .timer {
+  margin: 0;
+  padding: 2px 10px;
+  font-size: 18px;
+  background: rgb(0 0 0 / 0.35);
 }
 
-.agent[data-own] {
-  box-shadow: inset 0 0 0 2px var(--accent);
-}
-
-.agent:disabled {
-  filter: grayscale(1) brightness(0.5);
-  cursor: not-allowed;
-}
-
-.agent[data-own]:disabled {
-  filter: none;
-}
-
-/* Not unlocked: darker than a teammate's pick, with a padlock so it never reads as "taken". */
-.agent[data-unowned] {
+/* Team roster, Banners: each ally on their agent's portrait, the locked ones lit. */
+[data-layout="banners"] .ally {
   position: relative;
-  filter: grayscale(1) brightness(0.35);
+  grid-template-columns: 1fr auto;
+  min-height: 64px;
+  padding: var(--space-2) var(--space-4);
+  overflow: hidden;
+  background:
+    linear-gradient(to right, var(--panel) 35%, transparent 80%),
+    var(--agent-art) right 20% / auto 260% no-repeat,
+    var(--panel);
 }
 
-.agent[data-unowned]::after {
-  content: "";
-  position: absolute;
-  inset: 30%;
-  background: var(--text-1);
-  mask: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24'%3E%3Cpath d='M7 10V7a5 5 0 0 1 10 0v3h1a1 1 0 0 1 1 1v10a1 1 0 0 1-1 1H6a1 1 0 0 1-1-1V11a1 1 0 0 1 1-1zm2 0h6V7a3 3 0 0 0-6 0z'/%3E%3C/svg%3E") center / contain no-repeat;
+[data-layout="banners"] .allyIcon {
+  display: none;
 }
 
-.actions {
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  gap: var(--space-3);
+[data-layout="banners"] .ally[data-state="locked"] {
+  background:
+    linear-gradient(to right, color-mix(in oklch, var(--accent) 22%, var(--panel)) 35%, transparent 80%),
+    var(--agent-art) right 20% / auto 260% no-repeat,
+    var(--panel);
 }
 
-.lockGlow {
+/* Team roster, Compact: small icons, no ranks, for a thin column. */
+[data-layout="compact"] .roster {
+  gap: 4px;
 }
 
-.lock {
-  width: 300px;
-  height: 58px;
-  font-family: var(--font-display);
-  font-stretch: calc(120% * var(--stretch, 1));
-  font-size: 24px;
-  font-weight: 800;
-  letter-spacing: 6px;
-  text-transform: uppercase;
-  color: var(--on-accent);
-  background: var(--accent);
-  clip-path: polygon(0 0, calc(100% - 16px) 0, 100% 16px, 100% 100%, 16px 100%, 0 calc(100% - 16px));
-  transition: background var(--dur-fast) var(--ease-standard), letter-spacing var(--dur-base) var(--ease-decelerate);
+[data-layout="compact"] .ally {
+  grid-template-columns: 36px 1fr;
+  gap: var(--space-2);
+  padding: 4px var(--space-2) 4px 4px;
 }
 
-.lock:hover:not(:disabled) {
-  background: var(--accent-hover);
+[data-layout="compact"] .allyIcon {
+  width: 36px;
+  height: 36px;
 }
 
-.lock:disabled:not([data-locked]) {
-  filter: saturate(0.3) brightness(0.6);
-  cursor: not-allowed;
+[data-layout="compact"] .allyRank,
+[data-layout="compact"] .lockedTag {
+  display: none;
 }
 
-.lock[data-locked] {
-  cursor: default;
-  animation: locked 600ms var(--ease-decelerate);
+[data-layout="compact"] .allyAgent {
+  font-size: 13px;
 }
 
 @keyframes drop {
@@ -331,21 +286,3 @@
   }
 }
 
-@keyframes beat {
-  50% {
-    transform: scale(1.12);
-  }
-}
-
-@keyframes locked {
-  0% {
-    transform: scale(1);
-  }
-  30% {
-    transform: scale(1.08);
-    filter: brightness(1.6);
-  }
-  100% {
-    transform: scale(1);
-  }
-}

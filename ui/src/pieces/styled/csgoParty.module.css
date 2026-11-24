@@ -1,0 +1,162 @@
+/* CS:GO Panorama party in the style's materials (csgo.module.css draws the title bar and the
+   invite box): a slate panel, rows with a 40px avatar framed in the slot's teammate colour. */
+
+.lobby {
+  display: flex;
+  flex-direction: column;
+  width: 100%;
+  height: 100%;
+  background: color-mix(in srgb, var(--csgo-panel, #1e2329) 94%, transparent);
+  box-shadow: 0 0 0 1px rgb(0 0 0 / 0.55), inset 0 0 0 1px color-mix(in srgb, var(--csgo-line, #ffffff) 5%, transparent);
+}
+
+.slots {
+  flex: 1;
+  min-height: 0;
+  display: flex;
+  flex-direction: column;
+  overflow: hidden auto;
+}
+
+.slot {
+  position: relative;
+  display: grid;
+  grid-template-columns: 40px minmax(0, 1fr) auto auto auto;
+  align-items: center;
+  gap: 10px;
+  padding: 8px 12px;
+  font: inherit;
+  text-align: left;
+  box-shadow: inset 0 -1px 0 rgb(0 0 0 / 0.25);
+}
+
+.slot:nth-child(odd) {
+  background: color-mix(in srgb, var(--csgo-line, #ffffff) 2.5%, transparent);
+}
+
+.avatar {
+  display: grid;
+  place-items: center;
+  width: 40px;
+  height: 40px;
+  overflow: hidden;
+  font-size: 18px;
+  color: #b8c7d6;
+  background: #4a5866;
+  box-shadow: 0 0 0 2px var(--slot, #6b7785);
+}
+
+.slot[data-empty] .avatar {
+  background: color-mix(in srgb, var(--csgo-line, #ffffff) 6%, transparent);
+  box-shadow: inset 0 0 0 1px color-mix(in srgb, var(--slot, #6b7785) 60%, transparent);
+}
+
+.slot[data-empty]:hover .avatar {
+  color: var(--csgo-bright, #ffffff);
+  background: color-mix(in srgb, var(--csgo-line, #ffffff) 14%, transparent);
+}
+
+.image {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+}
+
+.text {
+  display: flex;
+  flex-direction: column;
+  min-width: 0;
+  font-size: 12px;
+  color: #8b97a3;
+}
+
+.text b {
+  overflow: hidden;
+  font-size: 14px;
+  font-weight: 600;
+  white-space: nowrap;
+  text-overflow: ellipsis;
+  color: #9fc4e8;
+}
+
+.slot[data-self] .text b {
+  color: var(--csgo-bright, #ffffff);
+}
+
+.slot[data-empty] .text b {
+  color: #8b97a3;
+}
+
+.leader {
+  color: var(--csgo-highlight, #de9b35);
+}
+
+.ready {
+  font-size: 12px;
+  text-transform: uppercase;
+  color: #8b97a3;
+}
+
+.ready[data-ready] {
+  color: #8bc34a;
+}
+
+.kick {
+  display: grid;
+  place-items: center;
+  width: 24px;
+  height: 24px;
+  color: #b8c7d6;
+  background: color-mix(in srgb, var(--csgo-line, #ffffff) 6%, transparent);
+}
+
+.kick:hover {
+  color: var(--csgo-bright, #ffffff);
+  background: #a8352f;
+}
+
+.invite {
+  margin-top: 0;
+}
+
+/* ---- "bar": Panorama's party bar, the framed avatars in one row; names stay out of it ---- */
+
+[data-layout="bar"] .lobby {
+  flex-direction: row;
+  align-items: center;
+}
+
+[data-layout="bar"] .lobby > header {
+  height: 100%;
+}
+
+[data-layout="bar"] .slots {
+  flex-direction: row;
+  align-items: center;
+  gap: 10px;
+  height: 100%;
+  padding: 0 12px;
+  overflow: hidden;
+}
+
+[data-layout="bar"] .slot {
+  display: block;
+  padding: 0;
+  background: none;
+  box-shadow: none;
+}
+
+[data-layout="bar"] .slot > :not(.avatar, .leader) {
+  display: none;
+}
+
+/* The leader's crown sits on the avatar's corner once the row text is gone. */
+[data-layout="bar"] .leader {
+  position: absolute;
+  top: -8px;
+  left: -6px;
+}
+
+[data-layout="bar"] .invite {
+  display: none;
+}

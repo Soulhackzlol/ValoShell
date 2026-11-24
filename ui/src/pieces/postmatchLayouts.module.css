@@ -1,0 +1,138 @@
+/* Match summary layouts. The frame sets data-layout; Report (the first option) is the look in
+   postmatch.module.css. These restyle its parts by their data-part hooks (attribute selectors,
+   so this sheet needs no class names from that one), and each also outranks the base rules. */
+
+/* Teams: the scoreboard split into your team and theirs, side by side, each in ACS order. */
+[data-layout="teams"] [data-part="post-match-body"] {
+  grid-template-columns: minmax(220px, 0.6fr) minmax(0, 2.4fr);
+}
+
+[data-layout="teams"] [data-part="scoreboard-head"] {
+  display: none;
+}
+
+[data-layout="teams"] [data-part="scoreboard-rows"] {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  grid-auto-flow: row dense;
+  align-content: start;
+  gap: 3px var(--space-4);
+}
+
+/* Each side keeps to its column; dense packing fills the column top-down in ACS order. */
+[data-layout="teams"] [data-part="scoreboard-row"][data-side="ally"] {
+  grid-column: 1;
+}
+
+[data-layout="teams"] [data-part="scoreboard-row"][data-side="enemy"] {
+  grid-column: 2;
+}
+
+[data-layout="teams"] [data-part="scoreboard-rows"]::before,
+[data-layout="teams"] [data-part="scoreboard-rows"]::after {
+  grid-row: 1;
+  padding-bottom: 6px;
+  font-family: var(--font-display);
+  font-weight: 800;
+  letter-spacing: 2px;
+  text-transform: uppercase;
+  border-bottom: 2px solid var(--ally);
+}
+
+[data-layout="teams"] [data-part="scoreboard-rows"]::before {
+  content: "Your team";
+  grid-column: 1;
+}
+
+[data-layout="teams"] [data-part="scoreboard-rows"]::after {
+  content: "Enemy team";
+  grid-column: 2;
+  border-bottom-color: var(--enemy);
+}
+
+@container (max-width: 720px) {
+  [data-layout="teams"] [data-part="post-match-body"] {
+    grid-template-columns: 1fr;
+  }
+}
+
+/* Card: a centred result card for Home or a corner: result, score, RR, your numbers in one
+   row, Continue; no scoreboard. */
+[data-layout="card"] [data-part="post-match"] {
+  grid-template-rows: auto auto;
+  align-content: center;
+  gap: var(--space-5);
+}
+
+[data-layout="card"] [data-part="post-match-banner"] {
+  grid-template-columns: 1fr;
+  grid-template-areas: "context" "result" "score" "rr" "continue";
+  justify-items: center;
+  text-align: center;
+}
+
+[data-layout="card"] [data-part="result-title"] {
+  transform-origin: center;
+}
+
+[data-layout="card"] [data-part="result-score"] {
+  padding-bottom: 0;
+}
+
+[data-layout="card"] [data-part="post-match-body"] {
+  grid-template-columns: 1fr;
+}
+
+[data-layout="card"] [data-part="scoreboard"],
+[data-layout="card"] [data-part="own-agent"] {
+  display: none;
+}
+
+[data-layout="card"] [data-part="stat-tiles"] {
+  grid-template-columns: repeat(auto-fit, minmax(96px, 1fr));
+}
+
+[data-layout="card"] [data-part="stat-tile"] {
+  align-items: center;
+  text-align: center;
+}
+
+[data-layout="card"] [data-part="stat-tile"][data-accent] {
+  grid-column: auto;
+}
+
+/* Line: one bar with the result, score, RR and Continue, for the top or bottom of a page. */
+[data-layout="line"] [data-part="post-match"] {
+  grid-template-rows: 1fr;
+  align-content: center;
+  padding: var(--space-2) var(--space-5);
+}
+
+[data-layout="line"] [data-part="post-match-banner"] {
+  grid-template-columns: auto auto 1fr auto;
+  grid-template-areas: "result score rr continue";
+  align-items: center;
+}
+
+[data-layout="line"] [data-part="result-title"] {
+  font-size: clamp(24px, min(5cqi, 9vh), 56px);
+}
+
+[data-layout="line"] [data-part="result-score"] {
+  padding-bottom: 0;
+  font-size: clamp(18px, 2.6cqi, 32px);
+}
+
+[data-layout="line"] [data-part="match-context"],
+[data-layout="line"] [data-part="post-match-body"] {
+  display: none;
+}
+
+[data-layout="line"] [data-part="post-match-banner"],
+[data-layout="line"] [data-part="play"] {
+  align-self: center;
+}
+
+[data-layout="line"] [data-part="play"] {
+  min-height: 40px;
+}

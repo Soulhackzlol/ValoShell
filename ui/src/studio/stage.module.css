@@ -33,23 +33,59 @@
   opacity: 0.3;
 }
 
+/* A piece's own look (studio/pieceLook.ts): every variable is unset unless the player changed
+   it, so pieces draw exactly as their style designed them by default. */
 .body {
   position: relative;
   width: 100%;
   height: 100%;
-  transition: transform 260ms cubic-bezier(0.34, 1.56, 0.64, 1), box-shadow 260ms var(--ease-standard);
+  transition: transform 260ms var(--ease-settle), box-shadow 260ms var(--ease-standard);
+  /* Spacing tokens are resolved where they are defined, so a piece's density redefines them. */
+  --space-1: calc(4px * var(--piece-density, var(--density, 1)));
+  --space-2: calc(8px * var(--piece-density, var(--density, 1)));
+  --space-3: calc(12px * var(--piece-density, var(--density, 1)));
+  --space-4: calc(16px * var(--piece-density, var(--density, 1)));
+  --space-5: calc(20px * var(--piece-density, var(--density, 1)));
+  --space-6: calc(24px * var(--piece-density, var(--density, 1)));
+  --space-8: calc(32px * var(--piece-density, var(--density, 1)));
+}
+
+/* Every accent token the styles paint with, so no part keeps the style's colour. The shades use
+   the theme's own mixes (studio/colors.ts ACCENT_HOVER_MIX / ACCENT_PRESSED_MIX). */
+.body[data-accent] {
+  --accent: var(--piece-accent);
+  --accent-2: var(--piece-accent);
+  --accent-gradient-end: var(--piece-accent);
+  --accent-hover: color-mix(in oklch, var(--piece-accent) 86%, white);
+  --accent-pressed: color-mix(in oklch, var(--piece-accent) 84%, black);
+  --accent-soft: color-mix(in oklch, var(--piece-accent) 14%, transparent);
+  --accent-soft-hover: color-mix(in oklch, var(--piece-accent) 22%, transparent);
+  --accent-border: color-mix(in oklch, var(--piece-accent) 45%, transparent);
+  --on-accent: var(--piece-on-accent);
+  --play: var(--piece-accent);
+  --play-hover: var(--accent-hover);
+  --play-pressed: var(--accent-pressed);
+  --on-play: var(--piece-on-accent);
+}
+
+/* Zoomed content: percentages still resolve against the box (Chromium's zoom does not scale
+   them), so it fills the piece while text, art and spacing are drawn at the piece's size. */
+.content {
+  width: 100%;
+  height: 100%;
+  zoom: var(--piece-scale, 1);
 }
 
 .glass {
   overflow: hidden;
   background: var(--panel);
-  box-shadow: inset 0 0 0 1px rgb(255 255 255 / 0.08);
+  box-shadow: inset 0 0 0 1px var(--piece-hairline, rgb(255 255 255 / 0.08));
 }
 
 .solid {
   overflow: hidden;
   background: var(--ground);
-  box-shadow: inset 0 0 0 1px rgb(255 255 255 / 0.06);
+  box-shadow: inset 0 0 0 1px var(--piece-hairline, rgb(255 255 255 / 0.06));
 }
 
 .body[data-glow] {
@@ -59,7 +95,7 @@
 /* Entering edit mode: every piece pops like a block being picked up, one after another.
    Backwards fill only, so lifting a piece later is not overridden. */
 .stage[data-editing] .body {
-  animation: blockPop 480ms cubic-bezier(0.22, 1.3, 0.36, 1) backwards;
+  animation: blockPop 480ms var(--ease-settle) backwards;
   animation-delay: calc(var(--order, 0) * 45ms);
 }
 
@@ -139,7 +175,7 @@
   border-radius: 50%;
   background: #fff;
   box-shadow: 0 0 0 2px var(--accent), 0 2px 8px rgb(0 0 0 / 0.5);
-  animation: handleIn 320ms cubic-bezier(0.34, 1.56, 0.64, 1) both;
+  animation: handleIn 320ms var(--ease-settle) both;
   transition: transform 160ms var(--ease-standard);
 }
 
@@ -212,5 +248,300 @@
   from {
     opacity: 0;
     transform: scale(1.04);
+  }
+}
+
+/* ======================================================================================
+   Motion (studio/motion.ts): how each piece enters, idles, answers the pointer and leaves
+   when its show rule says so. Springs are CSS linear() curves sampled from a real spring, so
+   things overshoot a touch and settle instead of stopping dead. Every duration follows
+   --motion-scale, and reduced motion turns it all off (end of this section).
+   ====================================================================================== */
+.body {
+  /* A soft spring (no visible bounce) and a lively one (one small overshoot). */
+  --spring-soft: linear(0, 0.06, 0.2 6%, 0.44 12%, 0.66 19%, 0.82 27%, 0.92 36%, 0.97 46%, 0.99 58%, 1);
+  --spring-pop: linear(0, 0.25 7%, 0.68 15%, 1.03 24%, 1.12 30%, 1.09 37%, 1.01 46%, 0.98 55%, 1 70%, 1);
+  --enter-ms: calc(620ms * var(--motion-scale, 1));
+  --enter-wait: calc((var(--order, 0) * 55ms + var(--enter-delay, 0ms)) * var(--motion-scale, 1));
+  transition:
+    transform 260ms var(--ease-settle),
+    box-shadow 260ms var(--ease-standard),
+    filter 260ms var(--ease-standard),
+    opacity 320ms var(--ease-standard),
+    scale 520ms var(--spring-soft),
+    visibility 0s;
+}
+
+.stage:not([data-editing]) .body:not([data-entered])[data-enter="fade"],
+.stage[data-editing] .body[data-replay][data-enter="fade"] {
+  animation: enterFade var(--enter-ms) var(--ease-decelerate) var(--enter-wait) backwards;
+}
+
+.stage:not([data-editing]) .body:not([data-entered])[data-enter="rise"],
+.stage[data-editing] .body[data-replay][data-enter="rise"] {
+  animation: enterRise var(--enter-ms) var(--spring-soft) var(--enter-wait) backwards;
+}
+
+.stage:not([data-editing]) .body:not([data-entered])[data-enter="slide"],
+.stage[data-editing] .body[data-replay][data-enter="slide"] {
+  animation: enterSlide var(--enter-ms) var(--spring-soft) var(--enter-wait) backwards;
+}
+
+.body[data-from="left"] {
+  --slide-from: -56px 0;
+}
+
+.body[data-from="right"] {
+  --slide-from: 56px 0;
+}
+
+.body[data-from="top"] {
+  --slide-from: 0 -40px;
+}
+
+.body[data-from="bottom"] {
+  --slide-from: 0 40px;
+}
+
+.stage:not([data-editing]) .body:not([data-entered])[data-enter="pop"],
+.stage[data-editing] .body[data-replay][data-enter="pop"] {
+  animation: enterPop var(--enter-ms) var(--spring-pop) var(--enter-wait) backwards;
+}
+
+.stage:not([data-editing]) .body:not([data-entered])[data-enter="blur"],
+.stage[data-editing] .body[data-replay][data-enter="blur"] {
+  animation: enterBlur calc(var(--enter-ms) * 1.15) var(--spring-soft) var(--enter-wait) backwards;
+}
+
+.stage:not([data-editing]) .body:not([data-entered])[data-enter="glitch"],
+.stage[data-editing] .body[data-replay][data-enter="glitch"] {
+  animation: enterGlitch calc(var(--enter-ms) * 0.75) steps(1, end) var(--enter-wait) backwards;
+}
+
+.stage:not([data-editing]) .body:not([data-entered])[data-enter="type"],
+.stage[data-editing] .body[data-replay][data-enter="type"] {
+  animation: enterType calc(var(--enter-ms) * 0.9) steps(14, end) var(--enter-wait) backwards;
+}
+
+.stage:not([data-editing]) .body:not([data-entered])[data-enter="flicker"],
+.stage[data-editing] .body[data-replay][data-enter="flicker"] {
+  animation: enterFlicker calc(var(--enter-ms) * 0.8) linear var(--enter-wait) backwards;
+}
+
+/* Editing: a piece whose show rule hides it at this moment stays, faded, so it can be placed. */
+.stage[data-editing] .body[data-waiting] {
+  opacity: 0.45 !important;
+  outline: 1px dashed color-mix(in oklch, var(--accent) 60%, transparent);
+  outline-offset: -1px;
+}
+
+/* Idle: the content breathes on its own, each piece out of step with the next. */
+.body[data-idle="float"] > .content {
+  animation: idleFloat calc(6s * var(--motion-scale, 1)) ease-in-out calc(var(--order, 0) * -1.3s) infinite alternate;
+}
+
+.body[data-idle="breathe"] > .content {
+  animation: idleBreathe calc(4.5s * var(--motion-scale, 1)) ease-in-out calc(var(--order, 0) * -0.9s) infinite alternate;
+}
+
+.body[data-idle="shimmer"]::after {
+  content: "";
+  position: absolute;
+  inset: 0;
+  z-index: 2;
+  pointer-events: none;
+  border-radius: inherit;
+  background: linear-gradient(105deg, transparent 40%, rgb(255 255 255 / 0.09) 50%, transparent 60%) 0 0 / 260% 100%;
+  mix-blend-mode: screen;
+  animation: idleShimmer calc(5s * var(--motion-scale, 1)) ease-in-out calc(var(--order, 0) * -1.1s) infinite;
+}
+
+/* Hover answers, only outside editing (there the pointer moves pieces). */
+.stage:not([data-editing]) .body[data-hover="lift"]:hover {
+  transform: translateY(-4px);
+  box-shadow: 0 18px 40px rgb(0 0 0 / 0.35);
+}
+
+.stage:not([data-editing]) .body[data-hover="glow"]:hover {
+  filter: drop-shadow(0 0 18px color-mix(in oklch, var(--accent) 45%, transparent));
+}
+
+/* Away: the show rule hides it at this moment; it fades, blurs and settles back on return.
+   !important beats the inline opacity the piece's own look sets. */
+.body[data-away] {
+  opacity: 0 !important;
+  scale: 0.96;
+  filter: blur(8px);
+  visibility: hidden;
+  pointer-events: none;
+  transition:
+    opacity 260ms var(--ease-standard),
+    filter 260ms var(--ease-standard),
+    scale 400ms var(--spring-soft),
+    visibility 0s 400ms;
+}
+
+@keyframes enterFade {
+  from {
+    opacity: 0;
+  }
+}
+
+@keyframes enterRise {
+  from {
+    opacity: 0;
+    translate: 0 26px;
+  }
+}
+
+@keyframes enterSlide {
+  from {
+    opacity: 0;
+    translate: var(--slide-from, 0 26px);
+  }
+}
+
+@keyframes enterPop {
+  from {
+    opacity: 0;
+    scale: 0.82;
+  }
+}
+
+@keyframes enterBlur {
+  from {
+    opacity: 0;
+    scale: 1.05;
+    filter: blur(16px);
+  }
+}
+
+/* A broken signal: slices of the piece show, jump sideways, then it locks in. */
+@keyframes enterGlitch {
+  0% {
+    opacity: 0;
+  }
+
+  15% {
+    opacity: 1;
+    clip-path: inset(10% 0 62% 0);
+    translate: -10px 0;
+  }
+
+  30% {
+    clip-path: inset(48% 0 18% 0);
+    translate: 8px 0;
+  }
+
+  45% {
+    clip-path: inset(0 0 80% 0);
+    translate: -4px 0;
+  }
+
+  60% {
+    clip-path: inset(30% 0 30% 0);
+    translate: 3px 0;
+  }
+
+  75% {
+    clip-path: inset(0);
+    translate: 0;
+    filter: hue-rotate(40deg) saturate(1.6);
+  }
+
+  100% {
+    clip-path: inset(0);
+    filter: none;
+  }
+}
+
+/* Drawn in left to right, a column at a time, like text printed by a terminal. */
+@keyframes enterType {
+  from {
+    clip-path: inset(0 100% 0 0);
+  }
+
+  to {
+    clip-path: inset(0);
+  }
+}
+
+/* A cathode tube warming up: a bright flash, a few stutters, then steady. */
+@keyframes enterFlicker {
+  0% {
+    opacity: 0;
+    filter: brightness(2.2);
+  }
+
+  12% {
+    opacity: 0.9;
+  }
+
+  20% {
+    opacity: 0.15;
+  }
+
+  34% {
+    opacity: 0.85;
+  }
+
+  42% {
+    opacity: 0.35;
+  }
+
+  60% {
+    opacity: 1;
+    filter: brightness(1.4);
+  }
+
+  100% {
+    opacity: 1;
+    filter: none;
+  }
+}
+
+@keyframes idleFloat {
+  to {
+    translate: 0 -6px;
+  }
+}
+
+@keyframes idleBreathe {
+  to {
+    scale: 1.012;
+  }
+}
+
+@keyframes idleShimmer {
+  0%,
+  55% {
+    background-position: 120% 0;
+  }
+
+  100% {
+    background-position: -40% 0;
+  }
+}
+
+/* Reduced motion: nothing enters, idles or lifts; pieces still leave and return by fading. */
+:root[data-motion="reduced"] .body,
+:root[data-motion="reduced"] .body > .content,
+:root[data-motion="reduced"] .body::after {
+  animation: none !important;
+}
+
+:root[data-motion="reduced"] .stage .body[data-hover]:hover {
+  transform: none;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  :root:not([data-motion="full"]) .body,
+  :root:not([data-motion="full"]) .body > .content,
+  :root:not([data-motion="full"]) .body::after {
+    animation: none !important;
+  }
+
+  :root:not([data-motion="full"]) .stage .body[data-hover]:hover {
+    transform: none;
   }
 }

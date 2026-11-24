@@ -3,9 +3,12 @@
 import { createSignal } from "solid-js";
 import { unwrap } from "solid-js/store";
 import { playCue } from "~/menu/sound";
-import { DEFAULT_STYLE, newPieceId } from "./defaults";
+import { newPieceId } from "./defaults";
+import { baseStyleOf } from "./pieceLook";
 import { kindForUrl } from "./embeds";
-import { pieceDef } from "./registry";
+import { fitPieceToLayout } from "./fit";
+import { LAYOUT_PROP, carriedProps } from "./pieceLayout";
+import { type PieceDef, drawnDef, pieceDef } from "./registry";
 import { addPiece, removePiece, selectedId, stagePieces, updatePiece } from "./store";
 import type { Piece, PropValue, StageId } from "./types";
 
@@ -34,11 +37,36 @@ export function addPieceOfKind(
     z: 0,
     isHidden: false,
     isLocked: false,
-    style: { ...DEFAULT_STYLE, ...(def.style ?? {}) },
+    style: baseStyleOf(def.style),
     props: { ...def.defaults, ...props },
+    showWhen: "always",
   };
   playCue("confirm");
   addPiece(stage, piece);
+}
+
+/**
+ * Swap a piece for another look of the same job (registry/jobs.ts): it keeps its place, size,
+ * layer, look, show rule and layout (`carriedProps`).
+ */
+export function changePieceKind(stage: StageId, id: string, kind: string): void {
+  const def = pieceDef(kind);
+  if (!def) return;
+  playCue("confirm");
+  updatePiece(stage, id, (piece) => {
+    piece.props = swappedProps(def, piece.props);
+    piece.kind = kind;
+  }, `layout.${id}`);
+  fitPieceToLayout(id);
+}
+
+/** The props a piece keeps when it switches to `def`. On a shared layout the job's standard piece
+ *  draws it, so that piece's settings (a party's "Show ranks") are kept as well. */
+function swappedProps(def: PieceDef, props: Record<string, PropValue>): Record<string, PropValue> {
+  const carried = carriedProps(def, props);
+  const layout = carried[LAYOUT_PROP];
+  const drawn = drawnDef(def, typeof layout === "string" ? layout : null);
+  return drawn === def ? carried : { ...carriedProps(drawn, props), ...carried };
 }
 
 export function duplicatePiece(stage: StageId, id: string): void {

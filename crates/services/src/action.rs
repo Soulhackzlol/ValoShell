@@ -1,7 +1,10 @@
 //! Shared plumbing for user actions (party, pregame, stream delay): one error type with
-//! plain-language messages and one "send and require 2xx" helper.
+//! plain-language messages, one "send and require 2xx" helper and one paced JSON read.
 
+use riot::CachePolicy;
 use riot::http::{Reply, Request, RiotHttp};
+use riot::session::RiotSession;
+use serde::de::DeserializeOwned;
 use thiserror::Error;
 
 /// Why a user action did not happen, worded for a toast.
@@ -27,6 +30,26 @@ pub async fn send_ok(http: &RiotHttp, request: &Request, what: &str) -> Result<R
         return Ok(reply);
     }
     Err(ActionError::could_not(what, status_reason(&reply)))
+}
+
+/// Paced, uncached read decoded into `T`; `what` completes "Could not <what>".
+pub(crate) async fn fetch_json<T: DeserializeOwned>(
+    session: &RiotSession,
+    request: &Request,
+    what: &str,
+) -> Result<T, ActionError> {
+    let fetched = session
+        .gate
+        .fetch(&session.http, request, CachePolicy::Fresh)
+        .await;
+    if !fetched.is_complete {
+        let reason = match fetched.status {
+            0 => "Riot did not answer in time".to_owned(),
+            status => format!("Riot answered HTTP {status}"),
+        };
+        return Err(ActionError::could_not(what, reason));
+    }
+    serde_json::from_value(fetched.data).map_err(|error| ActionError::could_not(what, error))
 }
 
 /// Short reason for a failed reply; Riot's own `message` field when it sent one.

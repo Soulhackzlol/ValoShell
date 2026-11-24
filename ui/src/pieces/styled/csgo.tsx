@@ -11,6 +11,7 @@ import { catalog } from "~/state/catalog";
 import { friendActivity, friends, setDrawerOpen } from "~/state/friends";
 import { party, partyActions } from "~/state/party";
 import { ownRiotId } from "~/state/session";
+import { sensitiveTitle } from "~/state/settings";
 import { careerView, newsView, storeView } from "~/state/views";
 import { Art } from "~/ui/Art";
 import { formatDuration } from "~/pieces/store";
@@ -19,6 +20,7 @@ import { openExternal } from "~/pieces/widgets";
 import { Silhouette } from "./avatars";
 import { usePlay } from "./usePlay";
 import styles from "./csgo.module.css";
+import { useOpenMatch } from "~/menu/openMatch";
 
 // ---- matchmaking box --------------------------------------------------------------------
 
@@ -321,7 +323,7 @@ export function CsgoSocial(_props: PieceProps) {
                     <Art src={friend.card_small} class={styles.avatarImage} fallback={<Silhouette />} />
                   </span>
                   <span class={styles.socialText}>
-                    <b>{friend.game_name}</b>
+                    <b data-sensitive>{friend.game_name}</b>
                     <span>{friendActivity(friend)}</span>
                   </span>
                   <button class={styles.plus} title="Invite to party" onClick={() => invite(`${friend.game_name}#${friend.tag_line}`)}>
@@ -337,7 +339,7 @@ export function CsgoSocial(_props: PieceProps) {
               <div class={styles.lobbySlots}>
                 <Index each={members()}>
                   {(member) => (
-                    <span class={styles.socialAvatar} title={`${member().game_name} · ${member().rank.name}`}>
+                    <span class={styles.socialAvatar} title={sensitiveTitle(`${member().game_name} · ${member().rank.name}`)}>
                       <Art src={member().card_small ?? member().card_tall} class={styles.avatarImage} fallback={<Silhouette />} />
                     </span>
                   )}
@@ -350,7 +352,7 @@ export function CsgoSocial(_props: PieceProps) {
                   )}
                 </For>
               </div>
-              <span class={styles.lobbyLine}>{members().map((member) => member.game_name).join(", ") || "Not connected"}</span>
+              <span class={styles.lobbyLine} data-sensitive>{members().map((member) => member.game_name).join(", ") || "Not connected"}</span>
             </div>
           </Match>
         </Switch>
@@ -393,6 +395,7 @@ const MAP_TILES = 4;
 const NEWS_MATCHES = 6;
 
 export function CsgoNews(props: PieceProps) {
+  const { rowProps } = useOpenMatch();
   useLoaded();
   const startTab = (): NewsTab => {
     const chosen = props.piece.props["startTab"];
@@ -507,7 +510,7 @@ export function CsgoNews(props: PieceProps) {
                   <ul class={styles.matchList}>
                     <For each={career()?.updates.slice(0, NEWS_MATCHES) ?? []} fallback={<li>No ranked games yet.</li>}>
                       {(update) => (
-                        <li>
+                        <li {...rowProps(update.match_id)}>
                           <Art src={update.map_image} class={styles.matchImage} fallback={<span class={styles.matchImage} />} />
                           <span>{update.map_name}</span>
                           <b class="num" data-down={update.rr_earned < 0 ? "" : undefined}>

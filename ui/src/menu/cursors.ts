@@ -36,6 +36,8 @@ function looks(accent: string): Record<Skin, CursorLook> {
     halo: { fill: "#e8f8ff", stroke: "#06223a", hotFill: "#6fd4ff", path: ARROW, glow: "#6fd4ff" },
     pipboy: { fill: accent, stroke: "#021108", hotFill: "#d6ffe6", path: ARROW, glow: accent, strokeWidth: 1.4 },
     league: { fill: "#c8aa6e", stroke: "#1e2328", hotFill: "#f0e6d2", path: ARROW, strokeWidth: 1.4 },
+    phantom: { fill: "#ffffff", stroke: "#000000", hotFill: accent, path: ARROW, strokeWidth: 2.2 },
+    nightcity: { fill: accent, stroke: "#000000", hotFill: "#ff5e57", path: ARROW, glow: "#5ef6ff", strokeWidth: 1.4 },
   };
 }
 

@@ -22,7 +22,6 @@ fn partial_file_fills_missing_fields_with_defaults() {
 
     assert!(!settings.match_flow.should_hide_on_lock);
     assert!(settings.match_flow.should_hide_on_match_start);
-    assert!(!settings.lobby.should_rank_enemies_in_agent_select);
 }
 
 #[test]
@@ -73,4 +72,66 @@ fn volume_is_clamped_and_never_left_unreadable() {
     let mut settings = Settings::default();
     settings.interface.ui_volume = f64::NAN;
     assert_eq!(settings.normalized().interface.ui_volume, DEFAULT_UI_VOLUME);
+}
+
+#[test]
+fn interface_size_stays_in_range() {
+    let mut settings = Settings::default();
+    settings.interface.ui_scale = 9.0;
+    assert_eq!(settings.normalized().interface.ui_scale, MAX_UI_SCALE);
+
+    let mut settings = Settings::default();
+    settings.interface.ui_scale = 0.1;
+    assert_eq!(settings.normalized().interface.ui_scale, MIN_UI_SCALE);
+
+    for unreadable in [f64::INFINITY, f64::NAN] {
+        let mut settings = Settings::default();
+        settings.interface.ui_scale = unreadable;
+        assert_eq!(settings.normalized().interface.ui_scale, DEFAULT_UI_SCALE);
+    }
+}
+
+#[test]
+fn an_unknown_choice_keeps_every_other_setting() {
+    let file = r#"{"interface":{"ui_volume":0.3,"color_vision":"sepia","motion":"warp","effects":"ultra"}}"#;
+
+    let settings: Settings = serde_json::from_str(file).unwrap();
+
+    assert_eq!(settings.interface.ui_volume, 0.3);
+    assert_eq!(settings.interface.color_vision, ColorVision::Default);
+    assert_eq!(settings.interface.motion, MotionPreference::System);
+    assert_eq!(settings.interface.effects, EffectsQuality::Auto);
+}
+
+#[test]
+fn older_files_get_the_accessibility_defaults() {
+    let settings: Settings = serde_json::from_str(r#"{"interface":{"ui_volume":0.3}}"#).unwrap();
+
+    assert_eq!(settings.interface.ui_scale, DEFAULT_UI_SCALE);
+    assert!(!settings.interface.is_high_contrast);
+    assert_eq!(settings.interface.color_vision, ColorVision::Default);
+}
+
+#[test]
+fn favourite_skins_are_lowercased_and_deduplicated() {
+    let path = temp_file("favourites");
+    std::fs::write(
+        &path,
+        r#"{"collection":{"favorite_skins":["ABC-1"," abc-1 ","","def-2"]}}"#,
+    )
+    .expect("write");
+
+    let settings = SettingsStore::load(path).get();
+
+    assert_eq!(settings.collection.favorite_skins, ["abc-1", "def-2"]);
+}
+
+#[test]
+fn older_files_start_the_welcome_tour_from_the_beginning() {
+    let settings: Settings =
+        serde_json::from_str(r#"{"updates":{"should_check_for_updates":false}}"#)
+            .expect("an older file still loads");
+
+    assert_eq!(settings.onboarding.completed_version, 0);
+    assert!(!settings.updates.should_check_for_updates);
 }

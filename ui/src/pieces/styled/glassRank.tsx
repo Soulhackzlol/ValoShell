@@ -31,7 +31,7 @@ export function GlassRank(_props: PieceProps) {
   });
   const recent = () => careerView.value()?.updates.slice(0, RECENT_GAMES).reverse() ?? [];
   return (
-    <section ref={(element) => pointerGlow(element, 4)} class={styles.rank}>
+    <section ref={(element) => pointerGlow(element)} class={styles.rank}>
       <span class={styles.glare} aria-hidden="true" />
       <Show when={careerView.value()} fallback={<p class={styles.note}>{careerView.isLoading() ? "Loading rank…" : "Rank shows once VALORANT is open"}</p>}>
         {(view) => (

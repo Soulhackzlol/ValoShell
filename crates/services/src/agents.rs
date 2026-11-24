@@ -39,6 +39,8 @@ pub struct AgentMastery {
     pub act_level: u32,
     /// Never resets; the number on the Agents page diamond.
     pub lifetime_level: u32,
+    /// Mastery points toward the next level; orders agents on the same level.
+    pub points: u32,
 }
 
 /// Owned agents and mastery levels.
@@ -122,7 +124,10 @@ async fn read_mastery(session: &RiotSession) -> Vec<AgentMastery> {
     }
     serde_json::from_value::<BloomlinePlayer>(fetched.data)
         .map(|player| mastery_rows(&player))
-        .unwrap_or_default()
+        .unwrap_or_else(|error| {
+            tracing::warn!(%error, "agent_mastery_unreadable");
+            Vec::new()
+        })
 }
 
 fn mastery_rows(player: &BloomlinePlayer) -> Vec<AgentMastery> {
@@ -133,6 +138,7 @@ fn mastery_rows(player: &BloomlinePlayer) -> Vec<AgentMastery> {
             agent_uuid: bonsai.agent_uuid(),
             act_level: bonsai.flourish.short_level,
             lifetime_level: bonsai.flourish.long_level,
+            points: u32::try_from(bonsai.flourish.points.max(0)).unwrap_or(u32::MAX),
         })
         .collect()
 }
@@ -162,7 +168,7 @@ mod tests {
     #[test]
     fn mastery_rows_carry_both_levels_per_agent() {
         let body = r#"{"Bonsais":[{"BonsaiID":"9F0D8BA94140B94157D3A7AD57C6B417",
-            "Flourish":{"ShortLevel":2,"LongLevel":9}}]}"#;
+            "Flourish":{"ShortLevel":2,"LongLevel":9,"Points":340}}]}"#;
         let player: BloomlinePlayer = serde_json::from_str(body).unwrap();
 
         let rows = mastery_rows(&player);
@@ -173,6 +179,7 @@ mod tests {
                 agent_uuid: "9f0d8ba9-4140-b941-57d3-a7ad57c6b417".into(),
                 act_level: 2,
                 lifetime_level: 9,
+                points: 340,
             }]
         );
     }

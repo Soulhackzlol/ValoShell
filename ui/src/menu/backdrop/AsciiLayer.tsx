@@ -3,7 +3,8 @@
 // row is drawn as one string. Images render once; video and shaders at 15 fps while
 // visible. A source whose pixels cannot be read (cross-origin without CORS) is reported so
 // the plain picture shows instead.
-import { createEffect, onCleanup, onMount } from "solid-js";
+import { createEffect, on, onCleanup, onMount } from "solid-js";
+import { isLiteEffects } from "~/state/performance";
 import { isMotionReduced } from "~/studio/spring";
 
 /** Dark to bright. */
@@ -132,12 +133,21 @@ export function AsciiLayer(props: {
     return true;
   };
 
+  // Paused, the loop stops asking for frames (the effect below starts it again); a still layer,
+  // reduced motion or Lite effects draw once.
   const loop = (now: number) => {
+    if (document.hidden || props.isPaused()) {
+      frame = 0;
+      return;
+    }
     frame = requestAnimationFrame(loop);
-    if (document.hidden || props.isPaused() || now - last < FRAME_MS) return;
+    if (now - last < FRAME_MS) return;
     last = now;
     const isDrawn = render();
-    if (isDrawn && (!props.isAnimated || isMotionReduced())) cancelAnimationFrame(frame);
+    if (isDrawn && (!props.isAnimated || isMotionReduced() || isLiteEffects())) {
+      cancelAnimationFrame(frame);
+      frame = 0;
+    }
   };
 
   const restart = () => {
@@ -155,6 +165,8 @@ export function AsciiLayer(props: {
       cancelAnimationFrame(frame);
     });
   });
+
+  createEffect(on([props.isPaused, isLiteEffects], ([isPaused]) => !isPaused && restart(), { defer: true }));
 
   // Any input change (source, size, colour, animation) draws again.
   createEffect(() => {

@@ -1,22 +1,24 @@
 // The VALORANT style's settings screen, laid out like the client's: tabs across the top, rows
 // of label + control in a centred column, Restore defaults and Close settings at the bottom.
 // The crosshair tab draws a live preview. A last tab holds ValoShell's own settings.
-import { For, Index, Match, Show, Switch, createSignal } from "solid-js";
+import { For, Match, Show, Switch, createSignal } from "solid-js";
 import { Portal } from "solid-js/web";
-import { ChevronDown } from "lucide-solid";
-import type { MotionPreference } from "~/bindings/MotionPreference";
-import { valLang } from "~/pieces/styled/valText";
-import { settings, updateSettings } from "~/state/settings";
+import { useConfirmPress } from "~/ui/confirmPress";
 import { playCue } from "./sound";
-import { CROSSHAIR_COLORS, type Row, TABS, type Words, resetValues, setValue, values } from "./valSettingsData";
+import { AppControl } from "./valAppControls";
+import { Bind, Dropdown, OnOff, Slider, say } from "./valControls";
+import { CROSSHAIR_COLORS, type Row, TABS, resetValues, setValue, values } from "./valSettingsData";
 import styles from "./ValSettings.module.css";
-
-const say = (words: Words) => words[valLang() === "es" ? 1 : 0];
 
 export function ValSettings(props: { onClose: () => void; onClassic: () => void }) {
   const [tab, setTab] = createSignal(TABS[0]?.id ?? "general");
   const current = () => TABS.find((entry) => entry.id === tab());
   const keys = () => (current()?.rows ?? []).flatMap((row) => ("key" in row && row.kind !== "app" ? [row.key] : []));
+  // Restoring a whole tab can't be undone, so it asks for a second press first.
+  const restore = useConfirmPress(() => {
+    playCue("back");
+    resetValues(keys());
+  });
   return (
     <Portal>
       <div class={styles.screen} role="dialog" aria-label="Settings">
@@ -51,13 +53,13 @@ export function ValSettings(props: { onClose: () => void; onClassic: () => void 
         <footer class={styles.footer}>
           <button
             class={styles.restore}
+            data-armed={restore.isArmed() ? "" : undefined}
             onMouseEnter={() => playCue("hover")}
-            onClick={() => {
-              playCue("back");
-              resetValues(keys());
-            }}
+            onClick={() => restore.press()}
           >
-            {say(["Restore defaults", "Restablecer valores predeterminados"])}
+            {restore.isArmed()
+              ? say(["Click again to restore", "Pulsa otra vez para restablecer"])
+              : say(["Restore defaults", "Restablecer valores predeterminados"])}
           </button>
           <button class={styles.close} onMouseEnter={() => playCue("hover")} onClick={() => props.onClose()}>
             {say(["Close settings", "Cerrar ajustes"])}
@@ -103,159 +105,6 @@ function Control(props: { row: Row }) {
       return null;
   }
 }
-
-function OnOff(props: { value: boolean; onChange: (isOn: boolean) => void }) {
-  const pick = (isOn: boolean) => {
-    playCue("tab");
-    props.onChange(isOn);
-  };
-  return (
-    <span class={styles.onOff}>
-      <button data-active={props.value ? "" : undefined} onClick={() => pick(true)}>
-        {say(["On", "Activado"])}
-      </button>
-      <button data-active={props.value ? undefined : ""} onClick={() => pick(false)}>
-        {say(["Off", "Desactivado"])}
-      </button>
-    </span>
-  );
-}
-
-function Slider(props: { value: number; min: number; max: number; step: number; onChange: (value: number) => void }) {
-  const digits = () => (props.step >= 1 ? 0 : props.step >= 0.01 ? 2 : 3);
-  const fill = () => ((props.value - props.min) / (props.max - props.min)) * 100;
-  return (
-    <span class={styles.slider}>
-      <input
-        class={styles.number}
-        value={props.value.toFixed(digits())}
-        onChange={(event) => {
-          const next = Number(event.currentTarget.value.replace(",", "."));
-          if (Number.isFinite(next)) props.onChange(Math.min(props.max, Math.max(props.min, next)));
-        }}
-      />
-      <input
-        class={styles.track}
-        type="range"
-        min={props.min}
-        max={props.max}
-        step={props.step}
-        value={props.value}
-        style={{ "--fill": `${fill()}%` }}
-        onInput={(event) => props.onChange(Number(event.currentTarget.value))}
-      />
-    </span>
-  );
-}
-
-function Dropdown(props: { value: number; options: readonly Words[]; onChange: (index: number) => void }) {
-  const [isOpen, setOpen] = createSignal(false);
-  return (
-    <span class={styles.dropdown} onFocusOut={() => setOpen(false)}>
-      <button
-        class={styles.dropButton}
-        data-open={isOpen() ? "" : undefined}
-        onClick={() => {
-          playCue("tab");
-          setOpen(!isOpen());
-        }}
-      >
-        <span>{say(props.options[props.value] ?? props.options[0] ?? ["", ""])}</span>
-        <ChevronDown size={16} />
-      </button>
-      <Show when={isOpen()}>
-        <span class={styles.dropList}>
-          <Index each={props.options}>
-            {(option, index) => (
-              <button
-                data-active={index === props.value ? "" : undefined}
-                onMouseEnter={() => playCue("hover")}
-                onMouseDown={(event) => event.preventDefault()}
-                onClick={() => {
-                  playCue("confirm");
-                  props.onChange(index);
-                  setOpen(false);
-                }}
-              >
-                {say(option())}
-              </button>
-            )}
-          </Index>
-        </span>
-      </Show>
-    </span>
-  );
-}
-
-function Bind(props: { value: string; onChange: (key: string) => void }) {
-  const [isListening, setListening] = createSignal(false);
-  const keyName = (event: KeyboardEvent) => {
-    if (event.code === "Space") return "Space";
-    if (event.key === "Shift" || event.key === "Control" || event.key === "Alt") return `${event.location === 2 ? "R" : "L"}-${event.key === "Control" ? "Ctrl" : event.key}`;
-    return event.key.length === 1 ? event.key.toUpperCase() : event.key;
-  };
-  return (
-    <span class={styles.binds}>
-      <button
-        class={styles.bind}
-        data-listening={isListening() ? "" : undefined}
-        onClick={() => setListening(true)}
-        onBlur={() => setListening(false)}
-        onKeyDown={(event) => {
-          if (!isListening()) return;
-          event.preventDefault();
-          event.stopPropagation();
-          if (event.key !== "Escape") props.onChange(keyName(event));
-          playCue("confirm");
-          setListening(false);
-        }}
-      >
-        {isListening() ? "…" : props.value}
-      </button>
-      <button class={styles.bind} data-empty="" disabled>
-        -
-      </button>
-    </span>
-  );
-}
-
-/** ValoShell's real settings in the client's controls. */
-function AppControl(props: { which: "uiVolume" | "motion" | "streamer" }) {
-  const current = settings;
-  return (
-    <Show when={current()}>
-      {(now) => (
-        <Switch>
-          <Match when={props.which === "uiVolume"}>
-            <Slider
-              value={Math.round(now().interface.ui_volume * 100)}
-              min={0}
-              max={100}
-              step={1}
-              onChange={(value) => updateSettings((draft) => void (draft.interface.ui_volume = value / 100))}
-            />
-          </Match>
-          <Match when={props.which === "streamer"}>
-            <OnOff value={now().streamer.is_enabled} onChange={(isOn) => updateSettings((draft) => void (draft.streamer.is_enabled = isOn))} />
-          </Match>
-          <Match when={props.which === "motion"}>
-            <Dropdown
-              value={MOTIONS.indexOf(now().interface.motion)}
-              options={[
-                ["System", "Sistema"],
-                ["Full", "Completas"],
-                ["Reduced", "Reducidas"],
-              ]}
-              onChange={(index) => updateSettings((draft) => void (draft.interface.motion = MOTIONS[index] ?? "system"))}
-            />
-          </Match>
-        </Switch>
-      )}
-    </Show>
-  );
-}
-
-const MOTIONS: readonly MotionPreference[] = ["system", "full", "reduced"];
 
 /** The crosshair as the settings draw it, over a slice of a range wall. */
 function CrosshairPreview() {

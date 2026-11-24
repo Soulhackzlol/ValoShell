@@ -1,0 +1,177 @@
+/* Halo 3 screens: the playlist menu (drawn with the lobby's own bars, halo.module.css) and the
+   agent armory: the list, a hologram projected in Cortana blue over a glowing pad, and a
+   frosted card with a bright top edge. */
+
+.armory {
+  --halo-cyan: var(--halo-accent, #6fd4ff);
+  --halo-ice: var(--halo-frost, #c7ecff);
+  container-type: size;
+  display: grid;
+  grid-template-columns: minmax(220px, 26%) minmax(0, 1fr) minmax(280px, 32%);
+  /* One row the height of the piece, so the list scrolls instead of stretching the row. */
+  grid-template-rows: minmax(0, 1fr);
+  gap: 2cqw;
+  width: 100%;
+  height: 100%;
+  color: var(--halo-ice);
+}
+
+.scroll {
+  flex: 1;
+  min-height: 0;
+  overflow: hidden auto;
+  scrollbar-width: thin;
+}
+
+.filter {
+  margin-right: 10px;
+  font: inherit;
+  color: color-mix(in srgb, var(--halo-cyan) 60%, transparent);
+}
+
+.filter:hover,
+.filter[data-active] {
+  color: #ffffff;
+}
+
+.locked {
+  float: right;
+  font-size: 11px;
+  opacity: 0.6;
+}
+
+.playlist {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+
+.glyph {
+  width: 20px;
+  height: 20px;
+  object-fit: contain;
+}
+
+/* The hologram: blue, glowing, scan-lined, standing over its projector pad. */
+.projector {
+  position: relative;
+  min-width: 0;
+}
+
+.hologram {
+  position: absolute;
+  inset: 0 0 6%;
+  width: 100%;
+  height: 94%;
+  object-fit: contain;
+  object-position: center bottom;
+  scale: 1.3;
+  transform-origin: 50% 100%;
+  filter: grayscale(1) brightness(1.15) sepia(1) hue-rotate(160deg) saturate(3) drop-shadow(0 0 18px color-mix(in srgb, var(--halo-cyan) 60%, transparent));
+  opacity: 0.88;
+  -webkit-mask-image: repeating-linear-gradient(to bottom, #000 0 3px, rgb(0 0 0 / 0.55) 3px 4px);
+  mask-image: repeating-linear-gradient(to bottom, #000 0 3px, rgb(0 0 0 / 0.55) 3px 4px);
+  animation: project 900ms var(--ease-decelerate) both;
+}
+
+.pad {
+  position: absolute;
+  left: 18%;
+  right: 18%;
+  bottom: 2%;
+  height: 28px;
+  border-radius: 50%;
+  background: radial-gradient(ellipse at center, color-mix(in srgb, var(--halo-cyan) 70%, white), color-mix(in srgb, var(--halo-cyan) 30%, transparent) 45%, transparent 70%);
+  box-shadow: 0 0 40px color-mix(in srgb, var(--halo-cyan) 40%, transparent);
+}
+
+.card {
+  align-self: start;
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+  max-height: 100%;
+  padding: 16px 18px;
+  overflow: hidden auto;
+  background: color-mix(in srgb, var(--halo-glass, #0e345c) 55%, transparent);
+  box-shadow: inset 0 1px 0 rgb(111 212 255 / 0.6), inset 0 0 0 1px rgb(111 212 255 / 0.18);
+}
+
+.kicker {
+  font-size: 13px;
+  text-transform: uppercase;
+  color: var(--halo-cyan);
+}
+
+.name {
+  margin-bottom: 6px;
+  font-family: var(--font-display);
+  font-size: clamp(28px, 6cqh, 48px);
+  font-weight: 500;
+  line-height: 1;
+  text-transform: uppercase;
+  color: #ffffff;
+}
+
+.ability {
+  display: grid;
+  grid-template-columns: 26px minmax(0, 1fr) auto;
+  align-items: center;
+  gap: 10px;
+  padding: 6px 10px;
+  font: inherit;
+  text-align: left;
+  text-transform: uppercase;
+  color: var(--halo-ice);
+}
+
+.ability[data-active] {
+  color: #ffffff;
+  background: linear-gradient(to right, color-mix(in srgb, var(--halo-cyan) 42%, transparent), color-mix(in srgb, var(--halo-cyan) 8%, transparent));
+  box-shadow: inset 3px 0 0 var(--halo-cyan);
+}
+
+.ability kbd {
+  font-family: var(--font-mono);
+  font-size: 12px;
+  color: var(--halo-cyan);
+}
+
+.abilityIcon {
+  width: 26px;
+  height: 26px;
+  object-fit: contain;
+}
+
+.text {
+  margin: 6px 0 0;
+  font-size: 14px;
+  line-height: 1.5;
+}
+
+@keyframes project {
+  from {
+    opacity: 0;
+    clip-path: inset(100% 0 0 0);
+  }
+}
+
+@container (max-width: 1000px) {
+  .armory {
+    grid-template-columns: minmax(200px, 34%) minmax(0, 1fr);
+  }
+
+  .projector {
+    display: none;
+  }
+}
+
+:global(:root[data-motion="reduced"]) .hologram {
+  animation: none;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  :global(:root:not([data-motion="full"])) .hologram {
+    animation: none;
+  }
+}

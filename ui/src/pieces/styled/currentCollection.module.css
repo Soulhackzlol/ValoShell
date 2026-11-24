@@ -4,7 +4,7 @@
   position: absolute;
   inset: 0;
   font-family: var(--font-din);
-  color: #ece8e1;
+  color: var(--current-ink, #ece8e1);
 }
 
 .crumb {
@@ -17,13 +17,13 @@
   font-size: 14px;
   letter-spacing: 0.6px;
   text-transform: uppercase;
-  color: rgb(236 232 225 / 0.8);
+  color: color-mix(in srgb, var(--current-ink, #ece8e1) 80%, transparent);
 }
 
 .crumb i {
   width: 8px;
   height: 9px;
-  background: rgb(236 232 225 / 0.5);
+  background: color-mix(in srgb, var(--current-line, #ece8e1) 50%, transparent);
   clip-path: polygon(0 0, 100% 50%, 0 100%);
 }
 
@@ -65,7 +65,7 @@
   text-align: center;
   text-transform: uppercase;
   white-space: nowrap;
-  color: var(--val-title, #ece8e1);
+  color: var(--val-title, var(--current-ink, #ece8e1));
 }
 
 .title[data-first] {
@@ -78,9 +78,9 @@
   min-height: 0;
   overflow: hidden;
   background:
-    linear-gradient(to bottom, rgb(255 255 255 / 0.06), transparent 55%),
-    var(--val-tile, rgb(34 45 56 / 0.82));
-  box-shadow: inset 0 0 0 1px rgb(236 232 225 / 0.2);
+    linear-gradient(to bottom, color-mix(in srgb, var(--current-line, #ffffff) 6%, transparent), transparent 55%),
+    var(--val-tile, color-mix(in srgb, var(--current-tile, #222d38) 82%, transparent));
+  box-shadow: inset 0 0 0 1px color-mix(in srgb, var(--current-line, #ece8e1) 20%, transparent);
   transition:
     background 140ms ease,
     box-shadow 140ms ease;
@@ -88,9 +88,9 @@
 
 .tile:hover {
   background:
-    linear-gradient(to bottom, rgb(255 255 255 / 0.12), transparent 55%),
-    var(--val-tile, rgb(44 56 68 / 0.85));
-  box-shadow: inset 0 0 0 1px rgb(236 232 225 / 0.6);
+    linear-gradient(to bottom, color-mix(in srgb, var(--current-line, #ffffff) 12%, transparent), transparent 55%),
+    var(--val-tile, color-mix(in srgb, var(--current-tile, #2c3844) 85%, transparent));
+  box-shadow: inset 0 0 0 1px color-mix(in srgb, var(--current-line, #ece8e1) 60%, transparent);
 }
 
 .tileArt {
@@ -118,7 +118,7 @@
   font-size: 11px;
   letter-spacing: 0.4px;
   text-transform: uppercase;
-  color: rgb(236 232 225 / 0.55);
+  color: color-mix(in srgb, var(--current-ink, #ece8e1) 55%, transparent);
 }
 
 /* The bottom rule: a bright middle run between two dim ones. */
@@ -128,7 +128,7 @@
   width: 139px;
   bottom: 1px;
   height: 2px;
-  background: rgb(236 232 225 / 0.4);
+  background: color-mix(in srgb, var(--current-line, #ece8e1) 40%, transparent);
 }
 
 .tileLine::before,
@@ -137,7 +137,7 @@
   position: absolute;
   top: 0;
   height: 2px;
-  background: rgb(236 232 225 / 0.14);
+  background: color-mix(in srgb, var(--current-line, #ece8e1) 14%, transparent);
 }
 
 .tileLine::before {
@@ -153,10 +153,13 @@
 /* ---- player card ---- */
 .card {
   position: relative;
+  display: block;
   flex: none;
   width: 206px;
   height: 495px;
   margin-top: 4px;
+  padding: 0;
+  text-align: left;
   text-decoration: none;
 }
 
@@ -168,12 +171,19 @@
 }
 
 .cardArt {
-  background: var(--art) center top / cover no-repeat, linear-gradient(to bottom, #2a3540, #121a22);
-  box-shadow: inset 0 2px 0 rgb(236 232 225 / 0.6);
+  background:
+    var(--art) center top / cover no-repeat,
+    linear-gradient(to bottom, var(--current-tile, #2a3540), #121a22);
+  box-shadow: inset 0 2px 0 color-mix(in srgb, var(--current-line, #ece8e1) 60%, transparent);
 }
 
 .cardShade {
-  background: linear-gradient(to bottom, transparent 58%, rgb(10 16 22 / 0.5) 72%, rgb(10 16 22 / 0.8));
+  background: linear-gradient(
+    to bottom,
+    transparent 58%,
+    color-mix(in srgb, var(--current-panel, #0a1016) 50%, transparent) 72%,
+    color-mix(in srgb, var(--current-panel, #0a1016) 80%, transparent)
+  );
 }
 
 .level {
@@ -186,7 +196,7 @@
   width: 42px;
   height: 16px;
   font-size: 11px;
-  color: #ece8e1;
+  color: var(--current-ink, #ece8e1);
   transform: translateX(-50%);
 }
 
@@ -199,7 +209,7 @@
 
 .level svg path {
   fill: #1e2a34;
-  stroke: rgb(236 232 225 / 0.55);
+  stroke: color-mix(in srgb, var(--current-line, #ece8e1) 55%, transparent);
   vector-effect: non-scaling-stroke;
 }
 
@@ -226,7 +236,7 @@
 
 .cardInfo small {
   font-size: 9px;
-  color: rgb(236 232 225 / 0.85);
+  color: color-mix(in srgb, var(--current-ink, #ece8e1) 85%, transparent);
 }
 
 .chevrons {
@@ -239,7 +249,7 @@
 .chevrons i {
   width: 18%;
   aspect-ratio: 0.55;
-  background: #e8c35f;
+  background: var(--current-gold, #e8c35f);
 }
 
 .chevrons i[data-side="l"] {
@@ -258,17 +268,22 @@
   height: 244px;
   margin-top: -9px;
   border-radius: 50%;
-  border: 1.5px solid rgb(236 232 225 / 0.35);
-  background: radial-gradient(circle, rgb(15 25 35 / 0.6), rgb(15 25 35 / 0.25));
+  border: 1.5px solid color-mix(in srgb, var(--current-line, #ece8e1) 35%, transparent);
+  background: radial-gradient(
+    circle,
+    color-mix(in srgb, var(--current-panel, #0f1923) 60%, transparent),
+    color-mix(in srgb, var(--current-panel, #0f1923) 25%, transparent)
+  );
 }
 
 .wheelCross {
   position: absolute;
   inset: 0;
   border-radius: 50%;
+  --hair: color-mix(in srgb, var(--current-line, #ece8e1) 30%, transparent);
   background:
-    linear-gradient(45deg, transparent calc(50% - 0.5px), rgb(236 232 225 / 0.3) 50%, transparent calc(50% + 0.5px)),
-    linear-gradient(-45deg, transparent calc(50% - 0.5px), rgb(236 232 225 / 0.3) 50%, transparent calc(50% + 0.5px));
+    linear-gradient(45deg, transparent calc(50% - 0.5px), var(--hair) 50%, transparent calc(50% + 0.5px)),
+    linear-gradient(-45deg, transparent calc(50% - 0.5px), var(--hair) 50%, transparent calc(50% + 0.5px));
   mask: radial-gradient(circle, transparent 18%, black 18.5%);
 }
 
@@ -281,7 +296,7 @@
   width: 34%;
   aspect-ratio: 1;
   border-radius: 50%;
-  border: 1px solid rgb(236 232 225 / 0.35);
+  border: 1px solid color-mix(in srgb, var(--current-line, #ece8e1) 35%, transparent);
   transform: translate(-50%, -50%);
 }
 
@@ -289,7 +304,7 @@
   width: 30%;
   aspect-ratio: 1;
   border-radius: 50%;
-  border: 1px solid rgb(236 232 225 / 0.4);
+  border: 1px solid color-mix(in srgb, var(--current-line, #ece8e1) 40%, transparent);
 }
 
 .spray {
@@ -333,22 +348,28 @@
 }
 
 .sprayEmpty {
-  color: rgb(236 232 225 / 0.25);
+  color: color-mix(in srgb, var(--current-ink, #ece8e1) 25%, transparent);
 }
 
 /* ---- skin picker over the wall ---- */
+/* The shade only dims: clicks pass through it, so another weapon opens in the panel straight
+   away (as in the client) and empty space closes it (currentCollection.tsx). */
 .detail {
   position: absolute;
   inset: 0;
   z-index: 5;
+  pointer-events: none;
   animation: fadeIn 180ms ease;
 }
 
 .detailShade {
   position: absolute;
   inset: 0;
-  background: rgb(8 12 18 / 0.55);
-  cursor: default;
+  background: color-mix(in srgb, var(--current-panel, #080c12) 55%, transparent);
+}
+
+.detailPanel {
+  pointer-events: auto;
 }
 
 .detailPanel {
@@ -358,8 +379,10 @@
   bottom: 40px;
   width: 580px;
   padding: 18px;
-  background: rgb(15 25 35 / 0.96);
-  box-shadow: inset 0 0 0 1px rgb(236 232 225 / 0.18), 0 20px 60px rgb(0 0 0 / 0.5);
+  background: color-mix(in srgb, var(--current-panel, #0f1923) 96%, transparent);
+  box-shadow:
+    inset 0 0 0 1px color-mix(in srgb, var(--current-line, #ece8e1) 18%, transparent),
+    0 20px 60px rgb(0 0 0 / 0.5);
   animation: slideIn 260ms cubic-bezier(0.22, 1, 0.36, 1);
 }
 
@@ -372,12 +395,12 @@
   place-items: center;
   width: 30px;
   height: 30px;
-  color: #ece8e1;
-  background: rgb(255 255 255 / 0.06);
+  color: var(--current-ink, #ece8e1);
+  background: color-mix(in srgb, var(--current-line, #ffffff) 6%, transparent);
 }
 
 .detailClose:hover {
-  background: rgb(255 70 85 / 0.8);
+  background: color-mix(in srgb, var(--current-red, #ff4655) 80%, transparent);
 }
 
 @keyframes fadeIn {
@@ -391,4 +414,39 @@
     opacity: 0;
     transform: translateX(40px);
   }
+}
+
+.presets {
+  margin-top: 14px;
+  padding: 8px 12px;
+  font-family: var(--font-din);
+  font-size: 13px;
+  font-weight: 700;
+  letter-spacing: 1px;
+  text-transform: uppercase;
+  color: var(--val-title, var(--current-ink, #ece8e1));
+  background: color-mix(in srgb, var(--current-line, #ffffff) 6%, transparent);
+  box-shadow: inset 0 0 0 1px color-mix(in srgb, var(--current-line, #ffffff) 12%, transparent);
+}
+
+.presets:hover {
+  background: color-mix(in srgb, var(--current-line, #ffffff) 12%, transparent);
+}
+
+/* ---- Collection layouts. Client: four weapon columns, then the card and wheel. ---- */
+/* Cards first: the player card and expression wheel lead on the left. */
+[data-layout="cards-first"] .columns {
+  grid-template-columns: 239px repeat(4, 300px);
+}
+
+[data-layout="cards-first"] .column[data-kind="cards"] {
+  order: -1;
+  padding-left: 0;
+}
+
+/* Wide: wider weapon columns across the whole stage. */
+[data-layout="wide"] .columns {
+  left: 60px;
+  grid-template-columns: repeat(4, 345px) 239px;
+  column-gap: 30px;
 }

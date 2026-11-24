@@ -1,0 +1,139 @@
+/* League client: blue-black panels with the gold rim, Beaufort caps, cream and gold.
+   Layout comes from matchBase.module.css (screenBase / resultsBase for the other screens);
+   these rules are this style's material. */
+
+.pick {
+  composes: pick from "./matchBase.module.css";
+}
+
+.head {
+  composes: head from "./matchBase.module.css";
+}
+
+.hero {
+  composes: hero from "./matchBase.module.css";
+}
+
+.heroArt {
+  composes: heroArt from "./matchBase.module.css";
+}
+
+.heroName {
+  composes: heroName from "./matchBase.module.css";
+}
+
+.heroRole {
+  composes: heroRole from "./matchBase.module.css";
+}
+
+.roster {
+  composes: roster from "./matchBase.module.css";
+}
+
+.group {
+  composes: group from "./matchBase.module.css";
+}
+
+.groupName {
+  composes: groupName from "./matchBase.module.css";
+}
+
+.tile {
+  composes: tile from "./matchBase.module.css";
+}
+
+.tileArt {
+  composes: tileArt from "./matchBase.module.css";
+}
+
+.bar {
+  composes: bar from "./matchBase.module.css";
+}
+
+.dodge {
+  composes: dodge from "./matchBase.module.css";
+}
+
+.timer {
+  composes: timer from "./matchBase.module.css";
+}
+
+.lock {
+  composes: lock from "./matchBase.module.css";
+}
+
+.empty {
+  composes: empty from "./matchBase.module.css";
+}
+
+.lobby {
+  composes: lobby from "./matchBase.module.css";
+}
+
+.teams {
+  composes: teams from "./matchBase.module.css";
+}
+
+.team {
+  composes: team from "./matchBase.module.css";
+}
+
+.teamHead {
+  composes: teamHead from "./matchBase.module.css";
+}
+
+.lines {
+  composes: lines from "./matchBase.module.css";
+}
+
+.line {
+  composes: line from "./matchBase.module.css";
+}
+
+.lineAgent {
+  composes: lineAgent from "./matchBase.module.css";
+}
+
+.lineName {
+  composes: lineName from "./matchBase.module.css";
+}
+
+.stack {
+  composes: stack from "./matchBase.module.css";
+}
+
+.lineRank {
+  composes: lineRank from "./matchBase.module.css";
+}
+
+.rankIcon {
+  composes: rankIcon from "./matchBase.module.css";
+}
+
+/* ---- material ---- */
+.pick, .lobby { color: #f0e6d2; background: #010a13; box-shadow: inset 0 0 0 1px #463714; }
+.head, .heroName, .teamHead { font-family: "Beaufort for LOL", "Cinzel Variable", Georgia, serif; font-weight: 700; letter-spacing: 0.06em; text-transform: uppercase; }
+.head { font-size: 18px; color: var(--league-gold, #c8aa6e); }
+.head > span, .heroRole, .groupName, .teamHead > span { font-size: 12px; color: #a09b8c; text-transform: uppercase; }
+.hero { border: 2px solid transparent; border-image: linear-gradient(to bottom, #c8aa6e, #785a28) 1; }
+.heroName { font-size: clamp(22px, 7cqh, 40px); color: #f0e6d2; }
+.tile { border: 1px solid #3c3c41; background: #1e2328; }
+.tile:hover:not(:disabled) { border-color: #c8aa6e; }
+.tile[data-own] { border: 2px solid #c8aa6e; }
+.dodge { height: 36px; padding: 0 14px; border: 2px solid #3c3c41; font-family: "Beaufort for LOL", "Cinzel Variable", serif; font-weight: 700; text-transform: uppercase; color: #cdbe91; background: #1e2328; }
+.timer { font-family: "Beaufort for LOL", serif; font-size: 26px; color: #f0e6d2; }
+.lock { height: 44px; border: 2px solid transparent; border-image: linear-gradient(to bottom, #0ac8b9, #005a82) 1; font-family: "Beaufort for LOL", "Cinzel Variable", serif; font-size: 18px; font-weight: 700; text-transform: uppercase; color: #cdfafa; background: #1e2328; }
+.lock[data-locked] { color: #a09b8c; border-image: linear-gradient(to bottom, #c8aa6e, #785a28) 1; }
+.teamHead { font-size: 15px; color: #c8aa6e; }
+.line { background: #1e2328; box-shadow: inset 3px 0 0 var(--stack); }
+.line[data-self] { background: #2c2f30; box-shadow: inset 3px 0 0 var(--stack), inset 0 0 0 1px #c8aa6e; }
+
+/* ---- News, Progress and Chat (styledScreens.tsx) ---- */
+.meter { --meter-fill: linear-gradient(to right, #785a28, #c8aa6e); --meter-track: #1e2328; }
+.field { color: #f0e6d2; background: #010a13; box-shadow: inset 0 0 0 1px #463714; font-size: 13px; }
+
+/* ---- Results (styledResults.tsx) ---- */
+/* League's end-of-game banner: gold-to-cream type for a win, cold grey for a loss. */
+.resultTitle { font-family: "Beaufort for LOL", "Cinzel Variable", serif; font-weight: 700; text-transform: uppercase; letter-spacing: 0.06em; color: #f0e6d2; background: linear-gradient(to bottom, #f0e6d2, #c8aa6e); -webkit-background-clip: text; background-clip: text; -webkit-text-fill-color: transparent; }
+.lobby[data-result="defeat"] .resultTitle { background: linear-gradient(to bottom, #a09b8c, #5b5a56); -webkit-background-clip: text; background-clip: text; }
+.mvp { --mvp-fill: #c8aa6e; --mvp-text: #010a13; }
