@@ -463,12 +463,12 @@ mod tests {
 
         let view = post_match_view(&detail, &inputs).unwrap();
 
-        for player in &view.players {
+        for (index, player) in view.players.iter().enumerate() {
             let expected = if player.is_self { "Me" } else { "" };
+            // The row's place, not its puuid: a failing test's output is no place for ids.
             assert_eq!(
                 player.game_name, expected,
-                "{} must not be named",
-                player.puuid
+                "player {index} must not be named"
             );
         }
     }
