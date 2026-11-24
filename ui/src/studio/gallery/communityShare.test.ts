@@ -1,6 +1,6 @@
 import { describe, expect, it } from "vitest";
 import { defaultDoc } from "../defaults";
-import { communityFile, fileIdOf, shareProblems, uniqueFileId } from "./communityShare";
+import { communityFile, fileIdOf, isOfferableLook, shareProblems, uniqueFileId } from "./communityShare";
 
 const META = { name: "Neon Night", author: "Mia", description: "Pink and black." };
 
@@ -51,5 +51,21 @@ describe("communityFile", () => {
     expect(Object.keys(file)[0]).toBe("community");
     expect(file.community).toEqual(META);
     expect(file.theme).toBeTypeOf("object");
+  });
+});
+
+describe("isOfferableLook", () => {
+  it("offers a look that loads nothing from the web", () => {
+    expect(isOfferableLook(defaultDoc())).toBe(true);
+  });
+
+  it("refuses a merged look that would load a web page", () => {
+    const look = defaultDoc();
+    look.theme.backdrop.url = "https://example.com/login";
+    expect(isOfferableLook(look)).toBe(false);
+  });
+
+  it("refuses a file that is not a look", () => {
+    expect(isOfferableLook({ name: "not a look" })).toBe(false);
   });
 });

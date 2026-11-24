@@ -1,7 +1,7 @@
 // The rules for sharing a look to the community gallery, without side effects so they run in
 // tests. They match community/build_index.py, the check every shared look passes on GitHub, so
 // a look that leaves ValoShell is never refused there for something ValoShell could have said.
-import { remoteHosts } from "../lookFiles";
+import { isLookShape, remoteHosts } from "../lookFiles";
 import type { StudioDoc } from "../types";
 
 export const MAX_NAME_CHARS = 48;
@@ -64,6 +64,13 @@ export function shareProblems(meta: ShareMeta, look: StudioDoc): string[] {
     problems.push(`It loads content from ${sites}; remove those web widgets or images first.`);
   }
   return problems;
+}
+
+/** Whether a downloaded community look may be offered: a look file that loads nothing from the
+ *  web. The repository's check and the owner's review refuse web links before a merge; this
+ *  holds even if one slipped through, so a merged look can never show a stranger's page. */
+export function isOfferableLook(raw: unknown): boolean {
+  return isLookShape(raw) && remoteHosts(raw as { theme: unknown; stages: unknown }).length === 0;
 }
 
 /** The file a shared look is: the credit block, then the look itself. */

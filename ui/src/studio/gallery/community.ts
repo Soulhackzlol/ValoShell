@@ -8,10 +8,9 @@ import { call, errorText } from "~/ipc/commands";
 import { openExternal } from "~/pieces/widgets";
 import { pushToast } from "~/state/toasts";
 import { normalizeDoc } from "../defaults";
-import { isLookShape } from "../lookFiles";
 import { doc } from "../store";
 import type { StudioDoc } from "../types";
-import { type ShareMeta, communityFile, shareProblems, uniqueFileId } from "./communityShare";
+import { type ShareMeta, communityFile, isOfferableLook, shareProblems, uniqueFileId } from "./communityShare";
 
 const NEW_FILE_URL = "https://github.com/Soulhackzlol/ValoShell/new/main/community/looks";
 /** Look files downloaded at once; the rest wait, so a long list never floods the connection. */
@@ -44,7 +43,11 @@ async function loadThumb(entry: CommunityLook): Promise<string | undefined> {
 async function loadShared(entry: CommunityLook): Promise<SharedLook | null> {
   try {
     const [raw, thumb] = await Promise.all([call("community_look", { id: entry.id }), loadThumb(entry)]);
-    return isLookShape(raw) ? { entry, doc: normalizeDoc(raw), thumb } : null;
+    if (!isOfferableLook(raw)) {
+      console.warn("community_look_refused", entry.id, "not a look, or loads content from the web");
+      return null;
+    }
+    return { entry, doc: normalizeDoc(raw), thumb };
   } catch (error) {
     console.warn("community_look_failed", entry.id, errorText(error));
     return null;
