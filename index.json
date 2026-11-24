@@ -1,0 +1,28 @@
+{
+  "looks": [
+    {
+      "id": "roles-room",
+      "name": "Roles Room",
+      "author": "ValoShell",
+      "description": "Clean Modern with amber: agents sorted by role, one-line header, faces in the party.",
+      "skin": "modern",
+      "thumb": true
+    },
+    {
+      "id": "scouting-report",
+      "name": "Scouting Report",
+      "author": "ValoShell",
+      "description": "Frosted glass in teal: agent cards, player cards in the lobby, a result card after the match.",
+      "skin": "glass",
+      "thumb": true
+    },
+    {
+      "id": "showtime",
+      "name": "Showtime",
+      "author": "ValoShell",
+      "description": "Today's client gone cinematic: splash-screen agent select, versus lobby, team-split results.",
+      "skin": "current",
+      "thumb": true
+    }
+  ]
+}
